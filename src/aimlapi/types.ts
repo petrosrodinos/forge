@@ -29,6 +29,7 @@ export interface ChatMessage {
   content: MessageContent;
   name?: string;
   tool_call_id?: string;
+  tool_calls?: ToolCall[];
 }
 
 export interface ToolFunction {

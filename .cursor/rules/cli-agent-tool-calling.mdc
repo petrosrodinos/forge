@@ -1,0 +1,38 @@
+---
+description: Use project CLI for tool and service calls
+alwaysApply: true
+---
+
+# CLI Tool-Calling Rule
+
+Use this project's CLI (`npm run agent`) as the primary interface for operational API actions.
+
+- Prefer direct service execution first with:
+  - `npm run agent -- run <service.method> <args>`
+  - Interactive: `/run <service.method> <args>`
+- Use AI planning only when the request is ambiguous or multi-step:
+  - Interactive natural language at `agent>`
+- Use tool names only when needed:
+  - `npm run agent -- call <tool_name> <json>`
+  - Interactive: `/call <tool_name> <json>`
+
+## Command Discovery
+
+- List direct commands: `npm run agent -- commands` or `/commands`
+- List tools: `npm run agent -- tools` or `/tools`
+
+## Argument Rules
+
+- Accept either JSON object args or `key=value` args for `/run`.
+- Prefer JSON for nested payloads.
+- Keep names aligned with service contracts, for example:
+  - `tripo.getTask taskId="..."`
+  - `aiml.generateImage model="..." prompt="..."`
+- Quote strings with spaces.
+
+## Safety and Reliability
+
+- Require env vars before usage: `AIML_API_KEY`, `TRIPO_API_KEY`.
+- Never invent missing required params; ask for them.
+- For polling actions, pass explicit `intervalMs` and `timeoutMs` when long-running.
+- Return concise output plus the exact command used when useful for reproducibility.
