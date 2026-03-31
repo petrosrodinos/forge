@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)",
+      "WebSearch",
+      "WebFetch(domain:docs.aimlapi.com)",
+      "WebFetch(domain:github.com)"
+    ]
+  }
+}
