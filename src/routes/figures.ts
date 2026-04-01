@@ -90,9 +90,12 @@ ${ctxLines.join("\n")}
 
 PROMPT RULES — apply to every prompt you write:
 - Single isolated subject centred on a PURE WHITE background, no cast shadows, no scenery
-- Isometric 3/4 front view or straight front-facing, nothing cropped
+- STRAIGHT FRONT-FACING view — the figure must face directly toward the camera, symmetrical, no angle, no 3/4 turn, no side view, nothing cropped
+- Full body visible from head to toe, centered in frame
 - Style: highly detailed miniature figurine, product photography, 3D render
 - Clear, clean silhouette — the shape must read well for mesh generation
+- Include in every prompt: "front view, facing forward, symmetrical pose, full body"
+- Negative prompt MUST include: "side view, angled, 3/4 view, profile, turned, back view, cropped"
 - If a current prompt exists, improve or adapt it; do not ignore it entirely
 
 AVAILABLE IMAGE MODELS: ${modelList}

@@ -6,14 +6,14 @@
       "variantA": {
         "imagePrompt": {
           "model": "flux/schnell",
-          "prompt": "A highly detailed ancient Greek hoplite warrior miniature figurine, full body, front-facing isometric view, wearing a gleaming bronze Corinthian helmet and polished ivory-gold breastplate, holding a long spear and round hoplon shield decorated with a golden sun emblem, warm amber and gold color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+          "prompt": "A highly detailed ancient Greek hoplite warrior miniature figurine, full body, straight front view, facing forward, symmetrical pose, wearing a gleaming bronze Corinthian helmet and polished ivory-gold breastplate, holding a long spear and round hoplon shield decorated with a golden sun emblem, warm amber and gold color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
           "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background"
         }
       },
       "variantB": {
         "imagePrompt": {
           "model": "flux/schnell",
-          "prompt": "A highly detailed ancient Greek hoplite warrior miniature figurine, full body, front-facing isometric view, wearing a dark iron Corinthian helmet and obsidian-black breastplate with slate blue accents, holding a long spear and round hoplon shield decorated with a silver crescent emblem, cool dark iron and midnight blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+          "prompt": "A highly detailed ancient Greek hoplite warrior miniature figurine, full body, straight front view, facing forward, symmetrical pose, wearing a dark iron Corinthian helmet and obsidian-black breastplate with slate blue accents, holding a long spear and round hoplon shield decorated with a silver crescent emblem, cool dark iron and midnight blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
           "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background"
         }
       }
@@ -24,14 +24,14 @@
         "variantA": {
           "imagePrompt": {
             "model": "flux/schnell",
-            "prompt": "A1 highly detailed Spartan warrior miniature figurine, full body, front-facing isometric view, wearing an open-faced bronze helmet with a red horsehair crest, muscular torso in a crimson-trimmed linothorax, holding a short xiphos sword and round shield with a lambda symbol, warm red and burnished bronze color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "prompt": "A1 highly detailed Spartan warrior miniature figurine, full body, straight front view, facing forward, symmetrical pose, wearing an open-faced bronze helmet with a red horsehair crest, muscular torso in a crimson-trimmed linothorax, holding a short xiphos sword and round shield with a lambda symbol, warm red and burnished bronze color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
             "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background"
           }
         },
         "variantB": {
           "imagePrompt": {
             "model": "flux/schnell",
-            "prompt": "A highly detailed Spartan warrior miniature figurine, full body, front-facing isometric view, wearing an open-faced dark iron helmet with a black horsehair crest, torso in a dark charcoal linothorax, holding a short xiphos sword and round shield with a silver lambda symbol, cool dark iron and deep grey color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "prompt": "A highly detailed Spartan warrior miniature figurine, full body, straight front view, facing forward, symmetrical pose, wearing an open-faced dark iron helmet with a black horsehair crest, torso in a dark charcoal linothorax, holding a short xiphos sword and round shield with a silver lambda symbol, cool dark iron and deep grey color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
             "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background"
           }
         }
@@ -45,14 +45,14 @@
       "variantA": {
         "imagePrompt": {
           "model": "flux/schnell",
-          "prompt": "A highly detailed siege ram-tower miniature figurine, full structure visible, front-facing isometric view, a wooden rolling siege tower with a battering ram mounted at its base, reinforced with warm golden-brass fittings and light oak wood planks, pennants in cream and amber, isolated on a pure white background, no shadows, product photography style, 3D render",
+          "prompt": "A highly detailed siege ram-tower miniature figurine, full structure visible, straight front view, facing forward, symmetrical pose, a wooden rolling siege tower with a battering ram mounted at its base, reinforced with warm golden-brass fittings and light oak wood planks, pennants in cream and amber, isolated on a pure white background, no shadows, product photography style, 3D render",
           "negativePrompt": "blurry, low quality, cropped, background scenery, soldiers, text, watermark, dark colors, shadow on background"
         }
       },
       "variantB": {
         "imagePrompt": {
           "model": "flux/schnell",
-          "prompt": "A highly detailed siege ram-tower miniature figurine, full structure visible, front-facing isometric view, a rolling siege tower with a battering ram mounted at its base, reinforced with dark iron fittings and charcoal-black timber planks, pennants in dark teal and slate grey, isolated on a pure white background, no shadows, product photography style, 3D render",
+          "prompt": "A highly detailed siege ram-tower miniature figurine, full structure visible, straight front view, facing forward, symmetrical pose, a rolling siege tower with a battering ram mounted at its base, reinforced with dark iron fittings and charcoal-black timber planks, pennants in dark teal and slate grey, isolated on a pure white background, no shadows, product photography style, 3D render",
           "negativePrompt": "blurry, low quality, cropped, background scenery, soldiers, text, watermark, warm colors, shadow on background"
         }
       }
@@ -63,14 +63,14 @@
         "variantA": {
           "imagePrompt": {
             "model": "flux/schnell",
-            "prompt": "A highly detailed iron-clad siege ram-tower miniature figurine, full structure visible, front-facing isometric view, a fully armored rolling siege tower plated in polished golden-brass sheets, a heavy reinforced ram with a lion-head tip, decorative rivets and warm bronze trim, warm gold and burnished brass color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "prompt": "A highly detailed iron-clad siege ram-tower miniature figurine, full structure visible, straight front view, facing forward, symmetrical pose, a fully armored rolling siege tower plated in polished golden-brass sheets, a heavy reinforced ram with a lion-head tip, decorative rivets and warm bronze trim, warm gold and burnished brass color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
             "negativePrompt": "blurry, low quality, cropped, background scenery, soldiers, text, watermark, dark colors, shadow on background"
           }
         },
         "variantB": {
           "imagePrompt": {
             "model": "flux/schnell",
-            "prompt": "A highly detailed iron-clad siege ram-tower miniature figurine, full structure visible, front-facing isometric view, a fully armored rolling siege tower plated in dark obsidian-black iron sheets, a heavy reinforced ram with a skull-head tip, cold blue glowing rune engravings, cool dark iron and midnight blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "prompt": "A highly detailed iron-clad siege ram-tower miniature figurine, full structure visible, straight front view, facing forward, symmetrical pose, a fully armored rolling siege tower plated in dark obsidian-black iron sheets, a heavy reinforced ram with a skull-head tip, cold blue glowing rune engravings, cool dark iron and midnight blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
             "negativePrompt": "blurry, low quality, cropped, background scenery, soldiers, text, watermark, warm colors, shadow on background"
           }
         }
@@ -84,14 +84,14 @@
       "variantA": {
         "imagePrompt": {
           "model": "flux/schnell",
-          "prompt": "A highly detailed ancient war chariot miniature figurine, full body, front-facing isometric view, two-wheeled chariot with a rearing white horse, gilded wood frame with gold and ivory detailing, charioteer in a bronze helmet, warm gold and cream color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+          "prompt": "A highly detailed ancient war chariot miniature figurine, full body, straight front view, facing forward, symmetrical pose, two-wheeled chariot with a rearing white horse, gilded wood frame with gold and ivory detailing, charioteer in a bronze helmet, warm gold and cream color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
           "negativePrompt": "blurry, low quality, cropped, background scenery, multiple chariots, text, watermark, dark colors, shadow on background"
         }
       },
       "variantB": {
         "imagePrompt": {
           "model": "flux/schnell",
-          "prompt": "A highly detailed ancient war chariot miniature figurine, full body, front-facing isometric view, two-wheeled chariot with a rearing dark grey horse, ebony wood frame with dark iron and teal-black metal detailing, charioteer in an obsidian helmet, cool dark iron and midnight blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+          "prompt": "A highly detailed ancient war chariot miniature figurine, full body, straight front view, facing forward, symmetrical pose, two-wheeled chariot with a rearing dark grey horse, ebony wood frame with dark iron and teal-black metal detailing, charioteer in an obsidian helmet, cool dark iron and midnight blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
           "negativePrompt": "blurry, low quality, cropped, background scenery, multiple chariots, text, watermark, warm colors, shadow on background"
         }
       }
@@ -102,14 +102,14 @@
         "variantA": {
           "imagePrompt": {
             "model": "flux/schnell",
-            "prompt": "A highly detailed ancient Egyptian war chariot miniature figurine, full body, front-facing isometric view, a lightweight two-wheeled chariot with a rearing golden-maned horse, ornate Egyptian hieroglyph carvings on the chassis, the charioteer wearing a white nemes headdress and golden chest plate, warm gold and turquoise color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "prompt": "A highly detailed ancient Egyptian war chariot miniature figurine, full body, straight front view, facing forward, symmetrical pose, a lightweight two-wheeled chariot with a rearing golden-maned horse, ornate Egyptian hieroglyph carvings on the chassis, the charioteer wearing a white nemes headdress and golden chest plate, warm gold and turquoise color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
             "negativePrompt": "blurry, low quality, cropped, background scenery, multiple chariots, text, watermark, dark colors, shadow on background"
           }
         },
         "variantB": {
           "imagePrompt": {
             "model": "flux/schnell",
-            "prompt": "A highly detailed ancient Egyptian war chariot miniature figurine, full body, front-facing isometric view, a lightweight two-wheeled chariot with a rearing dark horse, obsidian and lapis lazuli carvings on the chassis, the charioteer wearing a dark ceremonial headdress and dark bronze chest plate, cool dark cobalt and obsidian color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "prompt": "A highly detailed ancient Egyptian war chariot miniature figurine, full body, straight front view, facing forward, symmetrical pose, a lightweight two-wheeled chariot with a rearing dark horse, obsidian and lapis lazuli carvings on the chassis, the charioteer wearing a dark ceremonial headdress and dark bronze chest plate, cool dark cobalt and obsidian color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
             "negativePrompt": "blurry, low quality, cropped, background scenery, multiple chariots, text, watermark, warm colors, shadow on background"
           }
         }
@@ -123,14 +123,14 @@
       "variantA": {
         "imagePrompt": {
           "model": "flux/schnell",
-          "prompt": "A highly detailed fantasy bomber soldier miniature figurine, full body, front-facing isometric view, a stocky armored warrior carrying a round bomb with a lit fuse, wearing polished golden-bronze armor with amber trim, warm gold and ivory color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+          "prompt": "A highly detailed fantasy bomber soldier miniature figurine, full body, straight front view, facing forward, symmetrical pose, a stocky armored warrior carrying a round bomb with a lit fuse, wearing polished golden-bronze armor with amber trim, warm gold and ivory color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
           "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background"
         }
       },
       "variantB": {
         "imagePrompt": {
           "model": "flux/schnell",
-          "prompt": "A highly detailed fantasy bomber soldier miniature figurine, full body, front-facing isometric view, a stocky armored warrior carrying a round bomb with a lit fuse, wearing dark iron armor with slate blue and obsidian trim, cool dark iron and midnight blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+          "prompt": "A highly detailed fantasy bomber soldier miniature figurine, full body, straight front view, facing forward, symmetrical pose, a stocky armored warrior carrying a round bomb with a lit fuse, wearing dark iron armor with slate blue and obsidian trim, cool dark iron and midnight blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
           "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background"
         }
       }
@@ -141,14 +141,14 @@
         "variantA": {
           "imagePrompt": {
             "model": "flux/schnell",
-            "prompt": "A highly detailed fantasy alchemist bomber miniature figurine, full body, front-facing isometric view, a quirky robed figure in a leather apron over amber and gold robes, carrying a rack of glowing potion vials and a throwing flask, protective goggles pushed up on the forehead, warm amber and golden-brown color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "prompt": "A highly detailed fantasy alchemist bomber miniature figurine, full body, straight front view, facing forward, symmetrical pose, a quirky robed figure in a leather apron over amber and gold robes, carrying a rack of glowing potion vials and a throwing flask, protective goggles pushed up on the forehead, warm amber and golden-brown color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
             "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background"
           }
         },
         "variantB": {
           "imagePrompt": {
             "model": "flux/schnell",
-            "prompt": "A highly detailed fantasy alchemist bomber miniature figurine, full body, front-facing isometric view, a gaunt robed figure in a dark leather apron over charcoal and dark violet robes, carrying a rack of glowing toxic green potion vials and a throwing flask, dark protective goggles, cool dark grey and toxic green color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "prompt": "A highly detailed fantasy alchemist bomber miniature figurine, full body, straight front view, facing forward, symmetrical pose, a gaunt robed figure in a dark leather apron over charcoal and dark violet robes, carrying a rack of glowing toxic green potion vials and a throwing flask, dark protective goggles, cool dark grey and toxic green color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
             "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background"
           }
         }
@@ -162,14 +162,14 @@
       "variantA": {
         "imagePrompt": {
           "model": "flux/schnell",
-          "prompt": "A highly detailed fantasy paladin miniature figurine, full body, front-facing isometric view, a noble knight in full gleaming plate armor radiating a holy golden aura, holding a longsword and a heater shield emblazoned with a sunburst, warm gold and ivory color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+          "prompt": "A highly detailed fantasy paladin miniature figurine, full body, straight front view, facing forward, symmetrical pose, a noble knight in full gleaming plate armor radiating a holy golden aura, holding a longsword and a heater shield emblazoned with a sunburst, warm gold and ivory color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
           "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background"
         }
       },
       "variantB": {
         "imagePrompt": {
           "model": "flux/schnell",
-          "prompt": "A highly detailed fantasy paladin miniature figurine, full body, front-facing isometric view, a dark knight in shadowed obsidian plate armor with a cold blue divine aura, holding a longsword and a heater shield emblazoned with a crescent moon, cool dark iron and midnight blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+          "prompt": "A highly detailed fantasy paladin miniature figurine, full body, straight front view, facing forward, symmetrical pose, a dark knight in shadowed obsidian plate armor with a cold blue divine aura, holding a longsword and a heater shield emblazoned with a crescent moon, cool dark iron and midnight blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
           "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background"
         }
       }
@@ -180,14 +180,14 @@
         "variantA": {
           "imagePrompt": {
             "model": "flux/schnell",
-            "prompt": "A highly detailed fantasy crusader paladin miniature figurine, full body, front-facing isometric view, a holy warrior in white surcoat with a golden cross over chainmail armor, great helm with a golden visor, holding a two-handed greatsword, warm white and gold color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "prompt": "A highly detailed fantasy crusader paladin miniature figurine, full body, straight front view, facing forward, symmetrical pose, a holy warrior in white surcoat with a golden cross over chainmail armor, great helm with a golden visor, holding a two-handed greatsword, warm white and gold color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
             "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background"
           }
         },
         "variantB": {
           "imagePrompt": {
             "model": "flux/schnell",
-            "prompt": "A highly detailed fantasy crusader paladin miniature figurine, full body, front-facing isometric view, a fallen holy warrior in a dark charcoal surcoat with a tarnished silver cross over black chainmail, great helm with a cold blue visor, holding a two-handed greatsword with dark runes, cool dark charcoal and tarnished silver color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "prompt": "A highly detailed fantasy crusader paladin miniature figurine, full body, straight front view, facing forward, symmetrical pose, a fallen holy warrior in a dark charcoal surcoat with a tarnished silver cross over black chainmail, great helm with a cold blue visor, holding a two-handed greatsword with dark runes, cool dark charcoal and tarnished silver color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
             "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background"
           }
         }
@@ -201,14 +201,14 @@
       "variantA": {
         "imagePrompt": {
           "model": "flux/schnell",
-          "prompt": "A highly detailed fantasy warlock vizier miniature figurine, full body, front-facing isometric view, a robed sorcerer advisor in flowing amber and gold robes, holding an ornate staff topped with a glowing amber crystal, intricate gold embroidery on cream fabric, warm gold and amber color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+          "prompt": "A highly detailed fantasy warlock vizier miniature figurine, full body, straight front view, facing forward, symmetrical pose, a robed sorcerer advisor in flowing amber and gold robes, holding an ornate staff topped with a glowing amber crystal, intricate gold embroidery on cream fabric, warm gold and amber color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
           "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background"
         }
       },
       "variantB": {
         "imagePrompt": {
           "model": "flux/schnell",
-          "prompt": "A highly detailed fantasy warlock vizier miniature figurine, full body, front-facing isometric view, a robed sorcerer advisor in flowing deep violet and obsidian robes, holding an ornate staff topped with a glowing cold blue crystal, silver runic embroidery on dark fabric, cool dark purple and midnight blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+          "prompt": "A highly detailed fantasy warlock vizier miniature figurine, full body, straight front view, facing forward, symmetrical pose, a robed sorcerer advisor in flowing deep violet and obsidian robes, holding an ornate staff topped with a glowing cold blue crystal, silver runic embroidery on dark fabric, cool dark purple and midnight blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
           "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background"
         }
       }
@@ -219,14 +219,14 @@
         "variantA": {
           "imagePrompt": {
             "model": "flux/schnell",
-            "prompt": "A highly detailed fantasy shadow mage miniature figurine, full body, front-facing isometric view, a cloaked spellcaster with a wide-brimmed hat, swirling warm orange shadow energy around the hands, amber arcane sigils glowing on the cloak, tattered edges of the robe reveal golden runes, warm amber and fiery orange color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "prompt": "A highly detailed fantasy shadow mage miniature figurine, full body, straight front view, facing forward, symmetrical pose, a cloaked spellcaster with a wide-brimmed hat, swirling warm orange shadow energy around the hands, amber arcane sigils glowing on the cloak, tattered edges of the robe reveal golden runes, warm amber and fiery orange color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
             "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background"
           }
         },
         "variantB": {
           "imagePrompt": {
             "model": "flux/schnell",
-            "prompt": "A highly detailed fantasy shadow mage miniature figurine, full body, front-facing isometric view, a cloaked spellcaster with a wide-brimmed hat, swirling cold void-black shadow energy around the hands, icy blue arcane sigils glowing on the dark cloak, tattered edges of the robe reveal silver runes, cool void-black and icy blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "prompt": "A highly detailed fantasy shadow mage miniature figurine, full body, straight front view, facing forward, symmetrical pose, a cloaked spellcaster with a wide-brimmed hat, swirling cold void-black shadow energy around the hands, icy blue arcane sigils glowing on the dark cloak, tattered edges of the robe reveal silver runes, cool void-black and icy blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
             "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background"
           }
         }
@@ -240,14 +240,14 @@
       "variantA": {
         "imagePrompt": {
           "model": "flux/schnell",
-          "prompt": "A highly detailed fantasy monarch miniature figurine, full body, front-facing isometric view, a regal king in ornate golden crown and flowing ivory royal robes trimmed with ermine, holding a golden scepter, warm gold and ivory color scheme with rich amber jewels, isolated on a pure white background, no shadows, product photography style, 3D render",
+          "prompt": "A highly detailed fantasy monarch miniature figurine, full body, straight front view, facing forward, symmetrical pose, a regal king in ornate golden crown and flowing ivory royal robes trimmed with ermine, holding a golden scepter, warm gold and ivory color scheme with rich amber jewels, isolated on a pure white background, no shadows, product photography style, 3D render",
           "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background"
         }
       },
       "variantB": {
         "imagePrompt": {
           "model": "flux/schnell",
-          "prompt": "A highly detailed fantasy monarch miniature figurine, full body, front-facing isometric view, a commanding ruler in an obsidian crown and deep midnight blue royal robes trimmed with dark fur, holding a silver scepter topped with a sapphire, cool dark iron and deep blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+          "prompt": "A highly detailed fantasy monarch miniature figurine, full body, straight front view, facing forward, symmetrical pose, a commanding ruler in an obsidian crown and deep midnight blue royal robes trimmed with dark fur, holding a silver scepter topped with a sapphire, cool dark iron and deep blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
           "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background"
         }
       }
@@ -258,14 +258,14 @@
         "variantA": {
           "imagePrompt": {
             "model": "flux/schnell",
-            "prompt": "A highly detailed fantasy emperor miniature figurine, full body, front-facing isometric view, a powerful emperor in gilded full-plate ceremonial armor with a laurel crown of gold, a flowing crimson and gold cape, holding an ornate imperial sword, warm red and gold color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "prompt": "A highly detailed fantasy emperor miniature figurine, full body, straight front view, facing forward, symmetrical pose, a powerful emperor in gilded full-plate ceremonial armor with a laurel crown of gold, a flowing crimson and gold cape, holding an ornate imperial sword, warm red and gold color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
             "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background"
           }
         },
         "variantB": {
           "imagePrompt": {
             "model": "flux/schnell",
-            "prompt": "A highly detailed fantasy emperor miniature figurine, full body, front-facing isometric view, a fearsome emperor in dark obsidian ceremonial armor with a laurel crown of black iron, a flowing dark violet and silver cape, holding an ornate imperial sword crackling with dark energy, cool obsidian and dark violet color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "prompt": "A highly detailed fantasy emperor miniature figurine, full body, straight front view, facing forward, symmetrical pose, a fearsome emperor in dark obsidian ceremonial armor with a laurel crown of black iron, a flowing dark violet and silver cape, holding an ornate imperial sword crackling with dark energy, cool obsidian and dark violet color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
             "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background"
           }
         }
@@ -279,14 +279,14 @@
       "variantA": {
         "imagePrompt": {
           "model": "flux/schnell",
-          "prompt": "A highly detailed fantasy duchess miniature figurine, full body, front-facing isometric view, an elegant noblewoman in a flowing cream and gold gown with a tiara, holding a delicate rose, intricate lace detailing in ivory and amber, warm gold and cream color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+          "prompt": "A highly detailed fantasy duchess miniature figurine, full body, straight front view, facing forward, symmetrical pose, an elegant noblewoman in a flowing cream and gold gown with a tiara, holding a delicate rose, intricate lace detailing in ivory and amber, warm gold and cream color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
           "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background"
         }
       },
       "variantB": {
         "imagePrompt": {
           "model": "flux/schnell",
-          "prompt": "A highly detailed fantasy duchess miniature figurine, full body, front-facing isometric view, an imperious noblewoman in a flowing midnight blue and dark violet gown with a silver tiara, holding a black rose, intricate silver lace detailing on dark fabric, cool midnight blue and silver color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+          "prompt": "A highly detailed fantasy duchess miniature figurine, full body, straight front view, facing forward, symmetrical pose, an imperious noblewoman in a flowing midnight blue and dark violet gown with a silver tiara, holding a black rose, intricate silver lace detailing on dark fabric, cool midnight blue and silver color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
           "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background"
         }
       }
@@ -297,14 +297,14 @@
         "variantA": {
           "imagePrompt": {
             "model": "flux/schnell",
-            "prompt": "A highly detailed fantasy sorceress duchess miniature figurine, full body, front-facing isometric view, an elegant mage-noblewoman in flowing amber and gold arcane robes with glowing magical runes, a circlet of glowing amber gems, hands raised with warm fire magic swirling, warm amber and golden-orange color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "prompt": "A highly detailed fantasy sorceress duchess miniature figurine, full body, straight front view, facing forward, symmetrical pose, an elegant mage-noblewoman in flowing amber and gold arcane robes with glowing magical runes, a circlet of glowing amber gems, hands raised with warm fire magic swirling, warm amber and golden-orange color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
             "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background"
           }
         },
         "variantB": {
           "imagePrompt": {
             "model": "flux/schnell",
-            "prompt": "A highly detailed fantasy sorceress duchess miniature figurine, full body, front-facing isometric view, a dark mage-noblewoman in flowing dark violet and black arcane robes with glowing cold blue magical runes, a circlet of dark sapphire gems, hands raised with frost magic swirling, cool dark violet and icy blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "prompt": "A highly detailed fantasy sorceress duchess miniature figurine, full body, straight front view, facing forward, symmetrical pose, a dark mage-noblewoman in flowing dark violet and black arcane robes with glowing cold blue magical runes, a circlet of dark sapphire gems, hands raised with frost magic swirling, cool dark violet and icy blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
             "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background"
           }
         }
@@ -318,14 +318,14 @@
       "variantA": {
         "imagePrompt": {
           "model": "flux/schnell",
-          "prompt": "A highly detailed fantasy druid miniature figurine, full body, front-facing isometric view, a hooded nature mage in earthy amber and warm brown robes adorned with leaves and antlers, holding a gnarled wooden staff with a glowing amber orb, warm amber and forest green color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+          "prompt": "A highly detailed fantasy druid miniature figurine, full body, straight front view, facing forward, symmetrical pose, a hooded nature mage in earthy amber and warm brown robes adorned with leaves and antlers, holding a gnarled wooden staff with a glowing amber orb, warm amber and forest green color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
           "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark evil colors, shadow on background"
         }
       },
       "variantB": {
         "imagePrompt": {
           "model": "flux/schnell",
-          "prompt": "A highly detailed fantasy necromancer miniature figurine, full body, front-facing isometric view, a gaunt hooded sorcerer in tattered dark charcoal and ashen grey robes, clutching a bone staff topped with a glowing sickly green skull, bones and chains hanging from the robe, cool dark grey and sickly green color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+          "prompt": "A highly detailed fantasy necromancer miniature figurine, full body, straight front view, facing forward, symmetrical pose, a gaunt hooded sorcerer in tattered dark charcoal and ashen grey robes, clutching a bone staff topped with a glowing sickly green skull, bones and chains hanging from the robe, cool dark grey and sickly green color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
           "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background"
         }
       }
@@ -336,14 +336,14 @@
         "variantA": {
           "imagePrompt": {
             "model": "flux/schnell",
-            "prompt": "A highly detailed fantasy lich miniature figurine, full body, front-facing isometric view, an undead skeletal sorcerer in tattered golden and ivory phylactery robes, bony hands clutching an ornate golden staff, glowing amber soul-fire in the eye sockets, warm gold and ivory bone color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "prompt": "A highly detailed fantasy lich miniature figurine, full body, straight front view, facing forward, symmetrical pose, an undead skeletal sorcerer in tattered golden and ivory phylactery robes, bony hands clutching an ornate golden staff, glowing amber soul-fire in the eye sockets, warm gold and ivory bone color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
             "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background"
           }
         },
         "variantB": {
           "imagePrompt": {
             "model": "flux/schnell",
-            "prompt": "A highly detailed fantasy lich miniature figurine, full body, front-facing isometric view, an undead skeletal sorcerer in tattered dark obsidian and void-black phylactery robes, bony hands clutching a dark iron staff crackling with purple necrotic energy, glowing cold blue soul-fire in the eye sockets, cool obsidian and cold violet color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "prompt": "A highly detailed fantasy lich miniature figurine, full body, straight front view, facing forward, symmetrical pose, an undead skeletal sorcerer in tattered dark obsidian and void-black phylactery robes, bony hands clutching a dark iron staff crackling with purple necrotic energy, glowing cold blue soul-fire in the eye sockets, cool obsidian and cold violet color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
             "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background"
           }
         }
@@ -513,14 +513,14 @@
       "variantA": {
         "imagePrompt": {
           "model": "flux/schnell",
-          "prompt": "A highly detailed miniature fantasy tree terrain piece, full tree visible, front-facing isometric view, a lush ancient oak with a warm golden-brown trunk, full canopy of bright warm green and amber leaves catching sunlight, warm golden-brown and leaf-green color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+          "prompt": "A highly detailed miniature fantasy tree terrain piece, full tree visible, straight front view, facing forward, symmetrical pose, a lush ancient oak with a warm golden-brown trunk, full canopy of bright warm green and amber leaves catching sunlight, warm golden-brown and leaf-green color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
           "negativePrompt": "blurry, low quality, cropped, figures, text, watermark, dark dead colors, shadow on background"
         }
       },
       "variantB": {
         "imagePrompt": {
           "model": "flux/schnell",
-          "prompt": "A highly detailed miniature fantasy dead tree terrain piece, full tree visible, front-facing isometric view, a gnarled leafless dead tree with a dark charcoal and ash-grey twisted trunk and bare skeletal branches, cold icy blue frost on the bark, cool charcoal and icy blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+          "prompt": "A highly detailed miniature fantasy dead tree terrain piece, full tree visible, straight front view, facing forward, symmetrical pose, a gnarled leafless dead tree with a dark charcoal and ash-grey twisted trunk and bare skeletal branches, cold icy blue frost on the bark, cool charcoal and icy blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
           "negativePrompt": "blurry, low quality, cropped, figures, text, watermark, warm green lush colors, shadow on background"
         }
       }
@@ -531,14 +531,14 @@
         "variantA": {
           "imagePrompt": {
             "model": "flux/schnell",
-            "prompt": "A highly detailed miniature fantasy crystal tree terrain piece, full tree visible, front-facing isometric view, a magical tree with a translucent amber-gold crystalline trunk and branches, warm glowing golden-rose quartz leaf-shaped crystals catching the light, warm amber and rose-gold color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "prompt": "A highly detailed miniature fantasy crystal tree terrain piece, full tree visible, straight front view, facing forward, symmetrical pose, a magical tree with a translucent amber-gold crystalline trunk and branches, warm glowing golden-rose quartz leaf-shaped crystals catching the light, warm amber and rose-gold color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
             "negativePrompt": "blurry, low quality, cropped, figures, text, watermark, dark colors, organic wood texture, shadow on background"
           }
         },
         "variantB": {
           "imagePrompt": {
             "model": "flux/schnell",
-            "prompt": "A highly detailed miniature fantasy crystal tree terrain piece, full tree visible, front-facing isometric view, a magical tree with a translucent dark sapphire and obsidian crystalline trunk and branches, cold glowing icy blue crystal leaf-shapes, cool deep navy and icy blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "prompt": "A highly detailed miniature fantasy crystal tree terrain piece, full tree visible, straight front view, facing forward, symmetrical pose, a magical tree with a translucent dark sapphire and obsidian crystalline trunk and branches, cold glowing icy blue crystal leaf-shapes, cool deep navy and icy blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
             "negativePrompt": "blurry, low quality, cropped, figures, text, watermark, warm colors, organic wood texture, shadow on background"
           }
         }
