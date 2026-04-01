@@ -1,5 +1,5 @@
-import { AimlApiService } from "../aimlapi/AimlApiService";
-import { ChatMessage, Tool } from "../aimlapi/types";
+import { AimlApiService } from "../integrations/aimlapi/AimlApiService";
+import { ChatMessage, Tool } from "../integrations/aimlapi/types";
 import { ToolHandler } from "./types";
 import { formatOutput, safeJsonParse } from "./parser";
 

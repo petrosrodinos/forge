@@ -1,7 +1,7 @@
 import path from "path";
-import { AimlApiService } from "../aimlapi/AimlApiService";
-import { Tool } from "../aimlapi/types";
-import { TripoService } from "../trippo/TripoService";
+import { AimlApiService } from "../integrations/aimlapi/AimlApiService";
+import { Tool } from "../integrations/aimlapi/types";
+import { TripoService } from "../integrations/trippo/TripoService";
 import { ToolHandler } from "./types";
 import {
   defaultAudioExt,

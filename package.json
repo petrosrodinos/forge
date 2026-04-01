@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "dev": "ts-node src/index.ts",
-    "agent": "ts-node src/cli.ts"
+    "agent": "ts-node src/cli.ts",
+    "tripo:pony": "ts-node src/scripts/tripoImageToAnimatedGlb.ts"
   },
   "dependencies": {
     "axios": "^1.7.9",

@@ -1,7 +1,7 @@
 import readline from "readline";
-import { AimlApiService } from "../aimlapi/AimlApiService";
-import { ChatMessage } from "../aimlapi/types";
-import { TripoService } from "../trippo/TripoService";
+import { AimlApiService } from "../integrations/aimlapi/AimlApiService";
+import { ChatMessage } from "../integrations/aimlapi/types";
+import { TripoService } from "../integrations/trippo/TripoService";
 import { requireEnv } from "../env";
 import { askAgent } from "./agent";
 import { buildServiceCommands } from "./commandRegistry";
