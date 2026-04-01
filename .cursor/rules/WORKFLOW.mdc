@@ -1,0 +1,21 @@
+---
+description: Tripo pipeline image → 3D → rig → animation (task chain)
+globs: src/trippo/**/*.ts
+alwaysApply: false
+---
+
+# Tripo: image → animated GLB
+
+Pipeline: `uploadFile` → `createTask` + `pollTask` for each step.
+
+1. **Upload** — `uploadFile(buffer, filename, "image/png"|"image/jpeg")` → `file_token` in `data`.
+2. **Mesh** — `createTask({ type: "image_to_model", file: { type: "png"|"jpeg", file_token }, ... })` → poll → `output.model` / `pbr_model`. Multiview: `multiview_to_model`, `files: File[]`.
+3. **Pre-rig** — `{ type: "animate_prerigcheck", original_model_task_id }` → poll → require `output.riggable`.
+4. **Rig** — `{ type: "animate_rig", original_model_task_id, out_format?, spec?, topology?, model_version? }` → poll → use **this task’s `task_id`** as `original_model_task_id` for step 5.
+5. **Animate** — `{ type: "animate_retarget", original_model_task_id: rigTaskId, animation?: AnimationType | animations?: AnimationType[], out_format?, bake_animation?, export_with_geometry? }` — use **either** `animation` **or** `animations`, not both. Presets include `preset:idle`, `preset:walk`, `preset:run`, quadruped/hexapod/octopod walks, `preset:serpentine:march`, `preset:aquatic:march`, etc.
+
+**CLI:** `tripo.uploadImageFromPath` then `tripo.createTask` with JSON body; `tripo.pollTask` with `taskId`, optional `intervalMs`/`timeoutMs`.
+
+**Statuses:** `pollTask` resolves on `success`; throws on `failed`, `cancelled`, `banned`, `expired`.
+
+**Types:** See `src/trippo/types.ts` (`ImageToModelRequest`, `AnimatePrerigcheckRequest`, `AnimateRigRequest`, `AnimateRetargetRequest`).
