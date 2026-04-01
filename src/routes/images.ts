@@ -1,16 +1,16 @@
 import { Router } from "express";
+import path from "path";
+import fs from "fs/promises";
 import { getAiml } from "../services";
 
 const router = Router();
 
+const IMAGE_MODELS_PATH = path.resolve(__dirname, "../../assets/image-models.json");
+
 router.get("/models", async (_req, res) => {
   try {
-    const { data } = await getAiml().listModels();
-    const imageModels = data
-      .filter((m) => m.endpoints?.includes("/v1/images/generations"))
-      .map((m) => ({ id: m.id, label: m.id }))
-      .sort((a, b) => a.id.localeCompare(b.id));
-    res.json(imageModels);
+    const raw = await fs.readFile(IMAGE_MODELS_PATH, "utf-8");
+    res.json(JSON.parse(raw));
   } catch (err) {
     res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
   }

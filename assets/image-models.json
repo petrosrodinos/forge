@@ -1,0 +1,190 @@
+[
+  {
+    "id": "flux-pro/v1.1-ultra",
+    "name": "flux-pro/v1.1-ultra"
+  },
+  {
+    "id": "flux-pro/v1.1",
+    "name": "flux-pro/v1.1"
+  },
+  {
+    "id": "flux-pro",
+    "name": "flux-pro"
+  },
+  {
+    "id": "flux/dev",
+    "name": "flux/dev"
+  },
+  {
+    "id": "flux/schnell",
+    "name": "flux/schnell"
+  },
+  {
+    "id": "blackforestlabs/flux-2-max",
+    "name": "blackforestlabs/flux-2-max"
+  },
+  {
+    "id": "blackforestlabs/flux-2-pro",
+    "name": "blackforestlabs/flux-2-pro"
+  },
+  {
+    "id": "blackforestlabs/flux-2",
+    "name": "blackforestlabs/flux-2"
+  },
+  {
+    "id": "alibaba/qwen-image",
+    "name": "alibaba/qwen-image"
+  },
+  {
+    "id": "alibaba/wan-2-6-image",
+    "name": "alibaba/wan-2-6-image"
+  },
+  {
+    "id": "alibaba/wan2.2-t2i-flash",
+    "name": "alibaba/wan2.2-t2i-flash"
+  },
+  {
+    "id": "alibaba/wan2.2-t2i-plus",
+    "name": "alibaba/wan2.2-t2i-plus"
+  },
+  {
+    "id": "alibaba/wan2.5-t2i-preview",
+    "name": "alibaba/wan2.5-t2i-preview"
+  },
+  {
+    "id": "alibaba/z-image-turbo",
+    "name": "alibaba/z-image-turbo"
+  },
+  {
+    "id": "bytedance/seedream-3.0",
+    "name": "bytedance/seedream-3.0"
+  },
+  {
+    "id": "bytedance/seedream-4-5",
+    "name": "bytedance/seedream-4-5"
+  },
+  {
+    "id": "bytedance/seedream-5-0-lite-preview",
+    "name": "bytedance/seedream-5-0-lite-preview"
+  },
+  {
+    "id": "bytedance/seedream-v4-text-to-image",
+    "name": "bytedance/seedream-v4-text-to-image"
+  },
+  {
+    "id": "bytedance/uso",
+    "name": "bytedance/uso"
+  },
+  {
+    "id": "dall-e-2",
+    "name": "dall-e-2"
+  },
+  {
+    "id": "dall-e-3",
+    "name": "dall-e-3"
+  },
+  {
+    "id": "flux-realism",
+    "name": "flux-realism"
+  },
+  {
+    "id": "flux/kontext-max/text-to-image",
+    "name": "flux/kontext-max/text-to-image"
+  },
+  {
+    "id": "flux/kontext-pro/text-to-image",
+    "name": "flux/kontext-pro/text-to-image"
+  },
+  {
+    "id": "flux/srpo",
+    "name": "flux/srpo"
+  },
+  {
+    "id": "google/gemini-2.5-flash-image",
+    "name": "google/gemini-2.5-flash-image"
+  },
+  {
+    "id": "google/gemini-3-pro-image-preview",
+    "name": "google/gemini-3-pro-image-preview"
+  },
+  {
+    "id": "google/imagen-4.0-fast-generate-001",
+    "name": "google/imagen-4.0-fast-generate-001"
+  },
+  {
+    "id": "google/imagen-4.0-generate-001",
+    "name": "google/imagen-4.0-generate-001"
+  },
+  {
+    "id": "google/imagen-4.0-ultra-generate-001",
+    "name": "google/imagen-4.0-ultra-generate-001"
+  },
+  {
+    "id": "google/imagen4/preview",
+    "name": "google/imagen4/preview"
+  },
+  {
+    "id": "google/nano-banana-pro",
+    "name": "google/nano-banana-pro"
+  },
+  {
+    "id": "hunyuan/hunyuan-image-v3-text-to-image",
+    "name": "hunyuan/hunyuan-image-v3-text-to-image"
+  },
+  {
+    "id": "imagen-3.0-generate-002",
+    "name": "imagen-3.0-generate-002"
+  },
+  {
+    "id": "klingai/image-o1",
+    "name": "klingai/image-o1"
+  },
+  {
+    "id": "openai/gpt-image-1",
+    "name": "openai/gpt-image-1"
+  },
+  {
+    "id": "openai/gpt-image-1-5",
+    "name": "openai/gpt-image-1-5"
+  },
+  {
+    "id": "openai/gpt-image-1-mini",
+    "name": "openai/gpt-image-1-mini"
+  },
+  {
+    "id": "recraft-v3",
+    "name": "recraft-v3"
+  },
+  {
+    "id": "reve/create-image",
+    "name": "reve/create-image"
+  },
+  {
+    "id": "reve/edit-image",
+    "name": "reve/edit-image"
+  },
+  {
+    "id": "reve/remix-edit-image",
+    "name": "reve/remix-edit-image"
+  },
+  {
+    "id": "stable-diffusion-v3-medium",
+    "name": "stable-diffusion-v3-medium"
+  },
+  {
+    "id": "stable-diffusion-v35-large",
+    "name": "stable-diffusion-v35-large"
+  },
+  {
+    "id": "tencent/hunyuan-part",
+    "name": "tencent/hunyuan-part"
+  },
+  {
+    "id": "x-ai/grok-imagine-image",
+    "name": "x-ai/grok-imagine-image"
+  },
+  {
+    "id": "x-ai/grok-imagine-image-pro",
+    "name": "x-ai/grok-imagine-image-pro"
+  }
+]

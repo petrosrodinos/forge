@@ -138,6 +138,20 @@
               </button>
             </div>
             <div id="default-A-panel" class="p-4 space-y-3">
+              <div class="flex justify-end">
+                <button type="button" onclick="window.__toggleVariantAi('default-A')"
+                        class="text-[10px] font-mono text-violet-400 hover:text-violet-300 px-2 py-1 bg-violet-600/10 border border-violet-600/20 hover:border-violet-600/40 rounded transition-colors">✦ AI Fill</button>
+              </div>
+              <div id="variant-ai-default-A" class="hidden rounded border border-violet-600/20 bg-violet-600/5 p-2.5 space-y-2">
+                <textarea id="variant-ai-desc-default-A" rows="1" placeholder="Describe what you want for the light variant…"
+                          onkeydown="if(event.key==='Enter'&&(event.ctrlKey||event.metaKey))window.__generateVariant('default-A','A')"
+                          class="w-full bg-[#080810] border border-[#1a1a2e] rounded px-2 py-1.5 text-xs font-mono text-slate-300 placeholder-slate-600 focus:outline-none focus:border-violet-600/40 resize-none leading-relaxed"></textarea>
+                <div class="flex items-center gap-2">
+                  <button type="button" onclick="window.__generateVariant('default-A','A')"
+                          class="px-2.5 py-1 bg-violet-600 hover:bg-violet-500 disabled:opacity-40 text-white text-[10px] font-mono rounded transition-colors">✦ Generate</button>
+                  <span id="variant-ai-status-default-A" class="text-[10px] font-mono text-slate-600"></span>
+                </div>
+              </div>
               <div>
                 <label class="block text-[10px] font-mono text-slate-500 mb-1">Model</label>
                 <div id="f-default-A-model-wrap"></div>
@@ -154,6 +168,20 @@
               </div>
             </div>
             <div id="default-B-panel" class="p-4 space-y-3 hidden">
+              <div class="flex justify-end">
+                <button type="button" onclick="window.__toggleVariantAi('default-B')"
+                        class="text-[10px] font-mono text-violet-400 hover:text-violet-300 px-2 py-1 bg-violet-600/10 border border-violet-600/20 hover:border-violet-600/40 rounded transition-colors">✦ AI Fill</button>
+              </div>
+              <div id="variant-ai-default-B" class="hidden rounded border border-violet-600/20 bg-violet-600/5 p-2.5 space-y-2">
+                <textarea id="variant-ai-desc-default-B" rows="1" placeholder="Describe what you want for the dark variant…"
+                          onkeydown="if(event.key==='Enter'&&(event.ctrlKey||event.metaKey))window.__generateVariant('default-B','B')"
+                          class="w-full bg-[#080810] border border-[#1a1a2e] rounded px-2 py-1.5 text-xs font-mono text-slate-300 placeholder-slate-600 focus:outline-none focus:border-violet-600/40 resize-none leading-relaxed"></textarea>
+                <div class="flex items-center gap-2">
+                  <button type="button" onclick="window.__generateVariant('default-B','B')"
+                          class="px-2.5 py-1 bg-violet-600 hover:bg-violet-500 disabled:opacity-40 text-white text-[10px] font-mono rounded transition-colors">✦ Generate</button>
+                  <span id="variant-ai-status-default-B" class="text-[10px] font-mono text-slate-600"></span>
+                </div>
+              </div>
               <div>
                 <label class="block text-[10px] font-mono text-slate-500 mb-1">Model</label>
                 <div id="f-default-B-model-wrap"></div>
@@ -255,7 +283,7 @@
       document.getElementById("btn-create").addEventListener("click", handleCreate);
       document.getElementById("btn-delete").addEventListener("click", handleDelete);
       document.getElementById("btn-cancel-new").addEventListener("click", cancelNew);
-      document.getElementById("btn-add-skin").addEventListener("click", addSkinCard);
+      document.getElementById("btn-add-skin").addEventListener("click", () => addSkinCard());
       document.getElementById("btn-toggle-cli").addEventListener("click", toggleCli);
       document.getElementById("search").addEventListener("input", renderList);
       // models must resolve before figures so dropdowns are ready when any figure is clicked
@@ -274,10 +302,28 @@
 
     function fallbackModels() {
       return [
-        { id: "flux/schnell" },
+        { id: "flux-pro/v1.1-ultra" },
+        { id: "flux-pro/v1.1" },
+        { id: "flux-pro" },
         { id: "flux/dev" },
+        { id: "flux/schnell" },
         { id: "dall-e-3" },
       ];
+    }
+
+    const IMAGE_MODEL_PREFERENCE = [
+      "flux-pro/v1.1-ultra",
+      "flux-pro/v1.1",
+      "blackforestlabs/flux-2-max",
+      "blackforestlabs/flux-2-pro",
+      "flux-pro",
+      "flux/dev",
+      "flux/schnell",
+    ];
+
+    function bestDefaultModel() {
+      const ids = imageModels.map(m => m.id);
+      return IMAGE_MODEL_PREFERENCE.find(p => ids.includes(p)) ?? ids[0] ?? "flux/dev";
     }
 
     function modelSelectHtml(inputId, selectedValue) {
@@ -368,14 +414,14 @@
     function setVariantFields(prefix, ip) {
       // model: inject a fresh <select> into the wrapper div
       const wrap = document.getElementById(`f-${prefix}-model-wrap`);
-      if (wrap) wrap.innerHTML = modelSelectHtml(`f-${prefix}-model`, ip.model ?? "flux/schnell");
+      if (wrap) wrap.innerHTML = modelSelectHtml(`f-${prefix}-model`, ip.model ?? bestDefaultModel());
       document.getElementById(`f-${prefix}-prompt`).value = ip.prompt ?? "";
       document.getElementById(`f-${prefix}-neg`).value = ip.negativePrompt ?? "";
     }
 
     function getVariantFields(prefix) {
       const modelEl = document.getElementById(`f-${prefix}-model`);
-      const model = modelEl?.value?.trim() ?? "flux/schnell";
+      const model = modelEl?.value?.trim() ?? bestDefaultModel();
       const prompt = document.getElementById(`f-${prefix}-prompt`).value.trim();
       const neg = document.getElementById(`f-${prefix}-neg`).value.trim();
       const ip = { model, prompt };
@@ -400,7 +446,7 @@
 
     // ── Skins ──────────────────────────────────────────────────────────────────
 
-    function addSkinCard(skin = null) {
+    function addSkinCard(skin = null, highlight = false) {
       const id = skinCount++;
       const skinName = skin?.name ?? "";
       const sA = skin?.variantA?.imagePrompt ?? {};
@@ -434,20 +480,110 @@
                     onclick="window.__switchSkinTab(${id}, 'B')">☾ Variant B</button>
           </div>
           <div id="skin-A-panel-${id}" class="p-4 space-y-3">
-            ${variantFieldsHtml(`skin-${id}-A`, sA)}
+            ${variantFieldsHtml(`skin-${id}-A`, sA, 'A')}
           </div>
           <div id="skin-B-panel-${id}" class="p-4 space-y-3 hidden">
-            ${variantFieldsHtml(`skin-${id}-B`, sB)}
+            ${variantFieldsHtml(`skin-${id}-B`, sB, 'B')}
           </div>
         </div>`;
       document.getElementById("skins-container").appendChild(card);
+
+      if (highlight) {
+        card.style.transition = "border-color 1.8s ease, box-shadow 1.8s ease";
+        card.style.borderColor = "rgba(124,58,237,0.6)";
+        card.style.boxShadow = "0 0 0 1px rgba(124,58,237,0.2)";
+        setTimeout(() => { card.style.borderColor = ""; card.style.boxShadow = ""; }, 2000);
+      }
     }
 
-    function variantFieldsHtml(prefix, ip) {
+    window.__toggleVariantAi = function(prefix) {
+      const panel = document.getElementById(`variant-ai-${prefix}`);
+      const hidden = panel.classList.toggle("hidden");
+      if (!hidden) document.getElementById(`variant-ai-desc-${prefix}`)?.focus();
+      else document.getElementById(`variant-ai-status-${prefix}`).textContent = "";
+    };
+
+    window.__generateVariant = async function(prefix, variant) {
+      const descEl = document.getElementById(`variant-ai-desc-${prefix}`);
+      const statusEl = document.getElementById(`variant-ai-status-${prefix}`);
+      const genBtn = document.getElementById(`variant-ai-${prefix}`)?.querySelector("button");
+
+      const description = descEl?.value.trim();
+
+      if (genBtn) genBtn.disabled = true;
+      statusEl.textContent = "Generating…";
+      statusEl.style.color = "";
+
+      try {
+        // derive the other variant prefix for cross-reference
+        const otherPrefix = prefix.endsWith("-A")
+          ? prefix.slice(0, -2) + "-B"
+          : prefix.slice(0, -2) + "-A";
+
+        // skin name is available when prefix is "skin-{id}-{V}"
+        let skinName = "";
+        const skinMatch = prefix.match(/^skin-(\d+)-/);
+        if (skinMatch) skinName = document.getElementById(`skin-name-${skinMatch[1]}`)?.value.trim() ?? "";
+
+        const context = {
+          figureName:        document.getElementById("f-name").value.trim(),
+          figureType:        document.getElementById("f-type").value,
+          skinName,
+          existingModel:     document.getElementById(`f-${prefix}-model`)?.value.trim(),
+          existingPrompt:    document.getElementById(`f-${prefix}-prompt`)?.value.trim(),
+          existingNegPrompt: document.getElementById(`f-${prefix}-neg`)?.value.trim(),
+          otherVariantPrompt: document.getElementById(`f-${otherPrefix}-prompt`)?.value.trim(),
+        };
+
+        const result = await apiFetch("/api/figures/ai-variant", {
+          method: "POST",
+          body: JSON.stringify({ description, variant, context, availableModels: imageModels }),
+        });
+
+        // populate model select — add the returned model if not already present
+        const modelEl = document.getElementById(`f-${prefix}-model`);
+        if (modelEl && result.model) {
+          if (!Array.from(modelEl.options).some(o => o.value === result.model)) {
+            modelEl.add(new Option(result.model, result.model));
+          }
+          modelEl.value = result.model;
+        }
+        if (result.prompt)        document.getElementById(`f-${prefix}-prompt`).value = result.prompt;
+        if (result.negativePrompt !== undefined) document.getElementById(`f-${prefix}-neg`).value = result.negativePrompt ?? "";
+
+        document.getElementById(`variant-ai-${prefix}`)?.classList.add("hidden");
+        descEl.value = "";
+        statusEl.textContent = "";
+      } catch (err) {
+        statusEl.textContent = "Error: " + err.message;
+        statusEl.style.color = "#fca5a5";
+      } finally {
+        if (genBtn) genBtn.disabled = false;
+      }
+    };
+
+    function variantFieldsHtml(prefix, ip, variant) {
+      const placeholder = variant === "A"
+        ? "Describe what you want for the light variant…"
+        : "Describe what you want for the dark variant…";
       return `
+        <div class="flex justify-end">
+          <button type="button" onclick="window.__toggleVariantAi('${prefix}')"
+                  class="text-[10px] font-mono text-violet-400 hover:text-violet-300 px-2 py-1 bg-violet-600/10 border border-violet-600/20 hover:border-violet-600/40 rounded transition-colors">✦ AI Fill</button>
+        </div>
+        <div id="variant-ai-${prefix}" class="hidden rounded border border-violet-600/20 bg-violet-600/5 p-2.5 space-y-2">
+          <textarea id="variant-ai-desc-${prefix}" rows="1" placeholder="${placeholder}"
+                    onkeydown="if(event.key==='Enter'&&(event.ctrlKey||event.metaKey))window.__generateVariant('${prefix}','${variant}')"
+                    class="w-full bg-[#080810] border border-[#1a1a2e] rounded px-2 py-1.5 text-xs font-mono text-slate-300 placeholder-slate-600 focus:outline-none focus:border-violet-600/40 resize-none leading-relaxed"></textarea>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="window.__generateVariant('${prefix}','${variant}')"
+                    class="px-2.5 py-1 bg-violet-600 hover:bg-violet-500 disabled:opacity-40 text-white text-[10px] font-mono rounded transition-colors">✦ Generate</button>
+            <span id="variant-ai-status-${prefix}" class="text-[10px] font-mono text-slate-600"></span>
+          </div>
+        </div>
         <div>
           <label class="block text-[10px] font-mono text-slate-500 mb-1">Model</label>
-          ${modelSelectHtml(`f-${prefix}-model`, ip.model ?? 'flux/schnell')}
+          ${modelSelectHtml(`f-${prefix}-model`, ip.model ?? bestDefaultModel())}
         </div>
         <div>
           <label class="block text-[10px] font-mono text-slate-500 mb-1">Prompt</label>
@@ -511,7 +647,7 @@
       document.getElementById("f-name").value = "";
       document.getElementById("f-type").value = "figure";
       // setVariantFields seeds model dropdowns and clears text fields
-      ["default-A", "default-B"].forEach(p => setVariantFields(p, { model: "flux/schnell" }));
+      ["default-A", "default-B"].forEach(p => setVariantFields(p, { model: bestDefaultModel() }));
       document.getElementById("skins-container").innerHTML = "";
       skinCount = 0;
       document.getElementById("f-name").focus();

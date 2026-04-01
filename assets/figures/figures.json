@@ -35,21 +35,6 @@
             "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background"
           }
         }
-      },
-      {
-        "name": "neon",
-        "variantA": {
-          "imagePrompt": {
-            "model": "flux/schnell",
-            "prompt": "a neon variant"
-          }
-        },
-        "variantB": {
-          "imagePrompt": {
-            "model": "flux/schnell",
-            "prompt": ""
-          }
-        }
       }
     ]
   },

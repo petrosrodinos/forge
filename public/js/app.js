@@ -222,10 +222,26 @@ async function populateImageModels() {
     const models = await fetch("/api/aiml/models").then((r) => r.json());
     if (Array.isArray(models) && models.length > 0) {
       sel.innerHTML = models.map((m) => `<option value="${m.id}">${m.id}</option>`).join("");
+      sel.value = pickBestModel(models.map((m) => m.id));
       return;
     }
   } catch { /* fall through to built-in list */ }
   sel.innerHTML = IMAGE_MODELS.map((m) => `<option value="${m.id}">${m.label}</option>`).join("");
+  sel.value = pickBestModel(IMAGE_MODELS.map((m) => m.id));
+}
+
+const IMAGE_MODEL_PREFERENCE = [
+  "flux-pro/v1.1-ultra",
+  "flux-pro/v1.1",
+  "blackforestlabs/flux-2-max",
+  "blackforestlabs/flux-2-pro",
+  "flux-pro",
+  "flux/dev",
+  "flux/schnell",
+];
+
+function pickBestModel(ids) {
+  return IMAGE_MODEL_PREFERENCE.find((p) => ids.includes(p)) ?? ids[0];
 }
 
 /** Shorthand for getElementById + addEventListener. */
