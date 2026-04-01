@@ -79,7 +79,7 @@
           Cancel
         </button>
       </div>
-      <div id="editor-status" class="text-[10px] font-mono text-slate-600"></div>
+      <div id="editor-status" class="text-xs font-mono text-slate-400 min-h-[1.25rem]"></div>
     </header>
 
     <!-- content -->
@@ -149,7 +149,7 @@
                 <div class="flex items-center gap-2">
                   <button type="button" onclick="window.__generateVariant('default-A','A')"
                           class="px-2.5 py-1 bg-violet-600 hover:bg-violet-500 disabled:opacity-40 text-white text-[10px] font-mono rounded transition-colors">✦ Generate</button>
-                  <span id="variant-ai-status-default-A" class="text-[10px] font-mono text-slate-600"></span>
+                  <span id="variant-ai-status-default-A" class="text-xs font-mono text-slate-400 min-h-[1.25rem]"></span>
                 </div>
               </div>
               <div>
@@ -166,11 +166,11 @@
                 <textarea id="f-default-A-neg" rows="2"
                           class="w-full bg-[#080810] border border-[#1a1a2e] rounded px-3 py-2 text-xs font-mono text-slate-300 focus:outline-none focus:border-violet-600/50 transition-colors resize-none leading-relaxed"></textarea>
               </div>
-              <input type="hidden" id="f-default-A-imageurls" value="[]">
+              <input type="hidden" id="f-default-A-images" value="[]">
               <div class="flex items-center gap-2 pt-1">
                 <button type="button" data-gen-img-btn="default-A" onclick="window.__generateImage('default-A')"
                         class="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-40 text-white text-[10px] font-mono rounded transition-colors">⬡ Generate Image</button>
-                <span id="img-status-default-A" class="text-[10px] font-mono text-slate-600"></span>
+                <span id="img-status-default-A" class="text-xs font-mono text-slate-400 min-h-[1.25rem] flex items-center"></span>
               </div>
               <div id="img-gallery-default-A" class="hidden space-y-1.5"></div>
             </div>
@@ -186,7 +186,7 @@
                 <div class="flex items-center gap-2">
                   <button type="button" onclick="window.__generateVariant('default-B','B')"
                           class="px-2.5 py-1 bg-violet-600 hover:bg-violet-500 disabled:opacity-40 text-white text-[10px] font-mono rounded transition-colors">✦ Generate</button>
-                  <span id="variant-ai-status-default-B" class="text-[10px] font-mono text-slate-600"></span>
+                  <span id="variant-ai-status-default-B" class="text-xs font-mono text-slate-400 min-h-[1.25rem]"></span>
                 </div>
               </div>
               <div>
@@ -203,11 +203,11 @@
                 <textarea id="f-default-B-neg" rows="2"
                           class="w-full bg-[#080810] border border-[#1a1a2e] rounded px-3 py-2 text-xs font-mono text-slate-300 focus:outline-none focus:border-violet-600/50 transition-colors resize-none leading-relaxed"></textarea>
               </div>
-              <input type="hidden" id="f-default-B-imageurls" value="[]">
+              <input type="hidden" id="f-default-B-images" value="[]">
               <div class="flex items-center gap-2 pt-1">
                 <button type="button" data-gen-img-btn="default-B" onclick="window.__generateImage('default-B')"
                         class="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-40 text-white text-[10px] font-mono rounded transition-colors">⬡ Generate Image</button>
-                <span id="img-status-default-B" class="text-[10px] font-mono text-slate-600"></span>
+                <span id="img-status-default-B" class="text-xs font-mono text-slate-400 min-h-[1.25rem] flex items-center"></span>
               </div>
               <div id="img-gallery-default-B" class="hidden space-y-1.5"></div>
             </div>
@@ -362,13 +362,98 @@
       }
     }
 
+    // ── Image prompt: images[] (url + models3d + animations) / legacy imageUrls ─
+
+    function cloneModel3d(m) {
+      return {
+        ...m,
+        animations: Array.isArray(m.animations) ? m.animations.map(a => ({ ...a })) : [],
+      };
+    }
+
+    function normalizeImagesFromPrompt(ip) {
+      if (!ip || typeof ip !== "object") return [];
+      if (Array.isArray(ip.images) && ip.images.length > 0) {
+        return ip.images.map(entry => {
+          if (typeof entry === "string") return { url: entry, models3d: [] };
+          return {
+            url: typeof entry.url === "string" ? entry.url : "",
+            selectedModel3dId: entry.selectedModel3dId === undefined ? undefined : entry.selectedModel3dId,
+            models3d: Array.isArray(entry.models3d) ? entry.models3d.map(cloneModel3d) : [],
+          };
+        });
+      }
+      const urls = ip.imageUrls;
+      if (Array.isArray(urls))
+        return urls.filter(u => typeof u === "string").map(url => ({ url, models3d: [] }));
+      return [];
+    }
+
+    function readImagesInput(prefix) {
+      const el = document.getElementById(`f-${prefix}-images`);
+      const raw = el?.value ?? "[]";
+      try {
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return [];
+        return parsed.map(entry => {
+          if (typeof entry === "string") return { url: entry, models3d: [] };
+          return {
+            url: typeof entry.url === "string" ? entry.url : "",
+            selectedModel3dId: entry.selectedModel3dId,
+            models3d: Array.isArray(entry.models3d) ? entry.models3d.map(cloneModel3d) : [],
+          };
+        }).filter(a => a.url);
+      } catch {
+        return [];
+      }
+    }
+
+    function writeImagesInput(prefix, images) {
+      const el = document.getElementById(`f-${prefix}-images`);
+      if (el) el.value = JSON.stringify(images);
+    }
+
+    function newAssetId() {
+      return globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+    }
+
+    async function pollTripoTaskUntilDone(taskId) {
+      const bad = new Set(["failed", "cancelled", "banned", "expired"]);
+      for (;;) {
+        const res = await fetch(`/api/tripo/task/${encodeURIComponent(taskId)}`);
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`);
+        const task = body.data;
+        if (!task) throw new Error("Invalid task response");
+        if (task.status === "success") return task;
+        if (bad.has(task.status)) throw new Error(task.error_msg || `Task ${task.status}`);
+        await new Promise(r => setTimeout(r, 2000));
+      }
+    }
+
+    function updateModel3dById(prefix, imageIndex, genId, fn) {
+      const images = readImagesInput(prefix);
+      const list = images[imageIndex]?.models3d;
+      if (!list) return;
+      const i = list.findIndex(g => g.id === genId);
+      if (i === -1) return;
+      list[i] = fn({ ...list[i] });
+      writeImagesInput(prefix, images);
+    }
+
     // ── List rendering ─────────────────────────────────────────────────────────
 
+    function firstImageUrlFromPrompt(ip) {
+      if (!ip) return null;
+      const imgs = normalizeImagesFromPrompt(ip);
+      return imgs[0]?.url || ip.imageUrls?.[0] || null;
+    }
+
     function figureThumb(f) {
-      return f.default?.variantA?.imagePrompt?.imageUrls?.[0]
-          || f.default?.variantB?.imagePrompt?.imageUrls?.[0]
-          || f.skins?.[0]?.variantA?.imagePrompt?.imageUrls?.[0]
-          || f.skins?.[0]?.variantB?.imagePrompt?.imageUrls?.[0]
+      return firstImageUrlFromPrompt(f.default?.variantA?.imagePrompt)
+          || firstImageUrlFromPrompt(f.default?.variantB?.imagePrompt)
+          || firstImageUrlFromPrompt(f.skins?.[0]?.variantA?.imagePrompt)
+          || firstImageUrlFromPrompt(f.skins?.[0]?.variantB?.imagePrompt)
           || null;
     }
 
@@ -450,10 +535,9 @@
       if (wrap) wrap.innerHTML = modelSelectHtml(`f-${prefix}-model`, ip.model ?? bestDefaultModel());
       document.getElementById(`f-${prefix}-prompt`).value = ip.prompt ?? "";
       document.getElementById(`f-${prefix}-neg`).value = ip.negativePrompt ?? "";
-      const urls = ip.imageUrls ?? [];
-      const urlInput = document.getElementById(`f-${prefix}-imageurls`);
-      if (urlInput) urlInput.value = JSON.stringify(urls);
-      renderImageGallery(prefix, urls);
+      const images = normalizeImagesFromPrompt(ip);
+      writeImagesInput(prefix, images);
+      renderImageGallery(prefix, images);
     }
 
     function getVariantFields(prefix) {
@@ -461,11 +545,13 @@
       const model = modelEl?.value?.trim() ?? bestDefaultModel();
       const prompt = document.getElementById(`f-${prefix}-prompt`).value.trim();
       const neg = document.getElementById(`f-${prefix}-neg`).value.trim();
-      const urlsRaw = document.getElementById(`f-${prefix}-imageurls`)?.value ?? "[]";
-      const imageUrls = JSON.parse(urlsRaw);
+      const images = readImagesInput(prefix);
       const ip = { model, prompt };
       if (neg) ip.negativePrompt = neg;
-      if (imageUrls.length) ip.imageUrls = imageUrls;
+      if (images.length) {
+        ip.images = images;
+        ip.imageUrls = images.map(i => i.url).filter(Boolean);
+      }
       return { imagePrompt: ip };
     }
 
@@ -538,28 +624,57 @@
 
     const IMAGES_PER_CAROUSEL_SLIDE = 2;
 
-    function chunkUrlsForCarousel(urls, chunkSize) {
+    function chunkImagesForCarousel(images, chunkSize) {
       const slides = [];
-      for (let i = 0; i < urls.length; i += chunkSize) slides.push(urls.slice(i, i + chunkSize));
+      for (let i = 0; i < images.length; i += chunkSize) slides.push(images.slice(i, i + chunkSize));
       return slides;
     }
 
-    function singleImageCellHtml(prefix, url, globalIndex, imageLabel) {
+    function models3dListHtml(prefix, imageIndex, asset) {
+      const models = asset.models3d ?? [];
+      if (!models.length) return "";
       const prefixJson = JSON.stringify(prefix);
+      return `<div class="px-2 py-2.5 space-y-2 border-t border-[#2a2a45] bg-[#12121f]">
+        ${models.map((g, gi) => {
+          const sel = asset.selectedModel3dId === g.id;
+          const statusClass = g.status === "success" ? "text-emerald-300" : g.status === "failed" ? "text-red-300" : "text-amber-300";
+          const url = g.pbrModelUrl || g.modelUrl;
+          const idJson = JSON.stringify(g.id);
+          const errTip = g.error ? escAttr(g.error) : "";
+          return `<div class="flex items-center gap-2 flex-wrap text-sm font-mono leading-normal min-h-[2rem] rounded-md px-2 py-1.5 bg-[#0e0e18] border border-[#252538] ${statusClass}">
+            <span class="font-bold text-slate-100 tabular-nums shrink-0">${sel ? "★ " : ""}Mesh ${gi + 1}</span>
+            <span class="text-slate-200 capitalize font-medium">${g.status}</span>
+            ${url ? `<a href="${escHtml(url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold uppercase tracking-wide bg-violet-600 text-white hover:bg-violet-500 border border-violet-400/60 shadow-sm">Open mesh</a>` : ""}
+            ${g.status === "success" && url ? `<button type="button" class="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold uppercase tracking-wide border shadow-sm ${sel ? "bg-amber-500/25 text-amber-200 border-amber-400/50" : "bg-slate-600 text-slate-100 border-slate-500 hover:bg-slate-500"}" onclick='window.__selectModel3d(${prefixJson}, ${imageIndex}, ${idJson})'>${sel ? "Active" : "Use mesh"}</button>` : ""}
+            ${g.error ? `<span class="text-red-300 max-w-[12rem] truncate text-xs font-medium" title="${errTip}">⚠ error</span>` : ""}
+          </div>`;
+        }).join("")}
+      </div>`;
+    }
+
+    function singleImageCellHtml(prefix, asset, globalIndex) {
+      const prefixJson = JSON.stringify(prefix);
+      const url = asset.url || "";
+      const label = `Generated ${globalIndex + 1}`;
       return `
-            <div class="relative group rounded overflow-hidden border border-[#1a1a2e] min-h-0">
-              <img src="${escHtml(url)}" loading="lazy" class="w-full aspect-square object-cover" alt="${escAttr(imageLabel)}">
-              <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors pointer-events-none"></div>
-              <button type="button" onclick='window.__removeImage(${prefixJson}, ${globalIndex})'
-                      class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 bg-black/70 hover:bg-red-900/80 text-red-400 rounded px-1.5 py-0.5 text-[9px] font-mono transition-all z-10">✕</button>
-              <a href="${escHtml(url)}" target="_blank" rel="noopener noreferrer"
-                 class="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 bg-black/70 text-slate-300 rounded px-1.5 py-0.5 text-[9px] font-mono transition-all z-10">↗</a>
+            <div class="flex flex-col min-h-0 rounded overflow-hidden border border-[#1a1a2e] bg-[#0a0a14]">
+              <div class="relative group flex-shrink-0">
+                <img src="${escHtml(url)}" loading="lazy" class="w-full aspect-square object-cover" alt="${escAttr(label)}">
+                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors pointer-events-none"></div>
+                <button type="button" onclick='window.__removeImage(${prefixJson}, ${globalIndex})'
+                        class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 bg-black/70 hover:bg-red-900/80 text-red-400 rounded px-1.5 py-0.5 text-[9px] font-mono transition-all z-10">✕</button>
+                <a href="${escHtml(url)}" target="_blank" rel="noopener noreferrer"
+                   class="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 bg-black/70 text-slate-300 rounded px-1.5 py-0.5 text-[9px] font-mono transition-all z-10">↗</a>
+              </div>
+              <button type="button" onclick='window.__mesh3dFromImage(${prefixJson}, ${globalIndex})'
+                      class="w-full min-h-[2.25rem] py-2 px-2 text-[11px] font-mono font-medium tracking-wide bg-cyan-600 hover:bg-cyan-500 text-white border-t border-cyan-500/40 shadow-inner transition-colors">Create 3D mesh</button>
+              ${models3dListHtml(prefix, globalIndex, asset)}
             </div>`;
     }
 
-    function imageGalleryInnerHtml(prefix, urls) {
-      if (!urls.length) return "";
-      const slides = chunkUrlsForCarousel(urls, IMAGES_PER_CAROUSEL_SLIDE);
+    function imageGalleryInnerHtml(prefix, images) {
+      if (!images.length) return "";
+      const slides = chunkImagesForCarousel(images, IMAGES_PER_CAROUSEL_SLIDE);
       const numSlides = slides.length;
       const slidePct = 100 / numSlides;
       let current = galleryCarouselSlide[prefix] ?? 0;
@@ -568,9 +683,9 @@
       galleryCarouselSlide[prefix] = current;
 
       const slidesHtml = slides.map((pair, si) => {
-        const cells = pair.map((url, j) => {
+        const cells = pair.map((asset, j) => {
           const globalIndex = si * IMAGES_PER_CAROUSEL_SLIDE + j;
-          return singleImageCellHtml(prefix, url, globalIndex, `Generated ${globalIndex + 1}`);
+          return singleImageCellHtml(prefix, asset, globalIndex);
         });
         if (pair.length === 1) cells.push('<div class="rounded border border-dashed border-[#1a1a2e] bg-[#0a0a14]/50 min-h-[4rem]" aria-hidden="true"></div>');
         return `
@@ -585,8 +700,8 @@
 
       return `
         <div class="flex items-center justify-between gap-2">
-          <label class="text-[10px] font-mono text-slate-500">Generated Images (${urls.length})</label>
-          <span class="text-[10px] font-mono text-slate-600 tabular-nums">${current + 1} / ${numSlides}</span>
+          <label class="text-xs font-mono text-slate-400">Generated Images (${images.length})</label>
+          <span class="text-xs font-mono text-slate-500 tabular-nums">${current + 1} / ${numSlides}</span>
         </div>
         <div class="flex items-stretch gap-1.5">
           <button type="button" aria-label="Previous images"
@@ -606,23 +721,77 @@
     }
 
     window.__carouselStep = function(prefix, delta) {
-      const input = document.getElementById(`f-${prefix}-imageurls`);
-      if (!input) return;
-      let urls;
-      try { urls = JSON.parse(input.value); } catch { return; }
-      if (!Array.isArray(urls) || !urls.length) return;
-      const numSlides = Math.ceil(urls.length / IMAGES_PER_CAROUSEL_SLIDE);
+      const images = readImagesInput(prefix);
+      if (!images.length) return;
+      const numSlides = Math.ceil(images.length / IMAGES_PER_CAROUSEL_SLIDE);
       let s = galleryCarouselSlide[prefix] ?? 0;
       s = Math.max(0, Math.min(numSlides - 1, s + delta));
       galleryCarouselSlide[prefix] = s;
-      renderImageGallery(prefix, urls);
+      renderImageGallery(prefix, images);
     };
 
-    function renderImageGallery(prefix, urls) {
+    window.__selectModel3d = async function(prefix, imageIndex, modelId) {
+      const images = readImagesInput(prefix);
+      if (!images[imageIndex]) return;
+      images[imageIndex].selectedModel3dId = modelId;
+      writeImagesInput(prefix, images);
+      renderImageGallery(prefix, images);
+      await autoSaveFigure();
+    };
+
+    window.__mesh3dFromImage = async function(prefix, imageIndex) {
+      const images = readImagesInput(prefix);
+      const asset = images[imageIndex];
+      if (!asset?.url) return;
+      const genId = newAssetId();
+      const gen = {
+        id: genId,
+        createdAt: new Date().toISOString(),
+        status: "running",
+        animations: [],
+      };
+      if (!asset.models3d) asset.models3d = [];
+      asset.models3d.push(gen);
+      writeImagesInput(prefix, images);
+      renderImageGallery(prefix, images);
+
+      try {
+        const start = await apiFetch("/api/tripo/mesh-from-image-url", {
+          method: "POST",
+          body: JSON.stringify({ imageUrl: asset.url }),
+        });
+        if (start.error) throw new Error(start.error);
+        const meshTaskId = start.meshTaskId;
+        if (!meshTaskId) throw new Error("No meshTaskId");
+        updateModel3dById(prefix, imageIndex, genId, g => ({ ...g, meshTaskId }));
+        renderImageGallery(prefix, readImagesInput(prefix));
+        const task = await pollTripoTaskUntilDone(meshTaskId);
+        const pbr = task.output?.pbr_model;
+        const model = task.output?.model ?? pbr;
+        updateModel3dById(prefix, imageIndex, genId, g => ({
+          ...g,
+          status: "success",
+          meshTaskId,
+          pbrModelUrl: pbr,
+          modelUrl: model,
+        }));
+      } catch (err) {
+        updateModel3dById(prefix, imageIndex, genId, g => ({
+          ...g,
+          status: "failed",
+          error: err instanceof Error ? err.message : String(err),
+        }));
+      } finally {
+        renderImageGallery(prefix, readImagesInput(prefix));
+        await autoSaveFigure();
+      }
+    };
+
+    function renderImageGallery(prefix, images) {
       const gallery = document.getElementById(`img-gallery-${prefix}`);
       if (!gallery) return;
-      gallery.classList.toggle("hidden", !urls.length);
-      gallery.innerHTML = imageGalleryInnerHtml(prefix, urls);
+      gallery.classList.toggle("hidden", !images.length);
+      gallery.innerHTML = imageGalleryInnerHtml(prefix, images);
     }
 
     window.__generateImage = async function(prefix) {
@@ -651,11 +820,10 @@
         const url = first?.url ?? (first?.b64_json ? `data:image/png;base64,${first.b64_json}` : null);
         if (!url) throw new Error("No image in response");
 
-        const input = document.getElementById(`f-${prefix}-imageurls`);
-        const urls = JSON.parse(input.value);
-        urls.push(url);
-        input.value = JSON.stringify(urls);
-        renderImageGallery(prefix, urls);
+        const images = readImagesInput(prefix);
+        images.push({ url, models3d: [] });
+        writeImagesInput(prefix, images);
+        renderImageGallery(prefix, images);
 
         statusEl.textContent = "Saved";
         await autoSaveFigure();
@@ -669,11 +837,10 @@
     };
 
     window.__removeImage = async function(prefix, index) {
-      const input = document.getElementById(`f-${prefix}-imageurls`);
-      const urls = JSON.parse(input.value);
-      urls.splice(index, 1);
-      input.value = JSON.stringify(urls);
-      renderImageGallery(prefix, urls);
+      const images = readImagesInput(prefix);
+      images.splice(index, 1);
+      writeImagesInput(prefix, images);
+      renderImageGallery(prefix, images);
       await autoSaveFigure();
     };
 
@@ -770,7 +937,7 @@
           <div class="flex items-center gap-2">
             <button type="button" onclick="window.__generateVariant('${prefix}','${variant}')"
                     class="px-2.5 py-1 bg-violet-600 hover:bg-violet-500 disabled:opacity-40 text-white text-[10px] font-mono rounded transition-colors">✦ Generate</button>
-            <span id="variant-ai-status-${prefix}" class="text-[10px] font-mono text-slate-600"></span>
+            <span id="variant-ai-status-${prefix}" class="text-xs font-mono text-slate-400 min-h-[1.25rem]"></span>
           </div>
         </div>
         <div>
@@ -787,14 +954,14 @@
           <textarea id="f-${prefix}-neg" rows="2"
                     class="w-full bg-[#080810] border border-[#1a1a2e] rounded px-3 py-2 text-xs font-mono text-slate-300 focus:outline-none focus:border-violet-600/50 transition-colors resize-none leading-relaxed">${escHtml(ip.negativePrompt ?? '')}</textarea>
         </div>
-        <input type="hidden" id="f-${prefix}-imageurls" value="${escAttr(JSON.stringify(ip.imageUrls ?? []))}">
+        <input type="hidden" id="f-${prefix}-images" value="${escAttr(JSON.stringify(normalizeImagesFromPrompt(ip)))}">
         <div class="flex items-center gap-2 pt-1">
           <button type="button" data-gen-img-btn="${prefix}" onclick="window.__generateImage('${prefix}')"
                   class="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-40 text-white text-[10px] font-mono rounded transition-colors">⬡ Generate Image</button>
-          <span id="img-status-${prefix}" class="text-[10px] font-mono text-slate-600"></span>
+          <span id="img-status-${prefix}" class="text-xs font-mono text-slate-400 min-h-[1.25rem] flex items-center"></span>
         </div>
-        <div id="img-gallery-${prefix}" class="${(ip.imageUrls ?? []).length ? '' : 'hidden'} space-y-1.5">
-          ${imageGalleryInnerHtml(prefix, ip.imageUrls ?? [])}
+        <div id="img-gallery-${prefix}" class="${normalizeImagesFromPrompt(ip).length ? '' : 'hidden'} space-y-1.5">
+          ${imageGalleryInnerHtml(prefix, normalizeImagesFromPrompt(ip))}
         </div>`;
     }
 

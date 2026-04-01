@@ -4,6 +4,7 @@ import path from "path";
 import fs from "fs";
 import { sseHeaders, sseWrite } from "../lib/sse";
 import { getTripo } from "../services";
+import { extractTripoUploadToken } from "../integrations/trippo/uploadToken";
 import type { Response } from "express";
 
 const upload = multer({ dest: path.join(process.cwd(), "uploads") });
@@ -54,7 +55,7 @@ router.post("/", upload.single("image"), async (req, res) => {
       file.originalname || "upload.png",
       mimeType
     );
-    const fileToken = (uploadResult.data as Record<string, unknown>).file_token as string;
+    const fileToken = extractTripoUploadToken(uploadResult);
     emitStep(res, "upload", "success", { fileToken });
     cleanup();
 

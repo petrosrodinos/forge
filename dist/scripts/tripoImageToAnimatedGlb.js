@@ -8,13 +8,8 @@ const axios_1 = __importDefault(require("axios"));
 const path_1 = __importDefault(require("path"));
 const promises_1 = require("fs/promises");
 const TripoService_1 = require("../integrations/trippo/TripoService");
+const uploadToken_1 = require("../integrations/trippo/uploadToken");
 const fileHelpers_1 = require("../cli/fileHelpers");
-function uploadToken(data) {
-    const t = data.file_token ?? data.image_token;
-    if (typeof t !== "string" || !t)
-        throw new Error("Upload response missing file_token/image_token");
-    return t;
-}
 function imageTypeFromPath(p) {
     const e = path_1.default.extname(p).toLowerCase();
     if (e === ".png")
@@ -82,9 +77,7 @@ async function main() {
     const outGlb = process.argv[3] ?? path_1.default.join(generationDir, `${imageName}-animated.glb`);
     const metaPath = process.argv[4] ?? path_1.default.join(generationDir, `${imageName}-tripo-meta.json`);
     const upload = await tripo.uploadFile(buf, path_1.default.basename(absolutePath), path_1.default.extname(absolutePath).toLowerCase() === ".png" ? "image/png" : "image/jpeg");
-    if (upload.code !== 0)
-        throw new Error(String(upload.message ?? "upload failed"));
-    const token = uploadToken(upload.data);
+    const token = (0, uploadToken_1.extractTripoUploadToken)(upload);
     const imgType = imageTypeFromPath(absolutePath);
     const meshRes = await tripo.createTask({
         type: "image_to_model",

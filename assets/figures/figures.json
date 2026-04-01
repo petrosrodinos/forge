@@ -8,6 +8,20 @@
           "model": "flux/schnell",
           "prompt": "A highly detailed ancient Greek hoplite warrior miniature figurine, full body, straight front view, facing forward, symmetrical pose, wearing a gleaming bronze Corinthian helmet and polished ivory-gold breastplate, holding a long spear and round hoplon shield decorated with a golden sun emblem, warm amber and gold color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
           "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background",
+          "images": [
+            {
+              "url": "https://cdn.aimlapi.com/flamingo/files/b/0a948181/nopaGncUROMn1xCzt6PrI.jpg",
+              "models3d": [
+                {
+                  "id": "740e15a8-b842-4cad-a9fd-ead2c5b473a4",
+                  "createdAt": "2026-04-01T17:11:47.017Z",
+                  "status": "failed",
+                  "animations": [],
+                  "error": "Tripo upload did not return file_token"
+                }
+              ]
+            }
+          ],
           "imageUrls": [
             "https://cdn.aimlapi.com/flamingo/files/b/0a948181/nopaGncUROMn1xCzt6PrI.jpg"
           ]
@@ -18,6 +32,12 @@
           "model": "flux/schnell",
           "prompt": "A highly detailed ancient Greek hoplite warrior miniature figurine, full body, straight front view, facing forward, symmetrical pose, wearing a dark iron Corinthian helmet and obsidian-black breastplate with slate blue accents, holding a long spear and round hoplon shield decorated with a silver crescent emblem, cool dark iron and midnight blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
           "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background",
+          "images": [
+            {
+              "url": "https://cdn.aimlapi.com/flamingo/files/b/0a9487b0/I3msHyALTgkdAEDtTACqp.jpg",
+              "models3d": []
+            }
+          ],
           "imageUrls": [
             "https://cdn.aimlapi.com/flamingo/files/b/0a9487b0/I3msHyALTgkdAEDtTACqp.jpg"
           ]
@@ -26,19 +46,93 @@
     },
     "skins": [
       {
-        "name": "Spartan",
+        "name": "Alien Spartan",
         "variantA": {
           "imagePrompt": {
             "model": "flux/schnell",
-            "prompt": "A1 highly detailed Spartan warrior miniature figurine, full body, straight front view, facing forward, symmetrical pose, wearing an open-faced bronze helmet with a red horsehair crest, muscular torso in a crimson-trimmed linothorax, holding a short xiphos sword and round shield with a lambda symbol, warm red and burnished bronze color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
-            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background"
+            "prompt": "A1 highly detailed alien Spartan hoplite miniature figurine, full body, front view, facing forward, symmetrical pose, wearing an open-faced bronze helmet with a red horsehair crest, featuring unique alien facial features like elongated eyes and textured skin, muscular torso in a crimson-trimmed linothorax, holding a short xiphos sword and round shield with a lambda symbol, warm red and burnished bronze color scheme with alien-inspired patterns, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, side view, angled, 3/4 view, profile, turned, back view, background scenery, multiple figures, text, watermark, dark colors, shadow on background",
+            "images": [
+              {
+                "url": "https://cdn.aimlapi.com/flamingo/files/b/0a9487ed/dj7YxUmfj8DOmtNQGQIHF.jpg",
+                "selectedModel3dId": "15c72c37-ea1f-4c0d-b550-c635bde457fb",
+                "models3d": [
+                  {
+                    "id": "30b33adb-ae52-41e6-9124-3f2c19fac403",
+                    "createdAt": "2026-04-01T17:12:52.738Z",
+                    "status": "failed",
+                    "animations": [],
+                    "error": "Tripo upload did not return file_token"
+                  },
+                  {
+                    "id": "15c72c37-ea1f-4c0d-b550-c635bde457fb",
+                    "createdAt": "2026-04-01T17:16:36.304Z",
+                    "status": "success",
+                    "animations": [],
+                    "meshTaskId": "747e94f9-fa2a-4929-836b-40076b865c46",
+                    "pbrModelUrl": "https://tripo-data.rg1.data.tripo3d.com/tcli_36171dc1c2a54010bf133178663646c7/20260401/747e94f9-fa2a-4929-836b-40076b865c46/tripo_pbr_model_747e94f9-fa2a-4929-836b-40076b865c46.glb?Key-Pair-Id=K1676C64NMVM2J&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly90cmlwby1kYXRhLnJnMS5kYXRhLnRyaXBvM2QuY29tL3RjbGlfMzYxNzFkYzFjMmE1NDAxMGJmMTMzMTc4NjYzNjQ2YzcvMjAyNjA0MDEvNzQ3ZTk0ZjktZmEyYS00OTI5LTgzNmItNDAwNzZiODY1YzQ2L3RyaXBvX3Bicl9tb2RlbF83NDdlOTRmOS1mYTJhLTQ5MjktODM2Yi00MDA3NmI4NjVjNDYuZ2xiIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzc1MDg4MDAwfX19XX0_&Signature=Dvx8soZGxsVFE-kgcb3SbrHgk~ExT3F1WNhnKsRhHyPj~66d7VWKXpF0F~csMVsrToCs9DGeHhdRCINQZy0EyFLDZXf5lvTREZzwKimbDl9qjiRlPfozt9AbCQpt8sVWpKvSoyPhvFUc48DymOfsxkB~~NXBuzfF7K5fc8jDUsqLb3L4dzeO9WvR4ETZ1H1gMjeHhZpMuLPFz~dr-ZSK-wNlYe1sj4B7SHSCMgynITFpW-aPCN68gR4U8VSUHq3c31tBgmC2FPxYgypUuQQbY4ibczSumvEuTmiY6bL3nv7s6x3CGZIV3je2-2CpeiRCEr2-DqszS9spPAGIIhZOSg__",
+                    "modelUrl": "https://tripo-data.rg1.data.tripo3d.com/tcli_36171dc1c2a54010bf133178663646c7/20260401/747e94f9-fa2a-4929-836b-40076b865c46/tripo_pbr_model_747e94f9-fa2a-4929-836b-40076b865c46.glb?Key-Pair-Id=K1676C64NMVM2J&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly90cmlwby1kYXRhLnJnMS5kYXRhLnRyaXBvM2QuY29tL3RjbGlfMzYxNzFkYzFjMmE1NDAxMGJmMTMzMTc4NjYzNjQ2YzcvMjAyNjA0MDEvNzQ3ZTk0ZjktZmEyYS00OTI5LTgzNmItNDAwNzZiODY1YzQ2L3RyaXBvX3Bicl9tb2RlbF83NDdlOTRmOS1mYTJhLTQ5MjktODM2Yi00MDA3NmI4NjVjNDYuZ2xiIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzc1MDg4MDAwfX19XX0_&Signature=Dvx8soZGxsVFE-kgcb3SbrHgk~ExT3F1WNhnKsRhHyPj~66d7VWKXpF0F~csMVsrToCs9DGeHhdRCINQZy0EyFLDZXf5lvTREZzwKimbDl9qjiRlPfozt9AbCQpt8sVWpKvSoyPhvFUc48DymOfsxkB~~NXBuzfF7K5fc8jDUsqLb3L4dzeO9WvR4ETZ1H1gMjeHhZpMuLPFz~dr-ZSK-wNlYe1sj4B7SHSCMgynITFpW-aPCN68gR4U8VSUHq3c31tBgmC2FPxYgypUuQQbY4ibczSumvEuTmiY6bL3nv7s6x3CGZIV3je2-2CpeiRCEr2-DqszS9spPAGIIhZOSg__"
+                  }
+                ]
+              }
+            ],
+            "imageUrls": [
+              "https://cdn.aimlapi.com/flamingo/files/b/0a9487ed/dj7YxUmfj8DOmtNQGQIHF.jpg"
+            ]
           }
         },
         "variantB": {
           "imagePrompt": {
             "model": "flux/schnell",
-            "prompt": "A highly detailed Spartan warrior miniature figurine, full body, straight front view, facing forward, symmetrical pose, wearing an open-faced dark iron helmet with a black horsehair crest, torso in a dark charcoal linothorax, holding a short xiphos sword and round shield with a silver lambda symbol, cool dark iron and deep grey color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
-            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background"
+            "prompt": "A highly detailed alien Spartan warrior miniature figurine, full body, front view, facing forward, symmetrical pose, wearing an open-faced dark iron helmet with an obsidian horsehair crest, featuring unique alien facial features like bioluminescent patterns and elongated facial structure, muscular torso in a slate-trimmed linothorax, holding a short xiphos sword and round shield with a silver lambda symbol, cool obsidian and cold slate color scheme with alien-inspired designs, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background, side view, angled, 3/4 view, profile, turned, back view, cropped",
+            "images": [
+              {
+                "url": "https://cdn.aimlapi.com/flamingo/files/b/0a948804/cJmovop6gs6mt-6xDtyWd.jpg",
+                "models3d": []
+              },
+              {
+                "url": "https://cdn.aimlapi.com/flamingo/files/b/0a948809/y-yxeU1IxnbtpnOvu4HUV.jpg",
+                "models3d": []
+              }
+            ],
+            "imageUrls": [
+              "https://cdn.aimlapi.com/flamingo/files/b/0a948804/cJmovop6gs6mt-6xDtyWd.jpg",
+              "https://cdn.aimlapi.com/flamingo/files/b/0a948809/y-yxeU1IxnbtpnOvu4HUV.jpg"
+            ]
+          }
+        }
+      },
+      {
+        "name": "Cat Hoplite",
+        "variantA": {
+          "imagePrompt": {
+            "model": "flux-pro/v1.1-ultra",
+            "prompt": "A highly detailed miniature figurine of a cat hoplite in a warm palette. The cat is dressed in a traditional hoplite armor with gold and bronze accents, holding a spear and shield. Its fur is a vivid amber red, with sunlit highlights. The armor includes intricate ivory and cream details, capturing the elegance and strength of a hoplite warrior. The cat's expression is fierce and determined, embodying the essence of a warrior. front view, facing forward, symmetrical pose, full body",
+            "negativePrompt": "side view, angled, 3/4 view, profile, turned, back view, cropped",
+            "images": [
+              {
+                "url": "https://cdn.aimlapi.com/flamingo/files/b/0a948814/u4s6YkGO6Wf9_7NHR6z5M_37fe2d69cce74b97aedcd87fdb02db8d.jpg",
+                "models3d": [
+                  {
+                    "id": "a8fc18bb-a689-41ba-8a51-5f1b40013981",
+                    "createdAt": "2026-04-01T17:08:19.007Z",
+                    "status": "failed",
+                    "animations": [],
+                    "error": "Tripo upload did not return file_token"
+                  }
+                ]
+              }
+            ],
+            "imageUrls": [
+              "https://cdn.aimlapi.com/flamingo/files/b/0a948814/u4s6YkGO6Wf9_7NHR6z5M_37fe2d69cce74b97aedcd87fdb02db8d.jpg"
+            ]
+          }
+        },
+        "variantB": {
+          "imagePrompt": {
+            "model": "flux-pro/v1.1-ultra",
+            "prompt": ""
           }
         }
       }
@@ -391,7 +485,10 @@
         "imagePrompt": {
           "model": "flux/schnell",
           "prompt": "A highly detailed miniature cave entrance terrain piece, isometric view, a jagged cave mouth cut through dark obsidian and basalt rock, with a glowing icy blue interior, cool charcoal and slate-blue rock surfaces, isolated on a pure white background, no shadows, product photography style, 3D render",
-          "negativePrompt": "blurry, low quality, cropped, figures inside, text, watermark, warm colors, shadow on background"
+          "negativePrompt": "blurry, low quality, cropped, figures inside, text, watermark, warm colors, shadow on background",
+          "imageUrls": [
+            "https://cdn.aimlapi.com/flamingo/files/b/0a9487e8/cJJPdJioMamiMgq0AEK-6.jpg"
+          ]
         }
       }
     },
