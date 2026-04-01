@@ -242,6 +242,33 @@
     </div>
   </main>
 
+  <!-- 3D mesh preview (model-viewer) -->
+  <div id="mesh-viewer-modal" class="fixed inset-0 z-[300] hidden flex items-center justify-center p-3 sm:p-6"
+       role="dialog" aria-modal="true" aria-labelledby="mesh-viewer-title">
+    <button type="button" id="mesh-viewer-backdrop" class="absolute inset-0 bg-black/80 backdrop-blur-sm border-0 cursor-pointer" aria-label="Close preview"></button>
+    <div class="relative z-10 w-full max-w-5xl rounded-xl border border-[#2a2a45] bg-[#0e0e1a] shadow-2xl shadow-black/70 flex flex-col max-h-[92vh] overflow-hidden">
+      <div class="flex items-center justify-between gap-3 px-4 py-3 border-b border-[#1a1a2e] flex-shrink-0">
+        <h2 id="mesh-viewer-title" class="text-sm font-mono font-semibold text-slate-200">3D preview</h2>
+        <button type="button" id="mesh-viewer-close"
+                class="px-3 py-1.5 text-xs font-mono rounded-md bg-[#1a1a2e] text-slate-200 hover:bg-violet-600/40 hover:text-white border border-[#2a2a45] transition-colors">
+          Close
+        </button>
+      </div>
+      <div class="flex-1 min-h-0 p-2 sm:p-4 overflow-auto">
+        <model-viewer id="mesh-model-viewer"
+                      camera-controls
+                      touch-action="pan-y"
+                      shadow-intensity="1"
+                      exposure="1"
+                      alt="3D mesh preview">
+        </model-viewer>
+      </div>
+      <p class="px-4 pb-3 pt-0 text-[11px] font-mono text-slate-500 flex-shrink-0">Drag to orbit · scroll / pinch to zoom · right-drag to pan</p>
+    </div>
+  </div>
+
+  <script type="module" src="/vendor/model-viewer/model-viewer.min.js"></script>
+
   <style>
     .filter-btn { color: #64748b; background: transparent; }
     .filter-btn:hover { color: #94a3b8; background: rgba(255,255,255,0.04); }
@@ -262,6 +289,13 @@
     .img-carousel-viewport { overflow: hidden; border-radius: 0.5rem; }
     .img-carousel-track { display: flex; transition: transform 0.3s ease-out; }
     .img-carousel-slide { flex: 0 0 auto; box-sizing: border-box; }
+    #mesh-model-viewer {
+      width: 100%;
+      height: min(70vh, 720px);
+      min-height: 280px;
+      background: #080810;
+      border-radius: 8px;
+    }
   </style>
 
   <script type="module">
@@ -305,10 +339,95 @@
       document.getElementById("btn-add-skin").addEventListener("click", () => addSkinCard());
       document.getElementById("btn-toggle-cli").addEventListener("click", toggleCli);
       document.getElementById("search").addEventListener("input", renderList);
+      wireMeshViewerModal();
       // models must resolve before figures so dropdowns are ready when any figure is clicked
       await loadImageModels();
       await loadFigures();
     }
+
+    function wireMeshViewerModal() {
+      const modal = document.getElementById("mesh-viewer-modal");
+      const closeBtn = document.getElementById("mesh-viewer-close");
+      const backdrop = document.getElementById("mesh-viewer-backdrop");
+      const close = () => window.__closeMeshViewer();
+      closeBtn?.addEventListener("click", e => { e.stopPropagation(); close(); });
+      backdrop?.addEventListener("click", close);
+      document.addEventListener("keydown", e => {
+        if (e.key !== "Escape") return;
+        if (modal?.classList.contains("hidden")) return;
+        close();
+      });
+    }
+
+    function isTripoMeshCdnUrl(url) {
+      try {
+        const u = new URL(url);
+        if (u.protocol !== "https:") return false;
+        const h = u.hostname.toLowerCase();
+        return h.endsWith(".tripo3d.com") || h.endsWith(".tripo3d.ai");
+      } catch {
+        return false;
+      }
+    }
+
+    function revokeMeshViewerObjectUrl() {
+      const mv = document.getElementById("mesh-model-viewer");
+      const u = mv?.dataset?.blobUrl;
+      if (u && mv) {
+        URL.revokeObjectURL(u);
+        delete mv.dataset.blobUrl;
+      }
+    }
+
+    window.__openMeshViewer = async function(url) {
+      if (!url || typeof url !== "string") return;
+      const modal = document.getElementById("mesh-viewer-modal");
+      const mv = document.getElementById("mesh-model-viewer");
+      const titleEl = document.getElementById("mesh-viewer-title");
+      if (!modal || !mv) return;
+
+      revokeMeshViewerObjectUrl();
+      mv.removeAttribute("src");
+
+      modal.classList.remove("hidden");
+      document.body.classList.add("overflow-hidden");
+
+      if (isTripoMeshCdnUrl(url)) {
+        if (titleEl) titleEl.textContent = "Loading model…";
+        try {
+          const res = await fetch("/api/tripo/proxy-model", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url }),
+          });
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error || `HTTP ${res.status}`);
+          }
+          const blob = await res.blob();
+          const objectUrl = URL.createObjectURL(blob);
+          mv.dataset.blobUrl = objectUrl;
+          mv.src = objectUrl;
+        } catch (e) {
+          alert(e instanceof Error ? e.message : String(e));
+          modal.classList.add("hidden");
+          document.body.classList.remove("overflow-hidden");
+        } finally {
+          if (titleEl) titleEl.textContent = "3D preview";
+        }
+      } else {
+        mv.src = url;
+      }
+    };
+
+    window.__closeMeshViewer = function() {
+      revokeMeshViewerObjectUrl();
+      const modal = document.getElementById("mesh-viewer-modal");
+      const mv = document.getElementById("mesh-model-viewer");
+      if (mv) mv.removeAttribute("src");
+      modal?.classList.add("hidden");
+      document.body.classList.remove("overflow-hidden");
+    };
 
     async function loadImageModels() {
       try {
@@ -644,6 +763,7 @@
           return `<div class="flex items-center gap-2 flex-wrap text-sm font-mono leading-normal min-h-[2rem] rounded-md px-2 py-1.5 bg-[#0e0e18] border border-[#252538] ${statusClass}">
             <span class="font-bold text-slate-100 tabular-nums shrink-0">${sel ? "★ " : ""}Mesh ${gi + 1}</span>
             <span class="text-slate-200 capitalize font-medium">${g.status}</span>
+            ${url ? `<button type="button" onclick='window.__openMeshViewer(${JSON.stringify(url)})' class="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold uppercase tracking-wide bg-teal-600 text-white hover:bg-teal-500 border border-teal-400/60 shadow-sm">View 3D</button>` : ""}
             ${url ? `<a href="${escHtml(url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold uppercase tracking-wide bg-violet-600 text-white hover:bg-violet-500 border border-violet-400/60 shadow-sm">Open mesh</a>` : ""}
             ${g.status === "success" && url ? `<button type="button" class="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold uppercase tracking-wide border shadow-sm ${sel ? "bg-amber-500/25 text-amber-200 border-amber-400/50" : "bg-slate-600 text-slate-100 border-slate-500 hover:bg-slate-500"}" onclick='window.__selectModel3d(${prefixJson}, ${imageIndex}, ${idJson})'>${sel ? "Active" : "Use mesh"}</button>` : ""}
             ${g.error ? `<span class="text-red-300 max-w-[12rem] truncate text-xs font-medium" title="${errTip}">⚠ error</span>` : ""}

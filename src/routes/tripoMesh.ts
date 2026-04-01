@@ -8,6 +8,75 @@ const router = Router();
 
 const DEFAULT_MODEL_VERSION = "v2.5-20250123";
 
+const PROXY_MAX_BYTES = 150 * 1024 * 1024;
+
+/** Only Tripo asset hosts — not an open proxy. */
+function isAllowedTripoMeshHost(hostname: string): boolean {
+  const h = hostname.toLowerCase();
+  return h.endsWith(".tripo3d.com") || h.endsWith(".tripo3d.ai");
+}
+
+function parseAllowedModelUrl(raw: string): URL | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  let u: URL;
+  try {
+    u = new URL(trimmed);
+  } catch {
+    return null;
+  }
+  if (u.protocol !== "https:") return null;
+  if (!isAllowedTripoMeshHost(u.hostname)) return null;
+  return u;
+}
+
+/**
+ * Same-origin fetch for GLB/GLTF (Tripo CDN blocks browser CORS).
+ * POST JSON { url } so long signed URLs are not limited by query string length.
+ */
+router.post("/proxy-model", async (req, res) => {
+  try {
+    const url = req.body?.url;
+    if (typeof url !== "string") {
+      res.status(400).json({ error: "url is required" });
+      return;
+    }
+    const target = parseAllowedModelUrl(url);
+    if (!target) {
+      res.status(403).json({ error: "url must be https and a Tripo asset host (*.tripo3d.com / *.tripo3d.ai)" });
+      return;
+    }
+
+    const upstream = await axios.get<ArrayBuffer>(target.href, {
+      responseType: "arraybuffer",
+      timeout: 180_000,
+      maxContentLength: PROXY_MAX_BYTES,
+      validateStatus: (s) => s === 200,
+    });
+
+    const buf = Buffer.from(upstream.data);
+    if (buf.length > PROXY_MAX_BYTES) {
+      res.status(502).json({ error: "model exceeds size limit" });
+      return;
+    }
+
+    let ct = String(upstream.headers["content-type"] ?? "").split(";")[0].trim().toLowerCase();
+    if (!ct || ct === "application/octet-stream" || ct === "binary/octet-stream") {
+      ct = "model/gltf-binary";
+    }
+    res.setHeader("Content-Type", ct);
+    res.setHeader("Cache-Control", "private, max-age=300");
+    res.send(buf);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (axios.isAxiosError(err) && err.response?.status === 404) {
+      res.status(404).json({ error: "Model not found" });
+      return;
+    }
+    res.status(502).json({ error: msg || "proxy fetch failed" });
+  }
+});
+
 router.get("/task/:id", async (req, res) => {
   try {
     res.json(await getTripo().getTask(req.params.id));
