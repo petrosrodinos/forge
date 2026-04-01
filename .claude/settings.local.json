@@ -5,7 +5,14 @@
       "Bash(npx tsc:*)",
       "WebSearch",
       "WebFetch(domain:docs.aimlapi.com)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(ls:*)",
+      "Bash(node -e \"const ai = require\\(''''ai''''\\); console.log\\(Object.keys\\(ai\\).slice\\(0,30\\).join\\(''''\\\\n''''\\)\\)\")",
+      "Bash(node -e \"const ai = require\\(''ai''\\); console.log\\(ai.streamText ? ''has streamText'' : ''no streamText''\\); console.log\\(require\\(''ai/package.json''\\).version\\)\")",
+      "Bash(node -e \":*)",
+      "Bash(node:*)",
+      "Bash(timeout 8 npx ts-node src/server.ts)",
+      "Bash(npx kill-port:*)"
     ]
   }
 }
