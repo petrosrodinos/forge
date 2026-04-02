@@ -2,10 +2,12 @@ import "dotenv/config";
 import express from "express";
 import cookieParser from "cookie-parser";
 import path from "path";
+import swaggerUi from "swagger-ui-express";
 import { env } from "./config/env";
 import { prisma } from "./db/client";
 import { errorHandler } from "./middleware/errorHandler";
 import { requireAuth } from "./middleware/requireAuth";
+import { OPEN_API_DOCUMENT } from "./docs/openapi";
 
 import chatRouter from "./modules/chat/chat.router";
 import imagesRouter from "./modules/images/images.router";
@@ -32,6 +34,12 @@ app.use(
   "/vendor/model-viewer",
   express.static(path.join(__dirname, "../node_modules/@google/model-viewer/dist"))
 );
+
+// API docs
+app.get("/api/openapi.json", (_req, res) => {
+  res.json(OPEN_API_DOCUMENT);
+});
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(OPEN_API_DOCUMENT));
 
 // Auth (public)
 app.use("/api/auth", authRouter);
