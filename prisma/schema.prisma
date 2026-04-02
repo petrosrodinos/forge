@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+}
+
+// ─── Figure ───────────────────────────────────────────────────────────────────
+
+model Figure {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  type      String   // "figure" | "obstacle"
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  skins     Skin[]
+
+  @@index([name])
+}
+
+// ─── Skin ─────────────────────────────────────────────────────────────────────
+// name is null for the base/default skin
+
+model Skin {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  figureId  String   @db.ObjectId
+  figure    Figure   @relation(fields: [figureId], references: [id], onDelete: Cascade)
+  name      String?
+  isBase    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  variants  SkinVariant[]
+
+  @@index([figureId])
+}
+
+// ─── SkinVariant ──────────────────────────────────────────────────────────────
+
+model SkinVariant {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  skinId         String   @db.ObjectId
+  skin           Skin     @relation(fields: [skinId], references: [id], onDelete: Cascade)
+  variant        String   // "A" | "B"
+  prompt         String?
+  negativePrompt String?
+  imageModel     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  images         SkinImage[]
+
+  @@unique([skinId, variant])
+  @@index([skinId])
+}
+
+// ─── SkinImage ────────────────────────────────────────────────────────────────
+
+model SkinImage {
+  id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  variantId  String      @db.ObjectId
+  variant    SkinVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  sourceUrl  String
+  gcsUrl     String?
+  gcsBucket  String?
+  gcsKey     String?
+  createdAt  DateTime    @default(now())
+
+  models     Model3D[]
+
+  @@index([variantId])
+}
+
+// ─── Model3D ──────────────────────────────────────────────────────────────────
+
+model Model3D {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  imageId      String    @db.ObjectId
+  image        SkinImage @relation(fields: [imageId], references: [id], onDelete: Cascade)
+  status       String    @default("pending")
+  error        String?
+
+  meshTaskId   String?
+  prerigTaskId String?
+  rigTaskId    String?
+
+  pbrModelSourceUrl String?
+  modelSourceUrl    String?
+
+  gcsPbrModelUrl    String?
+  gcsPbrModelKey    String?
+  gcsModelUrl       String?
+  gcsModelKey       String?
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  animations Animation[]
+
+  @@index([imageId])
+  @@index([status])
+}
+
+// ─── Animation ────────────────────────────────────────────────────────────────
+
+model Animation {
+  id             String  @id @default(auto()) @map("_id") @db.ObjectId
+  model3dId      String  @db.ObjectId
+  model3d        Model3D @relation(fields: [model3dId], references: [id], onDelete: Cascade)
+  animationKey   String
+  retargetTaskId String?
+
+  glbSourceUrl   String?
+  gcsGlbUrl      String?
+  gcsGlbKey      String?
+
+  status    String   @default("pending")
+  error     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([model3dId, animationKey])
+  @@index([model3dId])
+}

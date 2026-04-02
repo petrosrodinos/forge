@@ -1,0 +1,25 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: "3d-figures-mongodb"
+    restart: unless-stopped
+    environment:
+      # Creates the default DB at first startup (no auth configured).
+      MONGO_INITDB_DATABASE: 3d-figures
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mongosh --quiet --eval \"db.adminCommand('ping')\" || mongo --quiet --eval \"db.adminCommand('ping')\"",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  mongodb-data:
+

@@ -95,7 +95,7 @@ dotenv.config();
 const schema = z.object({
   NODE_ENV:              z.enum(["development", "production", "test"]).default("development"),
   PORT:                  z.coerce.number().default(3000),
-  MONGODB_URI:           z.string().min(1),
+  DATABASE_URL:          z.string().min(1),
   AIML_API_KEY:          z.string().min(1),
   TRIPO_API_KEY:         z.string().min(1),
   AGENT_MODEL:           z.string().default("gpt-4o-mini"),
@@ -118,7 +118,7 @@ export const env = parsed.data;
 
 `.env.example` additions:
 ```
-MONGODB_URI=mongodb+srv://...
+DATABASE_URL=mongodb+srv://...
 GCS_BUCKET=3d-figures-assets
 GCS_PROJECT_ID=my-gcp-project
 GCS_KEY_FILE=./gcs-key.json
@@ -138,7 +138,7 @@ generator client {
 
 datasource db {
   provider = "mongodb"
-  url      = env("MONGODB_URI")
+  url      = env("DATABASE_URL")
 }
 
 // ─── Figure ──────────────────────────────────────────────────────────────────

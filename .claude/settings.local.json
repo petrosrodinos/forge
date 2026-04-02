@@ -13,7 +13,9 @@
       "Bash(node:*)",
       "Bash(timeout 8 npx ts-node src/server.ts)",
       "Bash(npx kill-port:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(npx prisma:*)",
+      "Bash(npx --prefix C:/Users/30697/Desktop/3d-figures prisma --version)"
     ]
   }
 }
