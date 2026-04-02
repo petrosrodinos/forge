@@ -1,5 +1,9 @@
-import { useAuthContext } from "@/components/providers/AuthProvider";
+import { useAuthStore } from "@/store/authStore";
 
 export function useAuth() {
-  return useAuthContext();
+  const user = useAuthStore((s) => s.user);
+  const loading = useAuthStore((s) => s.loading);
+  const login = useAuthStore((s) => s.login);
+  const logout = useAuthStore((s) => s.logout);
+  return { user, loading, login, logout };
 }

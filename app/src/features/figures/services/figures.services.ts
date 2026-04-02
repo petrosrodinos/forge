@@ -2,20 +2,49 @@ import { apiFetch, jsonInit } from "@/utils/apiClient";
 import type { Figure } from "@/interfaces";
 import type { CreateFigureDto, UpdateFigureDto } from "@/features/figures/interfaces/figure.interfaces";
 
-export const listFigures = (): Promise<Figure[]> =>
-  apiFetch<Figure[]>("/api/figures");
+function rethrow(e: unknown): never {
+  throw e instanceof Error ? e : new Error(String(e));
+}
 
-export const createFigure = (b: CreateFigureDto): Promise<Figure> =>
-  apiFetch<Figure>("/api/figures", { method: "POST", ...jsonInit(b) });
+export async function listFigures(): Promise<Figure[]> {
+  try {
+    return await apiFetch<Figure[]>("/api/figures");
+  } catch (e) {
+    rethrow(e);
+  }
+}
 
-export const updateFigure = (id: string, b: UpdateFigureDto): Promise<Figure> =>
-  apiFetch<Figure>(`/api/figures/${id}`, { method: "PUT", ...jsonInit(b) });
+export async function createFigure(b: CreateFigureDto): Promise<Figure> {
+  try {
+    return await apiFetch<Figure>("/api/figures", { method: "POST", ...jsonInit(b) });
+  } catch (e) {
+    rethrow(e);
+  }
+}
 
-export const deleteFigure = (id: string): Promise<void> =>
-  apiFetch<void>(`/api/figures/${id}`, { method: "DELETE" });
+export async function updateFigure(id: string, b: UpdateFigureDto): Promise<Figure> {
+  try {
+    return await apiFetch<Figure>(`/api/figures/${id}`, { method: "PUT", ...jsonInit(b) });
+  } catch (e) {
+    rethrow(e);
+  }
+}
 
-export const generateAiVariant = (body: {
+export async function deleteFigure(id: string): Promise<void> {
+  try {
+    return await apiFetch<void>(`/api/figures/${id}`, { method: "DELETE" });
+  } catch (e) {
+    rethrow(e);
+  }
+}
+
+export async function generateAiVariant(body: {
   figureId: string;
   prompt?: string;
-}): Promise<{ prompt: string }> =>
-  apiFetch("/api/figures/ai-variant", { method: "POST", ...jsonInit(body) });
+}): Promise<{ prompt: string }> {
+  try {
+    return await apiFetch("/api/figures/ai-variant", { method: "POST", ...jsonInit(body) });
+  } catch (e) {
+    rethrow(e);
+  }
+}

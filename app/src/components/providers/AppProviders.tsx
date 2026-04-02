@@ -1,8 +1,9 @@
 import type { PropsWithChildren } from "react";
+import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 import { toast } from "sonner";
-import { AuthProvider } from "@/components/providers/AuthProvider";
+import { useAuthStore } from "@/store/authStore";
 import { InsufficientTokensError } from "@/utils/apiClient";
 
 const queryClient = new QueryClient({
@@ -26,10 +27,17 @@ const queryClient = new QueryClient({
   },
 });
 
+function AuthBootstrap({ children }: PropsWithChildren) {
+  useEffect(() => {
+    void useAuthStore.getState().initialize();
+  }, []);
+  return children;
+}
+
 export function AppProviders({ children }: PropsWithChildren) {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
+      <AuthBootstrap>
         {children}
         <Toaster
           theme="dark"
@@ -42,7 +50,7 @@ export function AppProviders({ children }: PropsWithChildren) {
             },
           }}
         />
-      </AuthProvider>
+      </AuthBootstrap>
     </QueryClientProvider>
   );
 }

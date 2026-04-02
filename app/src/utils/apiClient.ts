@@ -15,7 +15,10 @@ export async function apiFetch<T>(input: RequestInfo, init?: RequestInit): Promi
     const r = await fetch("/api/auth/refresh", { method: "POST", credentials: "include" });
     if (r.ok) res = await fetch(input, { credentials: "include", ...init });
     else {
-      window.location.href = "/login";
+      const path = window.location.pathname;
+      if (path !== "/login" && path !== "/register") {
+        window.location.href = "/login";
+      }
       throw new Error("Session expired");
     }
   }

@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 import type { Figure, Skin, SkinVariant, SkinImage } from "@/interfaces";
 
 interface ForgeState {
@@ -17,20 +18,32 @@ interface ForgeState {
   setRightPanelTab: (tab: "chat" | "pipeline" | "imagegen") => void;
 }
 
-export const useForgeStore = create<ForgeState>((set) => ({
-  activeFigure: null,
-  activeSkin: null,
-  activeVariant: null,
-  selectedImage: null,
-  pipelinePanelOpen: false,
-  rightPanelTab: "chat",
+export const useForgeStore = create<ForgeState>()(
+  persist(
+    (set) => ({
+      activeFigure: null,
+      activeSkin: null,
+      activeVariant: null,
+      selectedImage: null,
+      pipelinePanelOpen: false,
+      rightPanelTab: "chat",
 
-  setActiveFigure: (activeFigure) =>
-    set({ activeFigure, activeSkin: null, activeVariant: null, selectedImage: null }),
-  setActiveSkin: (activeSkin) =>
-    set({ activeSkin, activeVariant: null, selectedImage: null }),
-  setActiveVariant: (activeVariant) => set({ activeVariant }),
-  setSelectedImage: (selectedImage) => set({ selectedImage }),
-  setPipelinePanelOpen: (pipelinePanelOpen) => set({ pipelinePanelOpen }),
-  setRightPanelTab: (rightPanelTab) => set({ rightPanelTab }),
-}));
+      setActiveFigure: (activeFigure) =>
+        set({ activeFigure, activeSkin: null, activeVariant: null, selectedImage: null }),
+      setActiveSkin: (activeSkin) =>
+        set({ activeSkin, activeVariant: null, selectedImage: null }),
+      setActiveVariant: (activeVariant) => set({ activeVariant }),
+      setSelectedImage: (selectedImage) => set({ selectedImage }),
+      setPipelinePanelOpen: (pipelinePanelOpen) => set({ pipelinePanelOpen }),
+      setRightPanelTab: (rightPanelTab) => set({ rightPanelTab }),
+    }),
+    {
+      name: "forge-ui",
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        pipelinePanelOpen: state.pipelinePanelOpen,
+        rightPanelTab: state.rightPanelTab,
+      }),
+    },
+  ),
+);

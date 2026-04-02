@@ -1,29 +1,29 @@
-import { useState } from 'react';
+import { useCallback } from "react";
+import { usePersistedValuesStore } from "@/store/persistedValuesStore";
 
 export function useLocalStorage<T>(key: string, initialValue: T) {
-  const [storedValue, setStoredValue] = useState<T>(() => {
-    try {
-      const item = window.localStorage.getItem(key);
-      return item ? (JSON.parse(item) as T) : initialValue;
-    } catch {
-      return initialValue;
-    }
-  });
+  const stored = usePersistedValuesStore((s) => s.values[key] as T | undefined);
+  const setStoreValue = usePersistedValuesStore((s) => s.setValue);
+  const removeStoreValue = usePersistedValuesStore((s) => s.removeValue);
 
-  function setValue(value: T | ((prev: T) => T)) {
-    const next = value instanceof Function ? value(storedValue) : value;
-    setStoredValue(next);
-    try {
-      window.localStorage.setItem(key, JSON.stringify(next));
-    } catch {
-      // Storage quota exceeded or private mode — silently ignore
-    }
-  }
+  const value = stored !== undefined ? stored : initialValue;
 
-  function removeValue() {
-    setStoredValue(initialValue);
-    window.localStorage.removeItem(key);
-  }
+  const setValue = useCallback(
+    (next: T | ((prev: T) => T)) => {
+      const resolved =
+        typeof next === "function" ? (next as (prev: T) => T)(value) : next;
+      try {
+        setStoreValue(key, resolved);
+      } catch {
+        // Storage quota or private mode — persist middleware may fail on write
+      }
+    },
+    [key, setStoreValue, value],
+  );
 
-  return { value: storedValue, setValue, removeValue };
+  const removeValue = useCallback(() => {
+    removeStoreValue(key);
+  }, [key, removeStoreValue]);
+
+  return { value, setValue, removeValue };
 }
