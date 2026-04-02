@@ -4,6 +4,7 @@ A small TypeScript app for turning images into 3D assets and animations.
 It can be used directly from the terminal or operated through an AI coding agent such as Cursor or Claude.
 
 It includes:
+
 - A local web app (`The Forge`) for chat/pipeline flows
 - A CLI pipeline to convert an image into an animated `.glb`
 - A unified agent CLI for running supported service actions
@@ -48,6 +49,7 @@ npm run tripo:image-to-animated-glb -- "output/red-goth-pony.png"
 ```
 
 Optional arguments:
+
 - 1st arg: input image path (`.png`, `.jpg`, `.jpeg`)
 - 2nd arg: output `.glb` path
 - 3rd arg: output metadata `.json` path
@@ -72,3 +74,10 @@ When using Cursor or Claude, you can ask the agent to run these same commands fo
 - `npm run build` - compile TypeScript
 - `npm run agent` - run Agent CLI
 - `npm run tripo:image-to-animated-glb` - image -> animated GLB pipeline
+
+# OpenAPI / Swagger
+
+- Swagger UI: `/api/docs`
+- Raw OpenAPI JSON: `/api/openapi.json`
+
+The OpenAPI source document is defined in `src/docs/openapi.ts`.

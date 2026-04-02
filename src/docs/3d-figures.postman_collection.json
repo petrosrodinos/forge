@@ -1,0 +1,605 @@
+{
+  "info": {
+    "name": "3D Figures API",
+    "description": "API for auth, image/model generation, Tripo pipeline, and figure domain resources.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register account",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\",\n  \"displayName\": \"John Doe\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Refresh session",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/api/auth/refresh", "host": ["{{baseUrl}}"], "path": ["api", "auth", "refresh"] }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/api/auth/logout", "host": ["{{baseUrl}}"], "path": ["api", "auth", "logout"] }
+          }
+        },
+        {
+          "name": "Current user",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/auth/me", "host": ["{{baseUrl}}"], "path": ["api", "auth", "me"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Images",
+      "item": [
+        {
+          "name": "List image models",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/aiml/models", "host": ["{{baseUrl}}"], "path": ["api", "aiml", "models"] }
+          }
+        },
+        {
+          "name": "List image models (alias)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/models", "host": ["{{baseUrl}}"], "path": ["api", "models"] }
+          }
+        },
+        {
+          "name": "Generate image",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/aiml/generate", "host": ["{{baseUrl}}"], "path": ["api", "aiml", "generate"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prompt\": \"A fantasy warrior character\",\n  \"model\": \"flux/schnell\",\n  \"size\": \"1024x1024\",\n  \"n\": 1,\n  \"steps\": 4\n}"
+            }
+          }
+        },
+        {
+          "name": "Generate image (alias)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/generate", "host": ["{{baseUrl}}"], "path": ["api", "generate"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prompt\": \"A fantasy warrior character\",\n  \"model\": \"flux/schnell\",\n  \"size\": \"1024x1024\",\n  \"n\": 1,\n  \"steps\": 4\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "GenerateAndMesh",
+      "item": [
+        {
+          "name": "Generate image and mesh it in one step",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/generate-and-mesh", "host": ["{{baseUrl}}"], "path": ["api", "generate-and-mesh"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prompt\": \"A fantasy warrior character\",\n  \"model\": \"flux/schnell\",\n  \"size\": \"1024x1024\",\n  \"n\": 1,\n  \"steps\": 4,\n  \"modelVersion\": \"v2.5-20250123\",\n  \"meshModelVersion\": \"v2.5-20250123\",\n  \"timeoutMs\": 120000\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tripo",
+      "item": [
+        {
+          "name": "Get Tripo task status",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/tripo/task/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tripo", "task", ":id"],
+              "variable": [{ "key": "id", "value": "task-id-here" }]
+            }
+          }
+        },
+        {
+          "name": "Get Tripo task status (alias)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/task/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "task", ":id"],
+              "variable": [{ "key": "id", "value": "task-id-here" }]
+            }
+          }
+        },
+        {
+          "name": "Proxy model by URL",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/tripo/proxy-model", "host": ["{{baseUrl}}"], "path": ["api", "tripo", "proxy-model"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://example.com/model.glb\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Proxy model by URL (alias)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/proxy-model", "host": ["{{baseUrl}}"], "path": ["api", "proxy-model"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://example.com/model.glb\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Mesh from image URL",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/tripo/mesh-from-image-url", "host": ["{{baseUrl}}"], "path": ["api", "tripo", "mesh-from-image-url"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"imageUrl\": \"https://example.com/image.png\",\n  \"modelVersion\": \"v2.5-20250123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Mesh from image URL (alias)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/mesh-from-image-url", "host": ["{{baseUrl}}"], "path": ["api", "mesh-from-image-url"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"imageUrl\": \"https://example.com/image.png\",\n  \"modelVersion\": \"v2.5-20250123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Pre-rig check",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/tripo/prerig-check", "host": ["{{baseUrl}}"], "path": ["api", "tripo", "prerig-check"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"meshTaskId\": \"mesh-task-id-here\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Pre-rig check (alias)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/prerig-check", "host": ["{{baseUrl}}"], "path": ["api", "prerig-check"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"meshTaskId\": \"mesh-task-id-here\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Start rig",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/tripo/start-rig", "host": ["{{baseUrl}}"], "path": ["api", "tripo", "start-rig"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"meshTaskId\": \"mesh-task-id-here\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Start rig (alias)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/start-rig", "host": ["{{baseUrl}}"], "path": ["api", "start-rig"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"meshTaskId\": \"mesh-task-id-here\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Start retarget",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/tripo/start-retarget", "host": ["{{baseUrl}}"], "path": ["api", "tripo", "start-retarget"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rigTaskId\": \"rig-task-id-here\",\n  \"animation\": \"walk\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Start retarget (alias)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/start-retarget", "host": ["{{baseUrl}}"], "path": ["api", "start-retarget"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rigTaskId\": \"rig-task-id-here\",\n  \"animation\": \"walk\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Balance",
+      "item": [
+        {
+          "name": "Get AIML balance",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/balance/aiml", "host": ["{{baseUrl}}"], "path": ["api", "balance", "aiml"] }
+          }
+        },
+        {
+          "name": "Get Tripo balance",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/balance/tripo", "host": ["{{baseUrl}}"], "path": ["api", "balance", "tripo"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chat",
+      "item": [
+        {
+          "name": "Chat SSE endpoint",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/chat", "host": ["{{baseUrl}}"], "path": ["api", "chat"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Hello, describe a warrior figure\",\n  \"history\": [\n    { \"role\": \"user\", \"content\": \"Previous message\" },\n    { \"role\": \"assistant\", \"content\": \"Previous response\" }\n  ]\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Figures",
+      "item": [
+        {
+          "name": "List figures",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/figures", "host": ["{{baseUrl}}"], "path": ["api", "figures"] }
+          }
+        },
+        {
+          "name": "Create figure",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/figures", "host": ["{{baseUrl}}"], "path": ["api", "figures"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Warrior\",\n  \"type\": \"humanoid\",\n  \"metadata\": {}\n}"
+            }
+          }
+        },
+        {
+          "name": "Get figure",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/figures/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "figures", ":id"],
+              "variable": [{ "key": "id", "value": "figure-id-here" }]
+            }
+          }
+        },
+        {
+          "name": "Update figure",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/figures/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "figures", ":id"],
+              "variable": [{ "key": "id", "value": "figure-id-here" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Warrior\",\n  \"type\": \"humanoid\",\n  \"metadata\": {}\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete figure",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/figures/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "figures", ":id"],
+              "variable": [{ "key": "id", "value": "figure-id-here" }]
+            }
+          }
+        },
+        {
+          "name": "Generate and save figure image",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/figures/:id/generate-image",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "figures", ":id", "generate-image"],
+              "variable": [{ "key": "id", "value": "figure-id-here" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"variant\": \"A\",\n  \"prompt\": \"A fierce warrior in battle armor\",\n  \"skinName\": \"default\",\n  \"model\": \"flux/schnell\",\n  \"negativePrompt\": \"blurry, bad quality\",\n  \"size\": \"1024x1024\",\n  \"steps\": 4\n}"
+            }
+          }
+        },
+        {
+          "name": "Generate AI variant prompt",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/figures/ai-variant", "host": ["{{baseUrl}}"], "path": ["api", "figures", "ai-variant"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"A powerful warrior\",\n  \"variant\": \"A\",\n  \"context\": {},\n  \"availableModels\": [\n    { \"id\": \"flux/schnell\", \"label\": \"Flux Schnell\" }\n  ]\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Skins",
+      "item": [
+        {
+          "name": "List skins",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/figures/:figureId/skins",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "figures", ":figureId", "skins"],
+              "variable": [{ "key": "figureId", "value": "figure-id-here" }]
+            }
+          }
+        },
+        {
+          "name": "Create skin",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/figures/:figureId/skins",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "figures", ":figureId", "skins"],
+              "variable": [{ "key": "figureId", "value": "figure-id-here" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Default Skin\",\n  \"isBase\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Set skin as base",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/figures/:figureId/skins/:skinId/set-base",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "figures", ":figureId", "skins", ":skinId", "set-base"],
+              "variable": [
+                { "key": "figureId", "value": "figure-id-here" },
+                { "key": "skinId", "value": "skin-id-here" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete skin",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/figures/:figureId/skins/:skinId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "figures", ":figureId", "skins", ":skinId"],
+              "variable": [
+                { "key": "figureId", "value": "figure-id-here" },
+                { "key": "skinId", "value": "skin-id-here" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Variants",
+      "item": [
+        {
+          "name": "Get variant",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/figures/:figureId/skins/:skinId/variants/:variant",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "figures", ":figureId", "skins", ":skinId", "variants", ":variant"],
+              "variable": [
+                { "key": "figureId", "value": "figure-id-here" },
+                { "key": "skinId", "value": "skin-id-here" },
+                { "key": "variant", "value": "A" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update variant",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/figures/:figureId/skins/:skinId/variants/:variant",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "figures", ":figureId", "skins", ":skinId", "variants", ":variant"],
+              "variable": [
+                { "key": "figureId", "value": "figure-id-here" },
+                { "key": "skinId", "value": "skin-id-here" },
+                { "key": "variant", "value": "A" }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prompt\": \"Updated prompt\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "SkinImages",
+      "item": [
+        {
+          "name": "List skin images",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/figures/:figureId/skins/:skinId/variants/:variantId/images",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "figures", ":figureId", "skins", ":skinId", "variants", ":variantId", "images"],
+              "variable": [
+                { "key": "figureId", "value": "figure-id-here" },
+                { "key": "skinId", "value": "skin-id-here" },
+                { "key": "variantId", "value": "variant-id-here" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete skin image",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/figures/:figureId/skins/:skinId/variants/:variantId/images/:imageId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "figures", ":figureId", "skins", ":skinId", "variants", ":variantId", "images", ":imageId"],
+              "variable": [
+                { "key": "figureId", "value": "figure-id-here" },
+                { "key": "skinId", "value": "skin-id-here" },
+                { "key": "variantId", "value": "variant-id-here" },
+                { "key": "imageId", "value": "image-id-here" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Models3D",
+      "item": [
+        {
+          "name": "Get 3D model",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/models3d/:model3dId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "models3d", ":model3dId"],
+              "variable": [{ "key": "model3dId", "value": "model3d-id-here" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Animations",
+      "item": [
+        {
+          "name": "List animations for 3D model",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/models3d/:model3dId/animations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "models3d", ":model3dId", "animations"],
+              "variable": [{ "key": "model3dId", "value": "model3d-id-here" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pipeline",
+      "item": [
+        {
+          "name": "Run full generation pipeline",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/api/pipeline", "host": ["{{baseUrl}}"], "path": ["api", "pipeline"] },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "image", "type": "file", "src": "" },
+                { "key": "figureId", "value": "figure-id-here", "type": "text" },
+                { "key": "variantId", "value": "variant-id-here", "type": "text" },
+                { "key": "animations", "value": "walk", "type": "text" },
+                { "key": "modelVersion", "value": "v2.5-20250123", "type": "text" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
