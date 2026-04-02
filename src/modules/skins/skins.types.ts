@@ -1,4 +1,1 @@
-export interface CreateSkinInput {
-  name?:   string;
-  isBase?: boolean;
-}
+export type { CreateSkinInput } from "../../interfaces/skins/skins.types";

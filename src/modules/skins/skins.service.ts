@@ -1,25 +1,24 @@
-import { prisma } from "../../db/client";
-import type { CreateSkinInput } from "./skins.types";
+import type { CreateSkinInput } from "../../interfaces/skins/skins.types";
+import {
+  createSkin as createSkinRepo,
+  deleteSkin as deleteSkinRepo,
+  listSkins as listSkinsRepo,
+  setBaseSkin as setBaseSkinRepo,
+} from "../../repositories/skins/skins.repository";
 
 export async function listSkins(figureId: string) {
-  return prisma.skin.findMany({
-    where:   { figureId },
-    include: { variants: { include: { images: { include: { models: { include: { animations: true } } } } } } },
-    orderBy: [{ isBase: "desc" }, { createdAt: "asc" }],
-  });
+  return listSkinsRepo(figureId);
 }
 
 export async function createSkin(figureId: string, input: CreateSkinInput) {
-  return prisma.skin.create({
-    data: { figureId, name: input.name, isBase: input.isBase ?? false },
-  });
+  return createSkinRepo(figureId, input);
 }
 
 export async function setBaseSkin(figureId: string, skinId: string) {
-  await prisma.skin.updateMany({ where: { figureId }, data: { isBase: false } });
-  return prisma.skin.update({ where: { id: skinId }, data: { isBase: true } });
+  return setBaseSkinRepo(figureId, skinId);
 }
 
 export async function deleteSkin(id: string) {
-  return prisma.skin.delete({ where: { id } });
+  return deleteSkinRepo(id);
 }
+

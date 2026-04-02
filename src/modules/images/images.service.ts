@@ -1,8 +1,7 @@
 import fs from "fs/promises";
-import path from "path";
 import { getAiml } from "../../services";
-
-const IMAGE_MODELS_PATH = path.resolve(__dirname, "../../../assets/image-models.json");
+import { DEFAULT_AIML_IMAGE_MODEL } from "../../constants/aimlModels";
+import { IMAGE_MODELS_PATH } from "../../constants/imageModelsPath";
 
 export async function listImageModels() {
   const raw = await fs.readFile(IMAGE_MODELS_PATH, "utf-8");
@@ -17,7 +16,7 @@ export async function generateImage(input: {
   steps?: number;
 }) {
   return getAiml().generateImage({
-    model: input.model ?? "flux/schnell",
+    model: input.model ?? DEFAULT_AIML_IMAGE_MODEL,
     prompt: input.prompt,
     size: input.size,
     n: input.n,

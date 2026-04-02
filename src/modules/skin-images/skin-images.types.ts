@@ -1,5 +1,1 @@
-export interface CreateSkinImageInput {
-  variantId: string;
-  figureId:  string;
-  sourceUrl: string;
-}
+export type { CreateSkinImageInput } from "../../interfaces/skin-images/skin-images.types";

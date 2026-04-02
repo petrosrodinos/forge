@@ -2,11 +2,7 @@ import { streamText, stepCountIs, type ModelMessage } from "ai";
 import { aimlProvider } from "../../lib/aiSdkClient";
 import { buildAiSdkTools } from "../../lib/aiSdkTools";
 import { agentModel, getHandlers } from "../../services";
-
-export const CHAT_SYSTEM_PROMPT =
-  "You are an API operations agent for 3D figure generation. " +
-  "Use tools to execute user requests. " +
-  "For 3D models use Tripo tools. For images or AI tasks use AIML tools. Be concise.";
+import { CHAT_SYSTEM_PROMPT } from "../../ai-prompts/chat/chatSystemPrompt";
 
 export function createChatStream(message: string, history: { role: string; content: string }[]) {
   const model = agentModel();

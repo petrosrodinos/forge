@@ -3,8 +3,11 @@ import { extractTripoUploadToken } from "../../integrations/trippo/uploadToken";
 import type { ModelVersion } from "../../integrations/trippo/types";
 import { fetchImageAsBuffer } from "../../lib/image-fetch.util";
 
-const DEFAULT_MODEL_VERSION = "v2.5-20250123";
-const PROXY_MAX_BYTES = 150 * 1024 * 1024;
+import { PROXY_MAX_BYTES } from "../../constants/limits";
+import { DEFAULT_TRIPO_MODEL_VERSION } from "../../constants/tripoModels";
+import { DEFAULT_AIML_IMAGE_MODEL } from "../../constants/aimlModels";
+import { DEFAULT_POLL_INTERVAL_MS, DEFAULT_POLL_TIMEOUT_MS } from "../../constants/pipeline";
+import { TRIPO_TASK_TYPES } from "../../constants/tripoTaskTypes";
 
 export async function generateAndMesh(input: {
   prompt: string;
@@ -17,7 +20,7 @@ export async function generateAndMesh(input: {
   timeoutMs?: number;
 }) {
   const imageResult = await getAiml().generateImage({
-    model: input.model ?? "flux/schnell",
+    model: input.model ?? DEFAULT_AIML_IMAGE_MODEL,
     prompt: input.prompt.trim(),
     size: input.size,
     n: input.n,
@@ -38,9 +41,9 @@ export async function generateAndMesh(input: {
   const fileToken = extractTripoUploadToken(upload);
 
   const meshTask = await getTripo().createTask({
-    type: "image_to_model",
+    type: TRIPO_TASK_TYPES.IMAGE_TO_MODEL,
     file: { type: ext, file_token: fileToken },
-    model_version: (input.meshModelVersion ?? input.modelVersion ?? DEFAULT_MODEL_VERSION) as ModelVersion,
+    model_version: (input.meshModelVersion ?? input.modelVersion ?? DEFAULT_TRIPO_MODEL_VERSION) as ModelVersion,
     texture: true,
     pbr: true,
   } as never);
@@ -49,8 +52,8 @@ export async function generateAndMesh(input: {
   if (!meshTaskId) throw new Error("Tripo did not return mesh task_id");
 
   const task = await getTripo().pollTask(meshTaskId, {
-    intervalMs: 2000,
-    timeoutMs: input.timeoutMs ?? 600_000,
+    intervalMs: DEFAULT_POLL_INTERVAL_MS,
+    timeoutMs: input.timeoutMs ?? DEFAULT_POLL_TIMEOUT_MS,
   });
 
   const pbrModelUrl = task.output?.pbr_model ?? null;

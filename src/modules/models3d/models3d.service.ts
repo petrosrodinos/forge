@@ -1,42 +1,40 @@
-import { prisma } from "../../db/client";
 import { archiveRemoteUrl } from "../../integrations/gcs/gcs.service";
-import type { TaskIds, TripoModelUrls } from "./models3d.types";
+import type { TaskIds, TripoModelUrls } from "../../interfaces/models3d/models3d.types";
+import {
+  createModel3D as createModel3DRepo,
+  getModel3D as getModel3DRepo,
+  setModel3DFailed,
+  setModel3DSuccess,
+  updateModel3DProcessing as updateModel3DProcessingRepo,
+} from "../../repositories/models3d/models3d.repository";
+import { MODEL_GLTF_BINARY_CONTENT_TYPE } from "../../constants/contentTypes";
 
 export async function createModel3D(imageId: string) {
-  return prisma.model3D.create({ data: { imageId, status: "pending" } });
+  return createModel3DRepo(imageId);
 }
 
 export async function updateModel3DProcessing(id: string, taskIds: TaskIds) {
-  return prisma.model3D.update({
-    where: { id },
-    data:  { status: "processing", ...taskIds },
-  });
+  return updateModel3DProcessingRepo(id, taskIds);
 }
 
 export async function finalizeModel3D(id: string, _modelId: string, tripoUrls: TripoModelUrls) {
   const [pbr, plain] = await Promise.all([
-    archiveRemoteUrl(tripoUrls.pbrModelSourceUrl, `models3d/${id}/pbr.glb`,   "model/gltf-binary"),
-    archiveRemoteUrl(tripoUrls.modelSourceUrl,    `models3d/${id}/model.glb`, "model/gltf-binary"),
+    archiveRemoteUrl(tripoUrls.pbrModelSourceUrl, `models3d/${id}/pbr.glb`,   MODEL_GLTF_BINARY_CONTENT_TYPE),
+    archiveRemoteUrl(tripoUrls.modelSourceUrl,    `models3d/${id}/model.glb`, MODEL_GLTF_BINARY_CONTENT_TYPE),
   ]);
 
-  return prisma.model3D.update({
-    where: { id },
-    data:  {
-      status:            "success",
-      pbrModelSourceUrl: tripoUrls.pbrModelSourceUrl,
-      modelSourceUrl:    tripoUrls.modelSourceUrl,
-      gcsPbrModelUrl:    pbr.gcsUrl,
-      gcsPbrModelKey:    pbr.gcsKey,
-      gcsModelUrl:       plain.gcsUrl,
-      gcsModelKey:       plain.gcsKey,
-    },
+  return setModel3DSuccess({
+    id,
+    tripoUrls,
+    gcsPbr: { gcsUrl: pbr.gcsUrl, gcsKey: pbr.gcsKey },
+    gcsPlain: { gcsUrl: plain.gcsUrl, gcsKey: plain.gcsKey },
   });
 }
 
 export async function failModel3D(id: string, error: string) {
-  return prisma.model3D.update({ where: { id }, data: { status: "failed", error } });
+  return setModel3DFailed(id, error);
 }
 
 export async function getModel3D(id: string) {
-  return prisma.model3D.findUnique({ where: { id }, include: { animations: true } });
+  return getModel3DRepo(id);
 }

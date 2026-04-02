@@ -1,10 +1,1 @@
-export interface TaskIds {
-  meshTaskId?:   string;
-  prerigTaskId?: string;
-  rigTaskId?:    string;
-}
-
-export interface TripoModelUrls {
-  pbrModelSourceUrl: string;
-  modelSourceUrl:    string;
-}
+export type { TaskIds, TripoModelUrls } from "../../interfaces/models3d/models3d.types";

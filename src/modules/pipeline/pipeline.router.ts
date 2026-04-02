@@ -1,9 +1,9 @@
 import { Router } from "express";
 import multer from "multer";
-import { sseHeaders } from "../../lib/sse";
+import { sseHeaders, sseWrite } from "../../lib/sse";
 import { runPipeline } from "./pipeline.service";
-import { uploadBuffer } from "../../integrations/gcs/gcs.service";
-import * as skinImageSvc from "../skin-images/skin-images.service";
+import { DEFAULT_TRIPO_MODEL_VERSION } from "../../constants/tripoModels";
+import { PIPELINE_DEFAULT_ANIMATIONS, PIPELINE_SSE_EVENTS } from "../../constants/pipeline";
 
 const upload = multer({ storage: multer.memoryStorage() });
 const router = Router();
@@ -23,28 +23,27 @@ router.post("/", upload.single("image"), async (req, res, next) => {
 
   const rawAnimations = req.body.animations as string | string[] | undefined;
   const animations    = Array.isArray(rawAnimations) ? rawAnimations
-    : rawAnimations ? [rawAnimations] : ["preset:idle"];
-  const modelVersion  = (req.body.modelVersion as string) ?? "v2.5-20250123";
+    : rawAnimations ? [rawAnimations] : PIPELINE_DEFAULT_ANIMATIONS;
+  const modelVersion  = (req.body.modelVersion as string) ?? DEFAULT_TRIPO_MODEL_VERSION;
   const mimeType: "image/png" | "image/jpeg" =
     file.mimetype === "image/jpeg" ? "image/jpeg" : "image/png";
-
-  // Archive the uploaded image to GCS, then create the SkinImage record
-  const ext      = mimeType === "image/jpeg" ? "jpg" : "png";
-  const gcsKey   = `images/figures/${figureId}/${variantId}/${Date.now()}-source.${ext}`;
-  const { gcsUrl } = await uploadBuffer(file.buffer, gcsKey, mimeType);
-  const skinImage  = await skinImageSvc.createSkinImage(variantId, figureId, gcsUrl);
 
   sseHeaders(res);
   try {
     await runPipeline({
-      imageId:      skinImage.id,
       figureId,
-      imageBuffer:  file.buffer,
-      filename:     file.originalname ?? `upload.${ext}`,
+      variantId,
+      imageBuffer: file.buffer,
+      filename:    file.originalname ?? `upload.${mimeType === "image/jpeg" ? "jpg" : "png"}`,
       mimeType,
       animations,
       modelVersion,
-      res,
+      emitProgress: ({ step, status, data = {} }) => {
+        sseWrite(res, PIPELINE_SSE_EVENTS.PROGRESS, { step, status, ...data });
+      },
+      emitEvent: (event, data) => {
+        sseWrite(res, event, data);
+      },
     });
   } catch (e) { next(e); } finally { res.end(); }
 });

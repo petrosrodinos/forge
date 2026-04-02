@@ -1,10 +1,14 @@
-import { prisma } from "../../db/client";
 import { archiveRemoteUrl } from "../../integrations/gcs/gcs.service";
+import {
+  createAnimation as createAnimationRepo,
+  listAnimations as listAnimationsRepo,
+  setAnimationFailed,
+  setAnimationSuccess,
+} from "../../repositories/animations/animations.repository";
+import { MODEL_GLTF_BINARY_CONTENT_TYPE } from "../../constants/contentTypes";
 
 export async function createAnimation(model3dId: string, animationKey: string) {
-  return prisma.animation.create({
-    data: { model3dId, animationKey, status: "pending" },
-  });
+  return createAnimationRepo(model3dId, animationKey);
 }
 
 export async function finalizeAnimation(
@@ -15,18 +19,15 @@ export async function finalizeAnimation(
 ) {
   const safeKey = animationKey.replace(/[^a-z0-9_:.-]/gi, "_");
   const gcsKey  = `animations/${model3dId}/${safeKey}_${id}.glb`;
-  const { gcsUrl } = await archiveRemoteUrl(tripoGlbUrl, gcsKey, "model/gltf-binary");
+  const { gcsUrl } = await archiveRemoteUrl(tripoGlbUrl, gcsKey, MODEL_GLTF_BINARY_CONTENT_TYPE);
 
-  return prisma.animation.update({
-    where: { id },
-    data:  { status: "success", glbSourceUrl: tripoGlbUrl, gcsGlbUrl: gcsUrl, gcsGlbKey: gcsKey },
-  });
+  return setAnimationSuccess({ id, tripoGlbUrl, gcsGlbUrl: gcsUrl, gcsGlbKey: gcsKey });
 }
 
 export async function failAnimation(id: string, error: string) {
-  return prisma.animation.update({ where: { id }, data: { status: "failed", error } });
+  return setAnimationFailed(id, error);
 }
 
 export async function listAnimations(model3dId: string) {
-  return prisma.animation.findMany({ where: { model3dId }, orderBy: { createdAt: "asc" } });
+  return listAnimationsRepo(model3dId);
 }
