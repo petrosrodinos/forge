@@ -97,8 +97,8 @@ function togglePreset(id, btn) {
 
 function activeClass(active) {
   return active
-    ? "px-2 py-1 text-[10px] font-mono rounded border tag-violet border-violet-600/30 transition-all"
-    : "px-2 py-1 text-[10px] font-mono rounded border bg-[#0e0e1a] border-[#1a1a2e] text-slate-500 hover:text-slate-400 transition-all";
+    ? "px-2 py-1 text-[11px] font-mono rounded border tag-violet border-violet-600/30 transition-all"
+    : "px-2 py-1 text-[11px] font-mono rounded border bg-[#0e0e1a] border-[#1a1a2e] text-slate-500 hover:text-slate-400 transition-all";
 }
 
 function resetPipelineUI() {
@@ -156,8 +156,8 @@ export function renderPipelineSteps(stepStatus) {
       </div>
       <div class="flex-1 min-w-0 ${isLast ? "" : "pb-3"}">
         <div class="text-xs font-mono ${textColor}">${step.label}</div>
-        ${info.taskId ? `<div class="text-[9px] font-mono text-slate-600 truncate" title="${escapeHtml(info.taskId)}">${info.taskId.slice(0, 24)}…</div>` : ""}
-        ${info.error ? `<div class="text-[9px] font-mono text-red-400 mt-0.5">${escapeHtml(info.error)}</div>` : ""}
+        ${info.taskId ? `<div class="text-[10px] font-mono text-slate-600 truncate" title="${escapeHtml(info.taskId)}">${info.taskId.slice(0, 24)}…</div>` : ""}
+        ${info.error ? `<div class="text-[10px] font-mono text-red-400 mt-0.5">${escapeHtml(info.error)}</div>` : ""}
       </div>`;
     container.appendChild(div);
   });
@@ -169,22 +169,22 @@ export function showGlbResult(glbUrl) {
   if (results) {
     results.classList.remove("hidden");
     results.innerHTML = `
-      <div class="text-[10px] font-mono uppercase tracking-widest text-slate-600 mb-2">Result</div>
+      <div class="text-[11px] font-mono uppercase tracking-widest text-slate-600 mb-2">Result</div>
       <div class="rounded-lg border border-[#1a1a2e] overflow-hidden">
         <model-viewer src="${escapeHtml(glbUrl)}" auto-rotate camera-controls
           style="width:100%;height:240px;background:#0e0e1a;" shadow-intensity="1">
         </model-viewer>
         <div class="p-3 bg-[#0e0e1a] space-y-2">
-          <div class="text-[10px] font-mono text-slate-500 truncate" title="${escapeHtml(glbUrl)}">
+          <div class="text-[11px] font-mono text-slate-500 truncate" title="${escapeHtml(glbUrl)}">
             ${escapeHtml(glbUrl.split("/").pop() ?? glbUrl)}
           </div>
           <div class="flex gap-2">
             <a href="${escapeHtml(glbUrl)}" download
-               class="flex-1 text-center px-2 py-1.5 bg-violet-600 hover:bg-violet-500 text-white text-[10px] font-mono rounded transition-colors">
+               class="flex-1 text-center px-2 py-1.5 bg-violet-600 hover:bg-violet-500 text-white text-[11px] font-mono rounded transition-colors">
               Download GLB
             </a>
             <button onclick="navigator.clipboard.writeText('${escapeHtml(glbUrl)}')"
-                    class="px-2 py-1.5 border border-[#1a1a2e] text-[10px] font-mono text-slate-400 hover:text-slate-200 rounded transition-colors">
+                    class="px-2 py-1.5 border border-[#1a1a2e] text-[11px] font-mono text-slate-400 hover:text-slate-200 rounded transition-colors">
               Copy URL
             </button>
           </div>
@@ -202,14 +202,14 @@ export function showGlbResult(glbUrl) {
         <span class="text-emerald-400 text-xs">✓</span>
       </div>
       <div class="flex-1">
-        <div class="text-[10px] font-mono text-slate-500 mb-1">Pipeline Complete</div>
+        <div class="text-[11px] font-mono text-slate-500 mb-1">Pipeline Complete</div>
         <div class="bg-[#0e0e1a] border border-emerald-600/20 rounded-lg p-3 space-y-2">
           <div class="text-xs font-mono text-emerald-400">Animated GLB ready</div>
           <div class="flex gap-2">
             <a href="${escapeHtml(glbUrl)}" download
-               class="text-[10px] font-mono tag-green px-2 py-1 rounded hover:opacity-80">Download GLB</a>
+               class="text-[11px] font-mono tag-green px-2 py-1 rounded hover:opacity-80">Download GLB</a>
             <button onclick="navigator.clipboard.writeText('${escapeHtml(glbUrl)}')"
-                    class="text-[10px] font-mono tag-violet px-2 py-1 rounded hover:opacity-80">Copy URL</button>
+                    class="text-[11px] font-mono tag-violet px-2 py-1 rounded hover:opacity-80">Copy URL</button>
           </div>
         </div>
       </div>`;

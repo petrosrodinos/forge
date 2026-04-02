@@ -1,6 +1,11 @@
 /* ── Fonts ──────────────────────────────────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
 
+/* Slightly larger type app-wide (Tailwind rem utilities scale with this root). */
+html {
+  font-size: 112.5%;
+}
+
 /* ── Scrollbar ──────────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar         { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track   { background: #080810; }
@@ -41,7 +46,7 @@
 
 /* ── Tool list sidebar items ────────────────────────────────────────────────── */
 .tool-item {
-  font-size: 0.68rem;
+  font-size: 0.76rem;
   padding: 2px 8px;
   color: #475569;
   cursor: pointer;
@@ -92,7 +97,7 @@
   padding: 10px 12px;
   overflow-x: auto;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.73rem;
+  font-size: 0.82rem;
   line-height: 1.65;
   margin: 8px 0;
 }

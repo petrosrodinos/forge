@@ -3,39 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D Figures — The Forge</title>
+  <title>Figures — The Forge</title>
 
-  <!-- Tailwind (CDN with custom config) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       darkMode: "class",
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ["Syne", "sans-serif"],
-            mono: ["JetBrains Mono", "monospace"],
-          },
-        },
-      },
+      theme: { extend: { fontFamily: { sans: ["Syne", "sans-serif"], mono: ["JetBrains Mono", "monospace"] } } },
     };
   </script>
-
-  <!-- Custom styles + Google Fonts (loaded inside styles.css via @import) -->
   <link rel="stylesheet" href="/css/styles.css">
-
-  <!-- Google model-viewer for GLB preview -->
-  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
 </head>
 
 <body class="bg-[#080810] text-slate-100 font-sans h-screen flex overflow-hidden">
 
-  <!-- ═══════════════════════════════════════════════════════════════════
-       SIDEBAR
-  ════════════════════════════════════════════════════════════════════ -->
-  <aside class="w-56 flex-shrink-0 bg-[#0a0a14] border-r border-[#1a1a2e] flex flex-col">
+  <!-- ── Left sidebar: figure list ─────────────────────────────────────────── -->
+  <aside class="w-64 flex-shrink-0 bg-[#0a0a14] border-r border-[#1a1a2e] flex flex-col">
 
-    <!-- Logo -->
     <div class="p-4 border-b border-[#1a1a2e]">
       <div class="flex items-center gap-2">
         <div class="w-7 h-7 rounded bg-violet-600/20 border border-violet-600/30 flex items-center justify-center flex-shrink-0">
@@ -45,210 +29,1586 @@
         </div>
         <div>
           <div class="text-xs font-bold tracking-widest text-slate-100 font-mono uppercase">The Forge</div>
-          <div class="text-[9px] text-slate-500 font-mono">3D Figure Studio</div>
+          <div class="text-[10px] text-slate-500 font-mono">3D Figure Studio</div>
         </div>
       </div>
     </div>
 
-    <!-- Quick actions -->
-    <nav class="p-3 space-y-1">
-      <p class="text-[9px] font-mono uppercase tracking-widest text-slate-600 px-1 mb-2">Actions</p>
-
-      <button id="btn-set-mode-pipeline" data-mode-btn="pipeline"
-              class="w-full text-left px-3 py-2 rounded text-xs font-mono text-slate-400 hover:text-slate-100 border border-transparent hover:bg-violet-600/10 hover:border-violet-600/20 transition-all flex items-center gap-2">
-        <span class="text-violet-400">⬡</span> Generate 3D Model
-      </button>
-      <button id="btn-set-mode-chat" data-mode-btn="chat"
-              class="w-full text-left px-3 py-2 rounded text-xs font-mono text-slate-400 hover:text-slate-100 border border-transparent hover:bg-sky-600/10 hover:border-sky-600/20 transition-all flex items-center gap-2">
-        <span class="text-sky-400">◈</span> Chat with AI
-      </button>
-      <button id="btn-set-mode-image" data-mode-btn="image"
-              class="w-full text-left px-3 py-2 rounded text-xs font-mono text-slate-400 hover:text-slate-100 border border-transparent hover:bg-emerald-600/10 hover:border-emerald-600/20 transition-all flex items-center gap-2">
-        <span class="text-emerald-400">◉</span> Generate Image
-      </button>
-      <button id="btn-check-balance"
-              class="w-full text-left px-3 py-2 rounded text-xs font-mono text-slate-400 hover:text-slate-100 border border-transparent hover:bg-amber-600/10 hover:border-amber-600/20 transition-all flex items-center gap-2">
-        <span class="text-amber-400">◎</span> Check Balance
-      </button>
-      <a href="/figures.html"
-         class="w-full text-left px-3 py-2 rounded text-xs font-mono text-slate-400 hover:text-slate-100 border border-transparent hover:bg-rose-600/10 hover:border-rose-600/20 transition-all flex items-center gap-2">
-        <span class="text-rose-400">⬡</span> Manage Figures
-      </a>
-    </nav>
-
-    <!-- Balance display (hidden until fetched) -->
-    <div id="balance-display" class="mx-3 mb-3 p-3 rounded bg-[#0e0e1a] border border-[#1a1a2e] hidden">
-      <p class="text-[9px] font-mono uppercase tracking-widest text-slate-600 mb-2">Credits</p>
-      <div class="flex justify-between text-xs font-mono text-slate-400">
-        <span>AIML</span>
-        <span id="balance-aiml-value" class="text-violet-400">—</span>
+    <div class="p-3 space-y-2 border-b border-[#1a1a2e]">
+      <input id="search" type="text" placeholder="Search figures…"
+             class="w-full bg-[#0e0e1a] border border-[#1a1a2e] rounded px-3 py-1.5 text-xs font-mono text-slate-300 placeholder-slate-600 focus:outline-none focus:border-violet-600/50 transition-colors">
+      <div class="flex gap-1">
+        <button id="filter-all"   data-filter="all"      class="filter-btn active-filter flex-1 px-2 py-1 rounded text-[11px] font-mono transition-colors">All</button>
+        <button id="filter-fig"   data-filter="figure"   class="filter-btn flex-1 px-2 py-1 rounded text-[11px] font-mono transition-colors">Figures</button>
+        <button id="filter-obs"   data-filter="obstacle" class="filter-btn flex-1 px-2 py-1 rounded text-[11px] font-mono transition-colors">Obstacles</button>
       </div>
-      <div class="flex justify-between text-xs font-mono text-slate-400 mt-1">
-        <span>Tripo</span>
-        <span id="balance-tripo-value" class="text-violet-400">—</span>
-      </div>
+      <button id="btn-new"
+              class="w-full px-3 py-1.5 bg-violet-600 hover:bg-violet-500 text-white text-xs font-mono rounded transition-colors flex items-center justify-center gap-1.5">
+        <span>+</span> New Figure
+      </button>
     </div>
 
-    <!-- Tool list (collapsed by default) -->
-    <div class="flex-1 overflow-y-auto p-3">
-      <button id="btn-toggle-tools"
-              class="w-full flex items-center justify-between text-[9px] font-mono uppercase tracking-widest text-slate-600 px-1 mb-2 hover:text-slate-500 transition-colors">
-        <span>Available Tools</span>
-        <span id="tool-list-icon">+</span>
-      </button>
-      <div id="tool-list" class="hidden space-y-0.5">
-        <!-- Populated by sidebar.js -->
-      </div>
+    <div id="figure-list" class="flex-1 overflow-y-auto p-2 space-y-0.5">
+      <!-- populated by JS -->
     </div>
 
-    <!-- Status indicator -->
     <div class="p-3 border-t border-[#1a1a2e]">
-      <div class="flex items-center gap-2 text-[9px] font-mono text-slate-600">
-        <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-        <span>Connected</span>
-      </div>
+      <div id="list-count" class="text-[10px] font-mono text-slate-600 text-center">Loading…</div>
     </div>
   </aside>
 
-  <!-- ═══════════════════════════════════════════════════════════════════
-       MAIN CONTENT
-  ════════════════════════════════════════════════════════════════════ -->
-  <div class="flex-1 flex flex-col overflow-hidden">
+  <!-- ── Main: editor ───────────────────────────────────────────────────────── -->
+  <main class="flex-1 flex flex-col overflow-hidden">
 
-    <!-- Top bar -->
-    <header class="h-11 border-b border-[#1a1a2e] flex items-center px-4 gap-3 flex-shrink-0">
-      <div id="mode-label">
-        <span class="tag-cyan px-2 py-0.5 rounded font-mono text-[10px]">CHAT</span>
+    <!-- header -->
+    <header class="h-11 border-b border-[#1a1a2e] flex items-center px-5 gap-3 flex-shrink-0">
+      <div id="editor-title" class="flex-1 text-xs font-mono text-slate-500">Select a figure to edit</div>
+      <div id="editor-actions" class="flex gap-2 hidden">
+        <button id="btn-save"
+                class="px-3 py-1.5 bg-violet-600 hover:bg-violet-500 text-white text-[12px] font-mono rounded transition-colors">
+          Save Changes
+        </button>
+        <button id="btn-delete"
+                class="px-3 py-1.5 bg-[#0e0e1a] hover:bg-red-900/30 border border-[#1a1a2e] hover:border-red-800/50 text-slate-400 hover:text-red-400 text-[12px] font-mono rounded transition-colors">
+          Delete
+        </button>
       </div>
-      <span id="status-bar" class="flex-1 text-[10px] font-mono text-slate-600">Ready</span>
-      <button id="btn-clear-chat"
-              class="text-[10px] font-mono text-slate-600 hover:text-slate-400 px-2 py-1 border border-[#1a1a2e] rounded hover:border-slate-600 transition-colors">
-        Clear
-      </button>
-      <button id="btn-toggle-panel"
-              class="text-[10px] font-mono text-slate-600 hover:text-slate-400 px-2 py-1 border border-[#1a1a2e] rounded hover:border-slate-600 transition-colors">
-        Panel ⟩
-      </button>
+      <div id="editor-create-actions" class="flex gap-2 hidden">
+        <button id="btn-create"
+                class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-[12px] font-mono rounded transition-colors">
+          Create Figure
+        </button>
+        <button id="btn-cancel-new"
+                class="px-3 py-1.5 bg-[#0e0e1a] border border-[#1a1a2e] text-slate-400 hover:text-slate-200 text-[12px] font-mono rounded transition-colors">
+          Cancel
+        </button>
+      </div>
+      <div id="editor-status" class="text-xs font-mono text-slate-400 min-h-[1.25rem]"></div>
     </header>
 
-    <!-- Messages -->
-    <div id="messages" class="flex-1 overflow-y-auto px-4 py-4 space-y-3">
-      <!-- Welcome message -->
-      <div class="msg-appear flex gap-3 max-w-3xl">
-        <div class="w-7 h-7 rounded bg-violet-600/20 border border-violet-600/30 flex-shrink-0 flex items-center justify-center mt-0.5">
-          <svg class="w-3.5 h-3.5 text-violet-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-          </svg>
+    <!-- content -->
+    <div id="editor-area" class="flex-1 overflow-y-auto">
+
+      <!-- empty state -->
+      <div id="empty-state" class="h-full flex flex-col items-center justify-center gap-4 text-center p-8">
+        <div class="w-14 h-14 rounded-xl bg-[#0e0e1a] border border-[#1a1a2e] flex items-center justify-center">
+          <span class="text-2xl text-slate-700">⬡</span>
         </div>
-        <div class="flex-1">
-          <div class="text-[10px] font-mono text-slate-500 mb-1">The Forge</div>
-          <div class="bg-[#0e0e1a] border border-[#1a1a2e] rounded-lg p-3 text-sm text-slate-300 leading-relaxed msg-text">
-            Welcome to <strong>The Forge</strong>. Generate animated 3D models, create images, or chat with AI tools.<br><br>
-            <span class="text-slate-500 text-xs font-mono">Quick start →</span><br>
-            <span class="inline-flex flex-wrap gap-1 mt-1.5">
-              <button class="tag-violet px-2 py-0.5 rounded text-xs font-mono hover:opacity-75 transition-opacity"
-                      onclick="document.getElementById('btn-check-balance').click()">check balance</button>
-              <button class="tag-cyan px-2 py-0.5 rounded text-xs font-mono hover:opacity-75 transition-opacity"
-                      onclick="document.getElementById('btn-set-mode-pipeline').click()">3D pipeline</button>
-              <button class="tag-green px-2 py-0.5 rounded text-xs font-mono hover:opacity-75 transition-opacity"
-                      onclick="document.getElementById('btn-set-mode-image').click()">generate image</button>
-            </span>
+        <div>
+          <p class="text-sm font-mono text-slate-400">Select a figure from the list</p>
+          <p class="text-xs font-mono text-slate-600 mt-1">or create a new one</p>
+        </div>
+        <button onclick="document.getElementById('btn-new').click()"
+                class="px-4 py-2 bg-violet-600/20 border border-violet-600/30 text-violet-400 text-xs font-mono rounded hover:bg-violet-600/30 transition-colors">
+          + New Figure
+        </button>
+      </div>
+
+      <!-- editor form (hidden until a figure is selected/created) -->
+      <form id="figure-form" class="hidden p-5 max-w-3xl space-y-6">
+
+        <!-- meta -->
+        <section class="space-y-3">
+          <h2 class="text-[10px] font-mono uppercase tracking-widest text-slate-600">Identity</h2>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-mono text-slate-500 mb-1">Name</label>
+              <input id="f-name" type="text"
+                     class="w-full bg-[#0e0e1a] border border-[#1a1a2e] rounded px-3 py-2 text-sm font-mono text-slate-200 focus:outline-none focus:border-violet-600/50 transition-colors">
+            </div>
+            <div>
+              <label class="block text-[11px] font-mono text-slate-500 mb-1">Type</label>
+              <select id="f-type"
+                      class="w-full bg-[#0e0e1a] border border-[#1a1a2e] rounded px-3 py-2 text-sm font-mono text-slate-200 focus:outline-none focus:border-violet-600/50 transition-colors">
+                <option value="figure">figure</option>
+                <option value="obstacle">obstacle</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- default design -->
+        <section class="space-y-3">
+          <h2 class="text-[10px] font-mono uppercase tracking-widest text-slate-600">Default Design</h2>
+          <div id="default-variants" class="rounded-lg border border-[#1a1a2e] overflow-hidden">
+            <div class="flex border-b border-[#1a1a2e]">
+              <button type="button" data-variant-tab="default-A"
+                      class="variant-tab active-variant-tab flex-1 px-4 py-2 text-[11px] font-mono transition-colors">
+                ☀ Variant A — Player 1 (Light)
+              </button>
+              <button type="button" data-variant-tab="default-B"
+                      class="variant-tab flex-1 px-4 py-2 text-[11px] font-mono transition-colors">
+                ☾ Variant B — Player 2 (Dark)
+              </button>
+            </div>
+            <div id="default-A-panel" class="p-4 space-y-3">
+              <div class="flex justify-end">
+                <button type="button" onclick="window.__toggleVariantAi('default-A')"
+                        class="text-[11px] font-mono text-violet-400 hover:text-violet-300 px-2 py-1 bg-violet-600/10 border border-violet-600/20 hover:border-violet-600/40 rounded transition-colors">✦ AI Fill</button>
+              </div>
+              <div id="variant-ai-default-A" class="hidden rounded border border-violet-600/20 bg-violet-600/5 p-2.5 space-y-2">
+                <textarea id="variant-ai-desc-default-A" rows="1" placeholder="Describe what you want for the light variant…"
+                          onkeydown="if(event.key==='Enter'&&(event.ctrlKey||event.metaKey))window.__generateVariant('default-A','A')"
+                          class="w-full bg-[#080810] border border-[#1a1a2e] rounded px-2 py-1.5 text-xs font-mono text-slate-300 placeholder-slate-600 focus:outline-none focus:border-violet-600/40 resize-none leading-relaxed"></textarea>
+                <div class="flex items-center gap-2">
+                  <button type="button" onclick="window.__generateVariant('default-A','A')"
+                          class="px-2.5 py-1 bg-violet-600 hover:bg-violet-500 disabled:opacity-40 text-white text-[11px] font-mono rounded transition-colors">✦ Generate</button>
+                  <span id="variant-ai-status-default-A" class="text-xs font-mono text-slate-400 min-h-[1.25rem]"></span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Model</label>
+                <div id="f-default-A-model-wrap"></div>
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Prompt</label>
+                <textarea id="f-default-A-prompt" rows="4"
+                          class="w-full bg-[#080810] border border-[#1a1a2e] rounded px-3 py-2 text-xs font-mono text-slate-300 focus:outline-none focus:border-violet-600/50 transition-colors resize-none leading-relaxed"></textarea>
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Negative Prompt <span class="text-slate-700">(optional)</span></label>
+                <textarea id="f-default-A-neg" rows="2"
+                          class="w-full bg-[#080810] border border-[#1a1a2e] rounded px-3 py-2 text-xs font-mono text-slate-300 focus:outline-none focus:border-violet-600/50 transition-colors resize-none leading-relaxed"></textarea>
+              </div>
+              <input type="hidden" id="f-default-A-images" value="[]">
+              <div class="flex items-center gap-2 pt-1">
+                <button type="button" data-gen-img-btn="default-A" onclick="window.__generateImage('default-A')"
+                        class="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-40 text-white text-[11px] font-mono rounded transition-colors">⬡ Generate Image</button>
+                <span id="img-status-default-A" class="text-xs font-mono text-slate-400 min-h-[1.25rem] flex items-center"></span>
+              </div>
+              <div id="img-gallery-default-A" class="hidden space-y-1.5"></div>
+            </div>
+            <div id="default-B-panel" class="p-4 space-y-3 hidden">
+              <div class="flex justify-end">
+                <button type="button" onclick="window.__toggleVariantAi('default-B')"
+                        class="text-[11px] font-mono text-violet-400 hover:text-violet-300 px-2 py-1 bg-violet-600/10 border border-violet-600/20 hover:border-violet-600/40 rounded transition-colors">✦ AI Fill</button>
+              </div>
+              <div id="variant-ai-default-B" class="hidden rounded border border-violet-600/20 bg-violet-600/5 p-2.5 space-y-2">
+                <textarea id="variant-ai-desc-default-B" rows="1" placeholder="Describe what you want for the dark variant…"
+                          onkeydown="if(event.key==='Enter'&&(event.ctrlKey||event.metaKey))window.__generateVariant('default-B','B')"
+                          class="w-full bg-[#080810] border border-[#1a1a2e] rounded px-2 py-1.5 text-xs font-mono text-slate-300 placeholder-slate-600 focus:outline-none focus:border-violet-600/40 resize-none leading-relaxed"></textarea>
+                <div class="flex items-center gap-2">
+                  <button type="button" onclick="window.__generateVariant('default-B','B')"
+                          class="px-2.5 py-1 bg-violet-600 hover:bg-violet-500 disabled:opacity-40 text-white text-[11px] font-mono rounded transition-colors">✦ Generate</button>
+                  <span id="variant-ai-status-default-B" class="text-xs font-mono text-slate-400 min-h-[1.25rem]"></span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Model</label>
+                <div id="f-default-B-model-wrap"></div>
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Prompt</label>
+                <textarea id="f-default-B-prompt" rows="4"
+                          class="w-full bg-[#080810] border border-[#1a1a2e] rounded px-3 py-2 text-xs font-mono text-slate-300 focus:outline-none focus:border-violet-600/50 transition-colors resize-none leading-relaxed"></textarea>
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Negative Prompt <span class="text-slate-700">(optional)</span></label>
+                <textarea id="f-default-B-neg" rows="2"
+                          class="w-full bg-[#080810] border border-[#1a1a2e] rounded px-3 py-2 text-xs font-mono text-slate-300 focus:outline-none focus:border-violet-600/50 transition-colors resize-none leading-relaxed"></textarea>
+              </div>
+              <input type="hidden" id="f-default-B-images" value="[]">
+              <div class="flex items-center gap-2 pt-1">
+                <button type="button" data-gen-img-btn="default-B" onclick="window.__generateImage('default-B')"
+                        class="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-40 text-white text-[11px] font-mono rounded transition-colors">⬡ Generate Image</button>
+                <span id="img-status-default-B" class="text-xs font-mono text-slate-400 min-h-[1.25rem] flex items-center"></span>
+              </div>
+              <div id="img-gallery-default-B" class="hidden space-y-1.5"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- skins -->
+        <section class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-[10px] font-mono uppercase tracking-widest text-slate-600">Skins</h2>
+            <button type="button" id="btn-add-skin"
+                    class="text-[11px] font-mono text-violet-400 hover:text-violet-300 px-2 py-1 border border-violet-600/20 hover:border-violet-600/40 rounded transition-colors">
+              + Add Skin
+            </button>
+          </div>
+          <div id="skins-container" class="space-y-3"></div>
+        </section>
+
+        <!-- CLI reference -->
+        <section class="space-y-2">
+          <button type="button" id="btn-toggle-cli"
+                  class="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-slate-600 hover:text-slate-500 transition-colors">
+            <span id="cli-arrow">▶</span> CLI Commands
+          </button>
+          <div id="cli-panel" class="hidden rounded-lg border border-[#1a1a2e] bg-[#080810] p-4 space-y-3">
+            <p class="text-[10px] font-mono text-slate-600">Use these commands in the agent CLI or AI chat:</p>
+            <div id="cli-commands" class="space-y-2 text-xs font-mono text-slate-400"></div>
+          </div>
+        </section>
+
+      </form>
+    </div>
+  </main>
+
+  <!-- 3D mesh preview (model-viewer) -->
+  <div id="mesh-viewer-modal" class="fixed inset-0 z-[300] hidden flex items-center justify-center p-3 sm:p-6"
+       role="dialog" aria-modal="true" aria-labelledby="mesh-viewer-title">
+    <button type="button" id="mesh-viewer-backdrop" class="absolute inset-0 bg-black/80 backdrop-blur-sm border-0 cursor-pointer" aria-label="Close preview"></button>
+    <div class="relative z-10 w-full max-w-5xl rounded-xl border border-[#2a2a45] bg-[#0e0e1a] shadow-2xl shadow-black/70 flex flex-col max-h-[92vh] overflow-hidden">
+      <div class="flex items-center justify-between gap-3 px-4 py-3 border-b border-[#1a1a2e] flex-shrink-0">
+        <h2 id="mesh-viewer-title" class="text-sm font-mono font-semibold text-slate-200">3D preview</h2>
+        <button type="button" id="mesh-viewer-close"
+                class="px-3 py-1.5 text-xs font-mono rounded-md bg-[#1a1a2e] text-slate-200 hover:bg-violet-600/40 hover:text-white border border-[#2a2a45] transition-colors">
+          Close
+        </button>
+      </div>
+      <div class="flex-1 min-h-0 p-2 sm:p-4 overflow-auto flex flex-col gap-3">
+        <model-viewer id="mesh-model-viewer"
+                      camera-controls
+                      touch-action="pan-y"
+                      shadow-intensity="1"
+                      exposure="1"
+                      autoplay
+                      alt="3D mesh preview">
+        </model-viewer>
+        <div id="mesh-animate-panel" class="hidden rounded-lg border border-[#2a2a45] bg-[#12121f] p-4 space-y-3 flex-shrink-0">
+          <h3 class="text-[11px] font-mono uppercase tracking-widest text-slate-500">Animate (Tripo3D)</h3>
+          <p id="mesh-animate-hint" class="text-[12px] font-mono text-slate-400 leading-relaxed">
+            Animations need a rigged skeleton. Run <strong class="text-slate-300">Rig for animation</strong> once per mesh (pre-rig check + rigging; uses Tripo credits). Then choose a preset and generate — the preview updates to the animated GLB when ready.
+          </p>
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" id="mesh-btn-rig"
+                    class="px-3 py-1.5 rounded-md text-xs font-mono font-medium bg-amber-700 hover:bg-amber-600 disabled:opacity-40 text-white border border-amber-500/50 transition-colors">
+              Rig for animation
+            </button>
+            <span id="mesh-rig-status" class="text-xs font-mono text-slate-400 min-h-[1.25rem]"></span>
+          </div>
+          <div id="mesh-animate-after-rig" class="hidden space-y-2 pt-1 border-t border-[#2a2a45]">
+            <label class="block text-[11px] font-mono text-slate-500">Animation preset</label>
+            <div class="flex flex-wrap items-stretch gap-2">
+              <select id="mesh-animate-select"
+                      class="flex-1 min-w-[12rem] bg-[#080810] border border-[#1a1a2e] rounded px-3 py-2 text-xs font-mono text-slate-300 focus:outline-none focus:border-violet-600/50 transition-colors">
+              </select>
+              <button type="button" id="mesh-btn-generate-anim"
+                      class="px-3 py-2 rounded-md text-xs font-mono font-medium bg-violet-600 hover:bg-violet-500 disabled:opacity-40 text-white border border-violet-400/40 transition-colors">
+                Generate animation
+              </button>
+            </div>
+            <span id="mesh-anim-gen-status" class="text-xs font-mono text-slate-400 min-h-[1.25rem] block"></span>
+            <div id="mesh-animated-outputs" class="hidden space-y-1.5 pt-1">
+              <div class="text-[11px] font-mono text-slate-500 uppercase tracking-widest">Generated clips</div>
+              <ul id="mesh-animated-list" class="space-y-1 text-xs font-mono"></ul>
+            </div>
           </div>
         </div>
       </div>
+      <p class="px-4 pb-3 pt-0 text-[12px] font-mono text-slate-500 flex-shrink-0">Drag to orbit · scroll / pinch to zoom · right-drag to pan</p>
     </div>
+  </div>
 
-    <!-- Input zone (mode-aware) -->
-    <div id="input-zone" class="flex-shrink-0 border-t border-[#1a1a2e]">
+  <script type="module" src="/vendor/model-viewer/model-viewer.min.js"></script>
 
-      <!-- ── Pipeline: file drop ── -->
-      <section id="drop-zone" class="hidden px-4 pt-3 pb-0 space-y-3">
-        <div id="drop-target"
-             class="border-2 border-dashed border-[#1a1a2e] rounded-lg p-6 text-center cursor-pointer hover:border-violet-600/40 hover:bg-violet-600/5 transition-all">
-          <div class="text-3xl mb-2">⬡</div>
-          <p class="text-sm font-mono text-slate-400">Drop image here or click to browse</p>
-          <p class="text-xs font-mono text-slate-600 mt-1">PNG or JPEG</p>
-          <p id="drop-filename" class="text-xs font-mono text-violet-400 mt-2 hidden"></p>
-        </div>
-        <input type="file" id="file-input" class="hidden" accept="image/png,image/jpeg,image/jpg">
+  <style>
+    .filter-btn { color: #64748b; background: transparent; }
+    .filter-btn:hover { color: #94a3b8; background: rgba(255,255,255,0.04); }
+    .active-filter { background: rgba(124,58,237,0.15); color: #a78bfa; }
+    .figure-item { padding: 8px 10px; border-radius: 6px; cursor: pointer; border: 1px solid transparent; transition: all 0.12s; }
+    .figure-item:hover { background: rgba(255,255,255,0.04); border-color: #1a1a2e; }
+    .figure-item.selected { background: rgba(124,58,237,0.1); border-color: rgba(124,58,237,0.25); }
+    .variant-tab { color: #475569; background: #0a0a14; }
+    .variant-tab:hover { color: #94a3b8; }
+    .active-variant-tab { color: #f1f5f9; background: #0e0e1a; }
+    .skin-card { border: 1px solid #1a1a2e; border-radius: 8px; overflow: hidden; }
+    .skin-header { display: flex; align-items: center; gap: 8px; padding: 10px 14px; cursor: pointer; background: #0a0a14; }
+    .skin-header:hover { background: #0e0e1a; }
+    .skin-body { background: #080810; }
+    .skin-variant-tab { flex: 1; padding: 6px 12px; font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #475569; background: #0a0a14; transition: all 0.12s; }
+    .skin-variant-tab:hover { color: #94a3b8; }
+    .active-skin-variant-tab { color: #f1f5f9; background: #0e0e1a; }
+    .img-carousel-viewport { overflow: hidden; border-radius: 0.5rem; }
+    .img-carousel-track { display: flex; transition: transform 0.3s ease-out; }
+    .img-carousel-slide { flex: 0 0 auto; box-sizing: border-box; }
+    #mesh-model-viewer {
+      width: 100%;
+      height: min(70vh, 720px);
+      min-height: 280px;
+      background: #080810;
+      border-radius: 8px;
+    }
+  </style>
 
-        <div id="animation-options" class="hidden pb-3">
-          <p class="text-[9px] font-mono uppercase tracking-widest text-slate-600 mb-2">Animation Presets</p>
-          <div id="anim-preset-list" class="flex flex-wrap gap-1 mb-3">
-            <!-- Populated by pipeline.js -->
-          </div>
-          <button id="pipeline-start-btn"
-                  class="w-full px-4 py-2 bg-violet-600 hover:bg-violet-500 text-white text-xs font-mono rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-            ⬡ Forge 3D Model
-          </button>
-        </div>
-      </section>
+  <script type="module">
+    // ── State ──────────────────────────────────────────────────────────────────
+    let allFigures = [];
+    let imageModels = [];           // [{ id, label }] loaded from /api/aiml/models
+    let selectedName = null;        // original name of the figure being edited
+    let isCreating = false;
+    let currentFilter = "all";
+    let skinCount = 0;  // for generating unique skin IDs
+    /** @type {Record<string, number>} current slide index per gallery prefix (2 images per slide) */
+    let galleryCarouselSlide = {};
+    /** @type {null | { prefix: string, imageIndex: number, genId: string, meshTaskId: string, rigTaskId?: string }} */
+    let meshViewerFigureCtx = null;
 
-      <!-- ── Image generation form ── -->
-      <section id="image-form" class="hidden px-4 py-3">
-        <div class="flex gap-2">
-          <input id="image-prompt" type="text"
-                 placeholder="Describe the image to generate…"
-                 class="flex-1 bg-[#0e0e1a] border border-[#1a1a2e] rounded-lg px-3 py-2 text-sm text-slate-200 placeholder-slate-600 font-mono focus:outline-none focus:border-violet-600/50 transition-colors">
-          <select id="image-model"
-                  class="bg-[#0e0e1a] border border-[#1a1a2e] rounded-lg px-3 py-2 text-xs font-mono text-slate-400 focus:outline-none">
-            <!-- Populated by app.js -->
-          </select>
-          <button id="btn-generate-image"
-                  class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-mono rounded transition-colors">
-            Generate
-          </button>
-        </div>
-      </section>
+    /** Tripo `AnimationType` presets for retarget (labels for UI). */
+    const TRIPO_ANIMATION_PRESETS = [
+      { value: "preset:idle", label: "Idle" },
+      { value: "preset:walk", label: "Walk" },
+      { value: "preset:run", label: "Run" },
+      { value: "preset:dive", label: "Dive" },
+      { value: "preset:climb", label: "Climb" },
+      { value: "preset:jump", label: "Jump" },
+      { value: "preset:slash", label: "Slash" },
+      { value: "preset:shoot", label: "Shoot" },
+      { value: "preset:hurt", label: "Hurt" },
+      { value: "preset:fall", label: "Fall" },
+      { value: "preset:turn", label: "Turn" },
+      { value: "preset:quadruped:walk", label: "Quadruped walk" },
+      { value: "preset:hexapod:walk", label: "Hexapod walk" },
+      { value: "preset:octopod:walk", label: "Octopod walk" },
+      { value: "preset:serpentine:march", label: "Serpentine march" },
+      { value: "preset:aquatic:march", label: "Aquatic march" },
+    ];
 
-      <!-- ── Chat input ── -->
-      <section id="chat-input-section" class="px-4 py-3">
-        <div class="flex gap-2 items-end">
-          <textarea id="chat-input" rows="1"
-                    placeholder="Ask anything or give instructions…"
-                    class="flex-1 bg-[#0e0e1a] border border-[#1a1a2e] rounded-lg px-4 py-3 text-sm text-slate-200 placeholder-slate-600 font-mono">
-          </textarea>
-          <button id="send-btn"
-                  class="px-4 py-3 bg-violet-600 hover:bg-violet-500 text-white text-xs font-mono rounded-lg flex items-center gap-1.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
-            </svg>
-            Send
-          </button>
-        </div>
-        <div class="flex justify-between mt-1.5 px-1">
-          <span class="text-[9px] font-mono text-slate-700">
-            <kbd class="px-1 py-0.5 bg-[#1a1a2e] rounded text-[8px]">↵</kbd> send ·
-            <kbd class="px-1 py-0.5 bg-[#1a1a2e] rounded text-[8px]">⇧↵</kbd> newline
+    // ── API ────────────────────────────────────────────────────────────────────
+
+    async function apiFetch(path, opts = {}) {
+      const res = await fetch(path, { headers: { "Content-Type": "application/json" }, ...opts });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
+      return data;
+    }
+
+    const api = {
+      list:   ()           => apiFetch("/api/figures"),
+      get:    (name)       => apiFetch(`/api/figures/${encodeURIComponent(name)}`),
+      create: (figure)     => apiFetch("/api/figures", { method: "POST", body: JSON.stringify(figure) }),
+      update: (name, fig)  => apiFetch(`/api/figures/${encodeURIComponent(name)}`, { method: "PUT", body: JSON.stringify(fig) }),
+      delete: (name)       => apiFetch(`/api/figures/${encodeURIComponent(name)}`, { method: "DELETE" }),
+    };
+
+    // ── Init ───────────────────────────────────────────────────────────────────
+
+    async function init() {
+      wireFilterButtons();
+      wireVariantTabs("default-A", "default-B", "default-A-panel", "default-B-panel");
+      document.getElementById("btn-new").addEventListener("click", showCreateForm);
+      document.getElementById("btn-save").addEventListener("click", handleSave);
+      document.getElementById("btn-create").addEventListener("click", handleCreate);
+      document.getElementById("btn-delete").addEventListener("click", handleDelete);
+      document.getElementById("btn-cancel-new").addEventListener("click", cancelNew);
+      document.getElementById("btn-add-skin").addEventListener("click", () => addSkinCard());
+      document.getElementById("btn-toggle-cli").addEventListener("click", toggleCli);
+      document.getElementById("search").addEventListener("input", renderList);
+      wireMeshViewerModal();
+      // models must resolve before figures so dropdowns are ready when any figure is clicked
+      await loadImageModels();
+      await loadFigures();
+    }
+
+    function fillTripoAnimationSelect() {
+      const sel = document.getElementById("mesh-animate-select");
+      if (!sel || sel.dataset.filled === "1") return;
+      sel.innerHTML = TRIPO_ANIMATION_PRESETS.map(p =>
+        `<option value="${escAttr(p.value)}">${escHtml(p.label)}</option>`
+      ).join("");
+      sel.dataset.filled = "1";
+    }
+
+    function wireMeshViewerModal() {
+      const modal = document.getElementById("mesh-viewer-modal");
+      const closeBtn = document.getElementById("mesh-viewer-close");
+      const backdrop = document.getElementById("mesh-viewer-backdrop");
+      const close = () => window.__closeMeshViewer();
+      closeBtn?.addEventListener("click", e => { e.stopPropagation(); close(); });
+      backdrop?.addEventListener("click", close);
+      document.addEventListener("keydown", e => {
+        if (e.key !== "Escape") return;
+        if (modal?.classList.contains("hidden")) return;
+        close();
+      });
+      fillTripoAnimationSelect();
+      document.getElementById("mesh-btn-rig")?.addEventListener("click", () => meshViewerRunRig());
+      document.getElementById("mesh-btn-generate-anim")?.addEventListener("click", () => meshViewerGenerateAnim());
+    }
+
+    function getStoredModel3d(prefix, imageIndex, genId) {
+      const images = readImagesInput(prefix);
+      const list = images[imageIndex]?.models3d;
+      if (!Array.isArray(list)) return null;
+      return list.find(m => m.id === genId) ?? null;
+    }
+
+    function updateAnimationById(prefix, imageIndex, genId, animId, fn) {
+      const images = readImagesInput(prefix);
+      const gen = images[imageIndex]?.models3d?.find(g => g.id === genId);
+      const anims = gen?.animations;
+      if (!anims) return;
+      const i = anims.findIndex(a => a.id === animId);
+      if (i === -1) return;
+      anims[i] = fn({ ...anims[i] });
+      writeImagesInput(prefix, images);
+    }
+
+    function syncMeshAnimatePanelUi() {
+      const panel = document.getElementById("mesh-animate-panel");
+      const afterRig = document.getElementById("mesh-animate-after-rig");
+      const rigBtn = document.getElementById("mesh-btn-rig");
+      const rigStatus = document.getElementById("mesh-rig-status");
+      const outWrap = document.getElementById("mesh-animated-outputs");
+      const outList = document.getElementById("mesh-animated-list");
+      const ctx = meshViewerFigureCtx;
+      if (!panel) return;
+
+      if (!ctx?.meshTaskId) {
+        panel.classList.add("hidden");
+        return;
+      }
+      panel.classList.remove("hidden");
+      const stored = getStoredModel3d(ctx.prefix, ctx.imageIndex, ctx.genId);
+      const rigId = stored?.rigTaskId || ctx.rigTaskId || "";
+      if (rigBtn) rigBtn.disabled = !!rigId;
+      if (afterRig) afterRig.classList.toggle("hidden", !rigId);
+      const anims = stored?.animations ?? [];
+      const done = anims.filter(a => a.glbUrl && a.status === "success");
+      if (outWrap && outList) {
+        outWrap.classList.toggle("hidden", done.length === 0);
+        // Do not put Tripo URLs in HTML attributes — `&` in query strings breaks attribute parsing.
+        outList.innerHTML = done.map(a => {
+          const label = escHtml(a.animationKey || a.id);
+          return `<li class="flex items-center gap-2 flex-wrap rounded-md px-2 py-1.5 bg-[#0e0e18] border border-[#252538]">
+            <span class="text-emerald-300/90">${label}</span>
+            <button type="button" class="js-mesh-anim-preview px-2 py-0.5 rounded text-[11px] font-mono bg-teal-700 hover:bg-teal-600 text-white"
+                    data-anim-id="${escAttr(a.id)}">Show in preview</button>
+          </li>`;
+        }).join("");
+        outList.querySelectorAll(".js-mesh-anim-preview").forEach(btn => {
+          btn.addEventListener("click", async () => {
+            const animId = btn.getAttribute("data-anim-id");
+            const c = meshViewerFigureCtx;
+            if (!animId || !c) return;
+            const st = getStoredModel3d(c.prefix, c.imageIndex, c.genId);
+            const u = st?.animations?.find(x => x.id === animId)?.glbUrl;
+            if (u) await setMeshViewerModelSrc(u);
+          });
+        });
+      }
+    }
+
+    async function setMeshViewerModelSrc(url) {
+      const mv = document.getElementById("mesh-model-viewer");
+      const titleEl = document.getElementById("mesh-viewer-title");
+      if (!mv || !url) return;
+      revokeMeshViewerObjectUrl();
+      mv.removeAttribute("src");
+      if (isTripoMeshCdnUrl(url)) {
+        if (titleEl) titleEl.textContent = "Loading model…";
+        try {
+          const res = await fetch("/api/tripo/proxy-model", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url }),
+          });
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error || `HTTP ${res.status}`);
+          }
+          const blob = await res.blob();
+          const objectUrl = URL.createObjectURL(blob);
+          mv.dataset.blobUrl = objectUrl;
+          mv.src = objectUrl;
+        } finally {
+          if (titleEl) titleEl.textContent = "3D preview";
+        }
+      } else {
+        mv.src = url;
+      }
+    }
+
+    async function meshViewerRunRig() {
+      const ctx = meshViewerFigureCtx;
+      if (!ctx?.meshTaskId) return;
+      const { prefix, imageIndex, genId } = ctx;
+      const btn = document.getElementById("mesh-btn-rig");
+      const statusEl = document.getElementById("mesh-rig-status");
+      if (btn) btn.disabled = true;
+      if (statusEl) {
+        statusEl.style.color = "";
+        statusEl.textContent = "Pre-rig check…";
+      }
+      try {
+        const pre = await apiFetch("/api/tripo/prerig-check", {
+          method: "POST",
+          body: JSON.stringify({ meshTaskId: ctx.meshTaskId }),
+        });
+        const preTask = await pollTripoTaskUntilDone(pre.prerigTaskId);
+        if (!preTask.output?.riggable) throw new Error("Model is not riggable");
+        updateModel3dById(prefix, imageIndex, genId, g => ({ ...g, prerigTaskId: pre.prerigTaskId }));
+        if (statusEl) statusEl.textContent = "Rigging (may take several minutes)…";
+        const rigStart = await apiFetch("/api/tripo/start-rig", {
+          method: "POST",
+          body: JSON.stringify({ meshTaskId: ctx.meshTaskId }),
+        });
+        await pollTripoTaskUntilDone(rigStart.rigTaskId);
+        updateModel3dById(prefix, imageIndex, genId, g => ({ ...g, rigTaskId: rigStart.rigTaskId }));
+        ctx.rigTaskId = rigStart.rigTaskId;
+        await autoSaveFigure();
+        renderImageGallery(prefix, readImagesInput(prefix));
+        syncMeshAnimatePanelUi();
+        if (statusEl) {
+          statusEl.textContent = "Rig complete.";
+          setTimeout(() => {
+            if (statusEl.textContent === "Rig complete.") statusEl.textContent = "";
+          }, 5000);
+        }
+      } catch (e) {
+        if (statusEl) {
+          statusEl.textContent = "Error: " + (e instanceof Error ? e.message : String(e));
+          statusEl.style.color = "#fca5a5";
+        }
+      } finally {
+        const stored = getStoredModel3d(prefix, imageIndex, genId);
+        if (btn) btn.disabled = !!(stored?.rigTaskId || ctx.rigTaskId);
+      }
+    }
+
+    async function meshViewerGenerateAnim() {
+      const ctx = meshViewerFigureCtx;
+      const rigId = ctx?.rigTaskId || getStoredModel3d(ctx?.prefix, ctx?.imageIndex, ctx?.genId)?.rigTaskId;
+      if (!ctx?.meshTaskId || !rigId) return;
+      const sel = document.getElementById("mesh-animate-select");
+      const animation = sel?.value;
+      if (!animation) return;
+      const { prefix, imageIndex, genId } = ctx;
+      const animId = newAssetId();
+      const statusEl = document.getElementById("mesh-anim-gen-status");
+      const btn = document.getElementById("mesh-btn-generate-anim");
+
+      const images = readImagesInput(prefix);
+      const gen = images[imageIndex]?.models3d?.find(g => g.id === genId);
+      if (!gen) return;
+      if (!gen.animations) gen.animations = [];
+      gen.animations.push({
+        id: animId,
+        createdAt: new Date().toISOString(),
+        status: "running",
+        animationKey: animation,
+      });
+      writeImagesInput(prefix, images);
+      renderImageGallery(prefix, images);
+
+      if (btn) btn.disabled = true;
+      if (statusEl) {
+        statusEl.style.color = "";
+        statusEl.textContent = "Queueing animation…";
+      }
+      try {
+        const start = await apiFetch("/api/tripo/start-retarget", {
+          method: "POST",
+          body: JSON.stringify({ rigTaskId: rigId, animation }),
+        });
+        updateAnimationById(prefix, imageIndex, genId, animId, a => ({ ...a, retargetTaskId: start.retargetTaskId }));
+        if (statusEl) statusEl.textContent = "Rendering (may take several minutes)…";
+        const task = await pollTripoTaskUntilDone(start.retargetTaskId);
+        const glbUrl = task.output?.model;
+        if (!glbUrl) throw new Error("No model URL in retarget output");
+        updateAnimationById(prefix, imageIndex, genId, animId, a => ({
+          ...a,
+          status: "success",
+          glbUrl,
+        }));
+        await autoSaveFigure();
+        renderImageGallery(prefix, readImagesInput(prefix));
+        syncMeshAnimatePanelUi();
+        await setMeshViewerModelSrc(glbUrl);
+        if (statusEl) {
+          statusEl.textContent = "Showing animated model in preview.";
+          setTimeout(() => {
+            if (statusEl.textContent === "Showing animated model in preview.") statusEl.textContent = "";
+          }, 5000);
+        }
+      } catch (e) {
+        updateAnimationById(prefix, imageIndex, genId, animId, a => ({
+          ...a,
+          status: "failed",
+          error: e instanceof Error ? e.message : String(e),
+        }));
+        if (statusEl) {
+          statusEl.textContent = "Error: " + (e instanceof Error ? e.message : String(e));
+          statusEl.style.color = "#fca5a5";
+        }
+        await autoSaveFigure();
+        renderImageGallery(prefix, readImagesInput(prefix));
+      } finally {
+        if (btn) btn.disabled = false;
+        syncMeshAnimatePanelUi();
+      }
+    }
+
+    function isTripoMeshCdnUrl(url) {
+      try {
+        const u = new URL(url);
+        if (u.protocol !== "https:") return false;
+        const h = u.hostname.toLowerCase();
+        return h.endsWith(".tripo3d.com") || h.endsWith(".tripo3d.ai");
+      } catch {
+        return false;
+      }
+    }
+
+    function revokeMeshViewerObjectUrl() {
+      const mv = document.getElementById("mesh-model-viewer");
+      const u = mv?.dataset?.blobUrl;
+      if (u && mv) {
+        URL.revokeObjectURL(u);
+        delete mv.dataset.blobUrl;
+      }
+    }
+
+    window.__openMeshViewer = async function(url, ctx) {
+      if (!url || typeof url !== "string") return;
+      const modal = document.getElementById("mesh-viewer-modal");
+      const mv = document.getElementById("mesh-model-viewer");
+      if (!modal || !mv) return;
+
+      meshViewerFigureCtx = null;
+      if (ctx && typeof ctx === "object" && ctx.meshTaskId && ctx.prefix != null && ctx.genId != null) {
+        meshViewerFigureCtx = {
+          prefix: String(ctx.prefix),
+          imageIndex: Number(ctx.imageIndex),
+          genId: String(ctx.genId),
+          meshTaskId: String(ctx.meshTaskId),
+          rigTaskId: ctx.rigTaskId ? String(ctx.rigTaskId) : undefined,
+        };
+        const stored = getStoredModel3d(meshViewerFigureCtx.prefix, meshViewerFigureCtx.imageIndex, meshViewerFigureCtx.genId);
+        if (stored?.rigTaskId) meshViewerFigureCtx.rigTaskId = stored.rigTaskId;
+        if (stored?.meshTaskId) meshViewerFigureCtx.meshTaskId = stored.meshTaskId;
+      }
+
+      revokeMeshViewerObjectUrl();
+      mv.removeAttribute("src");
+
+      modal.classList.remove("hidden");
+      document.body.classList.add("overflow-hidden");
+
+      fillTripoAnimationSelect();
+      const rigStatus = document.getElementById("mesh-rig-status");
+      const animStatus = document.getElementById("mesh-anim-gen-status");
+      if (rigStatus) { rigStatus.textContent = ""; rigStatus.style.color = ""; }
+      if (animStatus) { animStatus.textContent = ""; animStatus.style.color = ""; }
+      syncMeshAnimatePanelUi();
+
+      try {
+        await setMeshViewerModelSrc(url);
+      } catch (e) {
+        alert(e instanceof Error ? e.message : String(e));
+        modal.classList.add("hidden");
+        document.body.classList.remove("overflow-hidden");
+        meshViewerFigureCtx = null;
+        document.getElementById("mesh-animate-panel")?.classList.add("hidden");
+      }
+    };
+
+    window.__closeMeshViewer = function() {
+      meshViewerFigureCtx = null;
+      document.getElementById("mesh-animate-panel")?.classList.add("hidden");
+      revokeMeshViewerObjectUrl();
+      const modal = document.getElementById("mesh-viewer-modal");
+      const mv = document.getElementById("mesh-model-viewer");
+      if (mv) mv.removeAttribute("src");
+      modal?.classList.add("hidden");
+      document.body.classList.remove("overflow-hidden");
+    };
+
+    async function loadImageModels() {
+      try {
+        const data = await apiFetch("/api/aiml/models");
+        imageModels = Array.isArray(data) && data.length > 0 ? data : fallbackModels();
+      } catch {
+        imageModels = fallbackModels();
+      }
+    }
+
+    function fallbackModels() {
+      return [
+        { id: "flux-pro/v1.1-ultra" },
+        { id: "flux-pro/v1.1" },
+        { id: "flux-pro" },
+        { id: "flux/dev" },
+        { id: "flux/schnell" },
+        { id: "dall-e-3" },
+      ];
+    }
+
+    const IMAGE_MODEL_PREFERENCE = [
+      "flux-pro/v1.1-ultra",
+      "flux-pro/v1.1",
+      "blackforestlabs/flux-2-max",
+      "blackforestlabs/flux-2-pro",
+      "flux-pro",
+      "flux/dev",
+      "flux/schnell",
+    ];
+
+    function bestDefaultModel() {
+      const ids = imageModels.map(m => m.id);
+      return IMAGE_MODEL_PREFERENCE.find(p => ids.includes(p)) ?? ids[0] ?? "flux/dev";
+    }
+
+    function modelSelectHtml(inputId, selectedValue) {
+      const opts = imageModels.map(m =>
+        `<option value="${escAttr(m.id)}" ${m.id === selectedValue ? "selected" : ""}>${escHtml(m.id)}</option>`
+      ).join("");
+      return `<select id="${inputId}"
+               class="w-full bg-[#080810] border border-[#1a1a2e] rounded px-3 py-1.5 text-xs font-mono text-slate-300 focus:outline-none focus:border-violet-600/50 transition-colors">${opts}</select>`;
+    }
+
+    async function loadFigures() {
+      try {
+        allFigures = await api.list();
+        renderList();  // imageModels is always ready before this runs
+      } catch (err) {
+        setStatus("Failed to load: " + err.message, true);
+      }
+    }
+
+    // ── Image prompt: images[] (url + models3d + animations) / legacy imageUrls ─
+
+    function cloneModel3d(m) {
+      return {
+        ...m,
+        animations: Array.isArray(m.animations) ? m.animations.map(a => ({ ...a })) : [],
+      };
+    }
+
+    function normalizeImagesFromPrompt(ip) {
+      if (!ip || typeof ip !== "object") return [];
+      if (Array.isArray(ip.images) && ip.images.length > 0) {
+        return ip.images.map(entry => {
+          if (typeof entry === "string") return { url: entry, models3d: [] };
+          return {
+            url: typeof entry.url === "string" ? entry.url : "",
+            models3d: Array.isArray(entry.models3d) ? entry.models3d.map(cloneModel3d) : [],
+          };
+        });
+      }
+      const urls = ip.imageUrls;
+      if (Array.isArray(urls))
+        return urls.filter(u => typeof u === "string").map(url => ({ url, models3d: [] }));
+      return [];
+    }
+
+    function readImagesInput(prefix) {
+      const el = document.getElementById(`f-${prefix}-images`);
+      const raw = el?.value ?? "[]";
+      try {
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return [];
+        return parsed.map(entry => {
+          if (typeof entry === "string") return { url: entry, models3d: [] };
+          return {
+            url: typeof entry.url === "string" ? entry.url : "",
+            models3d: Array.isArray(entry.models3d) ? entry.models3d.map(cloneModel3d) : [],
+          };
+        }).filter(a => a.url);
+      } catch {
+        return [];
+      }
+    }
+
+    function writeImagesInput(prefix, images) {
+      const el = document.getElementById(`f-${prefix}-images`);
+      if (el) el.value = JSON.stringify(images);
+    }
+
+    function newAssetId() {
+      return globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+    }
+
+    async function pollTripoTaskUntilDone(taskId) {
+      const bad = new Set(["failed", "cancelled", "banned", "expired"]);
+      for (;;) {
+        const res = await fetch(`/api/tripo/task/${encodeURIComponent(taskId)}`);
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`);
+        const task = body.data;
+        if (!task) throw new Error("Invalid task response");
+        if (task.status === "success") return task;
+        if (bad.has(task.status)) throw new Error(task.error_msg || `Task ${task.status}`);
+        await new Promise(r => setTimeout(r, 2000));
+      }
+    }
+
+    function updateModel3dById(prefix, imageIndex, genId, fn) {
+      const images = readImagesInput(prefix);
+      const list = images[imageIndex]?.models3d;
+      if (!list) return;
+      const i = list.findIndex(g => g.id === genId);
+      if (i === -1) return;
+      list[i] = fn({ ...list[i] });
+      writeImagesInput(prefix, images);
+    }
+
+    // ── List rendering ─────────────────────────────────────────────────────────
+
+    function firstImageUrlFromPrompt(ip) {
+      if (!ip) return null;
+      const imgs = normalizeImagesFromPrompt(ip);
+      return imgs[0]?.url || ip.imageUrls?.[0] || null;
+    }
+
+    function figureThumb(f) {
+      return firstImageUrlFromPrompt(f.default?.variantA?.imagePrompt)
+          || firstImageUrlFromPrompt(f.default?.variantB?.imagePrompt)
+          || firstImageUrlFromPrompt(f.skins?.[0]?.variantA?.imagePrompt)
+          || firstImageUrlFromPrompt(f.skins?.[0]?.variantB?.imagePrompt)
+          || null;
+    }
+
+    function renderList() {
+      const query = document.getElementById("search").value.toLowerCase();
+      const list = document.getElementById("figure-list");
+      const filtered = allFigures.filter(f => {
+        if (currentFilter !== "all" && f.type !== currentFilter) return false;
+        if (query && !f.name.toLowerCase().includes(query)) return false;
+        return true;
+      });
+
+      list.innerHTML = filtered.map(f => {
+        const skinCount = f.skins?.length ?? 0;
+        const typeColor = f.type === "figure" ? "text-violet-400" : "text-emerald-400";
+        const isSelected = f.name === selectedName && !isCreating;
+        const thumb = figureThumb(f);
+        return `
+          <div class="figure-item ${isSelected ? "selected" : ""} flex gap-2 items-center" data-name="${escHtml(f.name)}"
+               onclick="window.__selectFigure('${escHtml(f.name)}')">
+            <div class="w-9 h-9 rounded overflow-hidden border border-[#1a1a2e] flex-shrink-0 bg-[#0a0a14]">
+              ${thumb
+                ? `<img src="${escHtml(thumb)}" class="w-full h-full object-cover" loading="lazy" alt="">`
+                : `<div class="w-full h-full flex items-center justify-center text-slate-700 text-[12px]">⬡</div>`}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-xs font-mono text-slate-200 truncate">${escHtml(f.name)}</div>
+              <div class="flex items-center gap-2 mt-0.5">
+                <span class="text-[10px] font-mono ${typeColor}">${f.type}</span>
+                ${skinCount > 0 ? `<span class="text-[10px] font-mono text-slate-600">${skinCount} skin${skinCount !== 1 ? "s" : ""}</span>` : ""}
+              </div>
+            </div>
+          </div>`;
+      }).join("");
+
+      document.getElementById("list-count").textContent =
+        `${filtered.length} of ${allFigures.length} items`;
+    }
+
+    window.__selectFigure = async function(name) {
+      if (isCreating) {
+        if (!confirm("Discard new figure?")) return;
+        isCreating = false;
+      }
+      selectedName = name;
+      const figure = allFigures.find(f => f.name === name);
+      if (figure) populateForm(figure);
+      renderList();
+    };
+
+    // ── Form population ────────────────────────────────────────────────────────
+
+    function populateForm(figure) {
+      galleryCarouselSlide = {};
+      document.getElementById("empty-state").classList.add("hidden");
+      document.getElementById("figure-form").classList.remove("hidden");
+      document.getElementById("editor-title").textContent = figure.name;
+      showEditorMode("edit");
+
+      document.getElementById("f-name").value = figure.name;
+      document.getElementById("f-type").value = figure.type ?? "figure";
+
+      const dA = figure.default?.variantA?.imagePrompt ?? {};
+      const dB = figure.default?.variantB?.imagePrompt ?? {};
+      setVariantFields("default-A", dA);
+      setVariantFields("default-B", dB);
+
+      // skins
+      const container = document.getElementById("skins-container");
+      container.innerHTML = "";
+      skinCount = 0;
+      (figure.skins ?? []).forEach(skin => addSkinCard(skin));
+
+      updateCliPanel(figure.name);
+    }
+
+    function setVariantFields(prefix, ip) {
+      const wrap = document.getElementById(`f-${prefix}-model-wrap`);
+      if (wrap) wrap.innerHTML = modelSelectHtml(`f-${prefix}-model`, ip.model ?? bestDefaultModel());
+      document.getElementById(`f-${prefix}-prompt`).value = ip.prompt ?? "";
+      document.getElementById(`f-${prefix}-neg`).value = ip.negativePrompt ?? "";
+      const images = normalizeImagesFromPrompt(ip);
+      writeImagesInput(prefix, images);
+      renderImageGallery(prefix, images);
+    }
+
+    function getVariantFields(prefix) {
+      const modelEl = document.getElementById(`f-${prefix}-model`);
+      const model = modelEl?.value?.trim() ?? bestDefaultModel();
+      const prompt = document.getElementById(`f-${prefix}-prompt`).value.trim();
+      const neg = document.getElementById(`f-${prefix}-neg`).value.trim();
+      const images = readImagesInput(prefix);
+      const ip = { model, prompt };
+      if (neg) ip.negativePrompt = neg;
+      if (images.length) {
+        ip.images = images;
+        ip.imageUrls = images.map(i => i.url).filter(Boolean);
+      }
+      return { imagePrompt: ip };
+    }
+
+    function serializeForm() {
+      const name = document.getElementById("f-name").value.trim();
+      const type = document.getElementById("f-type").value;
+      const figure = {
+        name,
+        type,
+        default: {
+          variantA: getVariantFields("default-A"),
+          variantB: getVariantFields("default-B"),
+        },
+        skins: collectSkins(),
+      };
+      return figure;
+    }
+
+    // ── Skins ──────────────────────────────────────────────────────────────────
+
+    function addSkinCard(skin = null, highlight = false) {
+      const id = skinCount++;
+      const skinName = skin?.name ?? "";
+      const sA = skin?.variantA?.imagePrompt ?? {};
+      const sB = skin?.variantB?.imagePrompt ?? {};
+
+      const card = document.createElement("div");
+      card.className = "skin-card";
+      card.dataset.skinId = id;
+      card.innerHTML = `
+        <div class="skin-header" onclick="window.__toggleSkin(${id})">
+          <span class="text-[11px] font-mono text-slate-500 flex-1" id="skin-title-${id}">
+            ${skinName ? escHtml(skinName) : "New Skin"}
           </span>
-          <span id="char-count" class="text-[9px] font-mono text-slate-700">0 chars</span>
+          <span id="skin-arrow-${id}" class="text-[11px] text-slate-600">▼</span>
+          <button type="button" onclick="event.stopPropagation(); window.__removeSkin(${id})"
+                  class="text-[11px] font-mono text-slate-600 hover:text-red-400 px-1 transition-colors">✕</button>
         </div>
-      </section>
+        <div id="skin-body-${id}" class="skin-body">
+          <div class="px-4 pt-3 pb-2">
+            <label class="block text-[11px] font-mono text-slate-500 mb-1">Skin Name</label>
+            <input id="skin-name-${id}" type="text" value="${escAttr(skinName)}" placeholder="e.g. Spartan"
+                   oninput="window.__updateSkinTitle(${id}, this.value)"
+                   class="w-full bg-[#0e0e1a] border border-[#1a1a2e] rounded px-3 py-1.5 text-xs font-mono text-slate-300 focus:outline-none focus:border-violet-600/50 transition-colors">
+          </div>
+          <div class="flex border-t border-b border-[#1a1a2e]">
+            <button type="button" data-skin-tab="${id}-A"
+                    class="skin-variant-tab active-skin-variant-tab"
+                    onclick="window.__switchSkinTab(${id}, 'A')">☀ Variant A</button>
+            <button type="button" data-skin-tab="${id}-B"
+                    class="skin-variant-tab"
+                    onclick="window.__switchSkinTab(${id}, 'B')">☾ Variant B</button>
+          </div>
+          <div id="skin-A-panel-${id}" class="p-4 space-y-3">
+            ${variantFieldsHtml(`skin-${id}-A`, sA, 'A')}
+          </div>
+          <div id="skin-B-panel-${id}" class="p-4 space-y-3 hidden">
+            ${variantFieldsHtml(`skin-${id}-B`, sB, 'B')}
+          </div>
+        </div>`;
+      document.getElementById("skins-container").appendChild(card);
 
-    </div><!-- /input-zone -->
-  </div><!-- /main -->
+      if (highlight) {
+        card.style.transition = "border-color 1.8s ease, box-shadow 1.8s ease";
+        card.style.borderColor = "rgba(124,58,237,0.6)";
+        card.style.boxShadow = "0 0 0 1px rgba(124,58,237,0.2)";
+        setTimeout(() => { card.style.borderColor = ""; card.style.boxShadow = ""; }, 2000);
+      }
+    }
 
-  <!-- ═══════════════════════════════════════════════════════════════════
-       RIGHT PANEL (pipeline progress + results)
-  ════════════════════════════════════════════════════════════════════ -->
-  <aside id="right-panel" class="w-72 border-l border-[#1a1a2e] flex-col bg-[#0a0a14] hidden lg:flex">
-    <div class="p-4 border-b border-[#1a1a2e] flex items-center justify-between flex-shrink-0">
-      <span class="text-[9px] font-mono uppercase tracking-widest text-slate-500">Pipeline & Results</span>
-      <button id="btn-toggle-panel-x"
-              class="text-slate-600 hover:text-slate-400 text-xs font-mono transition-colors"
-              onclick="document.getElementById('btn-toggle-panel').click()">✕</button>
-    </div>
+    const IMAGES_PER_CAROUSEL_SLIDE = 2;
 
-    <div class="flex-1 overflow-y-auto p-4 space-y-4">
-      <!-- Pipeline steps — rendered by pipeline.js -->
-      <div id="pipeline-steps" class="space-y-1"></div>
+    function chunkImagesForCarousel(images, chunkSize) {
+      const slides = [];
+      for (let i = 0; i < images.length; i += chunkSize) slides.push(images.slice(i, i + chunkSize));
+      return slides;
+    }
 
-      <!-- Results — populated dynamically -->
-      <div id="pipeline-results" class="space-y-3 hidden"></div>
-    </div>
-  </aside>
+    function models3dListHtml(prefix, imageIndex, asset) {
+      const models = asset.models3d ?? [];
+      if (!models.length) return "";
+      return `<div class="px-2 py-2.5 space-y-2 border-t border-[#2a2a45] bg-[#12121f]">
+        ${models.map((g, gi) => {
+          const statusClass = g.status === "success" ? "text-emerald-300" : g.status === "failed" ? "text-red-300" : "text-amber-300";
+          const url = g.pbrModelUrl || g.modelUrl;
+          const errTip = g.error ? escAttr(g.error) : "";
+          const meshNum = gi + 1;
+          const viewerCtx = JSON.stringify({
+            prefix,
+            imageIndex,
+            genId: g.id,
+            meshTaskId: g.meshTaskId || "",
+            rigTaskId: g.rigTaskId || "",
+          });
+          const animBtns = (g.animations ?? []).filter(a => a.glbUrl && a.status === "success").map(a => {
+            const lab = escHtml(a.animationKey || "clip");
+            return `<button type="button" onclick='window.__openMeshViewer(${JSON.stringify(a.glbUrl)}, ${viewerCtx})' class="inline-flex items-center px-2 py-1 rounded-md text-[11px] font-mono bg-sky-700 text-white hover:bg-sky-600 border border-sky-500/50">▶ ${lab}</button>`;
+          }).join(" ");
+          return `<div class="flex items-center gap-2 flex-wrap text-sm font-mono leading-normal min-h-[2rem] rounded-md px-2 py-1.5 bg-[#0e0e18] border border-[#252538] ${statusClass}">
+            <span class="font-bold text-slate-100 tabular-nums shrink-0">Mesh ${meshNum}</span>
+            <span class="text-slate-200 capitalize font-medium">${g.status}</span>
+            ${url ? `<button type="button" onclick='window.__openMeshViewer(${JSON.stringify(url)}, ${viewerCtx})' class="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold uppercase tracking-wide bg-teal-600 text-white hover:bg-teal-500 border border-teal-400/60 shadow-sm">View 3D</button>` : ""}
+            ${url ? `<button type="button" onclick='window.__downloadMesh(${JSON.stringify(url)}, ${meshNum})' class="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold uppercase tracking-wide bg-violet-600 text-white hover:bg-violet-500 border border-violet-400/60 shadow-sm">Download mesh</button>` : ""}
+            ${animBtns ? `<span class="w-full text-[10px] text-slate-500 mt-0.5">Animated:</span>${animBtns}` : ""}
+            ${g.error ? `<span class="text-red-300 max-w-[12rem] truncate text-xs font-medium" title="${errTip}">⚠ error</span>` : ""}
+          </div>`;
+        }).join("")}
+      </div>`;
+    }
 
-  <!-- ── Entry point (ES module) ── -->
-  <script type="module" src="/js/app.js"></script>
+    function singleImageCellHtml(prefix, asset, globalIndex) {
+      const prefixJson = JSON.stringify(prefix);
+      const url = asset.url || "";
+      const label = `Generated ${globalIndex + 1}`;
+      return `
+            <div class="flex flex-col min-h-0 rounded overflow-hidden border border-[#1a1a2e] bg-[#0a0a14]">
+              <div class="relative group flex-shrink-0">
+                <img src="${escHtml(url)}" loading="lazy" class="w-full aspect-square object-cover" alt="${escAttr(label)}">
+                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors pointer-events-none"></div>
+                <button type="button" onclick='window.__removeImage(${prefixJson}, ${globalIndex})'
+                        class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 bg-black/70 hover:bg-red-900/80 text-red-400 rounded px-1.5 py-0.5 text-[10px] font-mono transition-all z-10">✕</button>
+                <a href="${escHtml(url)}" target="_blank" rel="noopener noreferrer"
+                   class="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 bg-black/70 text-slate-300 rounded px-1.5 py-0.5 text-[10px] font-mono transition-all z-10">↗</a>
+              </div>
+              <button type="button" onclick='window.__mesh3dFromImage(${prefixJson}, ${globalIndex})'
+                      class="w-full min-h-[2.25rem] py-2 px-2 text-[12px] font-mono font-medium tracking-wide bg-cyan-600 hover:bg-cyan-500 text-white border-t border-cyan-500/40 shadow-inner transition-colors">Create 3D mesh</button>
+              ${models3dListHtml(prefix, globalIndex, asset)}
+            </div>`;
+    }
+
+    function imageGalleryInnerHtml(prefix, images) {
+      if (!images.length) return "";
+      const slides = chunkImagesForCarousel(images, IMAGES_PER_CAROUSEL_SLIDE);
+      const numSlides = slides.length;
+      const slidePct = 100 / numSlides;
+      let current = galleryCarouselSlide[prefix] ?? 0;
+      if (current >= numSlides) current = numSlides - 1;
+      if (current < 0) current = 0;
+      galleryCarouselSlide[prefix] = current;
+
+      const slidesHtml = slides.map((pair, si) => {
+        const cells = pair.map((asset, j) => {
+          const globalIndex = si * IMAGES_PER_CAROUSEL_SLIDE + j;
+          return singleImageCellHtml(prefix, asset, globalIndex);
+        });
+        if (pair.length === 1) cells.push('<div class="rounded border border-dashed border-[#1a1a2e] bg-[#0a0a14]/50 min-h-[4rem]" aria-hidden="true"></div>');
+        return `
+          <div class="img-carousel-slide grid grid-cols-2 gap-1.5" style="width: ${slidePct}%; padding: 0 2px;">
+            ${cells.join("")}
+          </div>`;
+      }).join("");
+
+      const atStart = current <= 0;
+      const atEnd = current >= numSlides - 1;
+      const prefixJs = JSON.stringify(prefix);
+
+      return `
+        <div class="flex items-center justify-between gap-2">
+          <label class="text-xs font-mono text-slate-400">Generated Images (${images.length})</label>
+          <span class="text-xs font-mono text-slate-500 tabular-nums">${current + 1} / ${numSlides}</span>
+        </div>
+        <div class="flex items-stretch gap-1.5">
+          <button type="button" aria-label="Previous images"
+                  onclick='window.__carouselStep(${prefixJs}, -1)'
+                  class="flex-shrink-0 self-center w-8 h-8 rounded border border-[#1a1a2e] bg-[#0e0e1a] text-slate-400 hover:text-slate-200 hover:border-violet-600/40 text-sm font-mono transition-colors disabled:opacity-30 disabled:pointer-events-none"
+                  ${atStart ? "disabled" : ""}>‹</button>
+          <div class="img-carousel-viewport flex-1 min-w-0 border border-[#1a1a2e] bg-[#080810]">
+            <div class="img-carousel-track" style="width: ${numSlides * 100}%; transform: translateX(-${(current / numSlides) * 100}%);">
+              ${slidesHtml}
+            </div>
+          </div>
+          <button type="button" aria-label="Next images"
+                  onclick='window.__carouselStep(${prefixJs}, 1)'
+                  class="flex-shrink-0 self-center w-8 h-8 rounded border border-[#1a1a2e] bg-[#0e0e1a] text-slate-400 hover:text-slate-200 hover:border-violet-600/40 text-sm font-mono transition-colors disabled:opacity-30 disabled:pointer-events-none"
+                  ${atEnd ? "disabled" : ""}>›</button>
+        </div>`;
+    }
+
+    window.__carouselStep = function(prefix, delta) {
+      const images = readImagesInput(prefix);
+      if (!images.length) return;
+      const numSlides = Math.ceil(images.length / IMAGES_PER_CAROUSEL_SLIDE);
+      let s = galleryCarouselSlide[prefix] ?? 0;
+      s = Math.max(0, Math.min(numSlides - 1, s + delta));
+      galleryCarouselSlide[prefix] = s;
+      renderImageGallery(prefix, images);
+    };
+
+    window.__downloadMesh = async function(url, meshIndex) {
+      if (!url || typeof url !== "string") return;
+      const n = typeof meshIndex === "number" && meshIndex > 0 ? meshIndex : 1;
+      const filename = `figure-mesh-${n}.glb`;
+      try {
+        let blob;
+        if (isTripoMeshCdnUrl(url)) {
+          const res = await fetch("/api/tripo/proxy-model", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url }),
+          });
+          if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error || `HTTP ${res.status}`);
+          }
+          blob = await res.blob();
+        } else {
+          const res = await fetch(url);
+          if (!res.ok) throw new Error(res.statusText || `HTTP ${res.status}`);
+          blob = await res.blob();
+        }
+        const objectUrl = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = objectUrl;
+        a.download = filename;
+        a.rel = "noopener";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
+      } catch (e) {
+        alert(e instanceof Error ? e.message : String(e));
+      }
+    };
+
+    window.__mesh3dFromImage = async function(prefix, imageIndex) {
+      const images = readImagesInput(prefix);
+      const asset = images[imageIndex];
+      if (!asset?.url) return;
+      const genId = newAssetId();
+      const gen = {
+        id: genId,
+        createdAt: new Date().toISOString(),
+        status: "running",
+        animations: [],
+      };
+      if (!asset.models3d) asset.models3d = [];
+      asset.models3d.push(gen);
+      writeImagesInput(prefix, images);
+      renderImageGallery(prefix, images);
+
+      try {
+        const start = await apiFetch("/api/tripo/mesh-from-image-url", {
+          method: "POST",
+          body: JSON.stringify({ imageUrl: asset.url }),
+        });
+        if (start.error) throw new Error(start.error);
+        const meshTaskId = start.meshTaskId;
+        if (!meshTaskId) throw new Error("No meshTaskId");
+        updateModel3dById(prefix, imageIndex, genId, g => ({ ...g, meshTaskId }));
+        renderImageGallery(prefix, readImagesInput(prefix));
+        const task = await pollTripoTaskUntilDone(meshTaskId);
+        const pbr = task.output?.pbr_model;
+        const model = task.output?.model ?? pbr;
+        updateModel3dById(prefix, imageIndex, genId, g => ({
+          ...g,
+          status: "success",
+          meshTaskId,
+          pbrModelUrl: pbr,
+          modelUrl: model,
+        }));
+      } catch (err) {
+        updateModel3dById(prefix, imageIndex, genId, g => ({
+          ...g,
+          status: "failed",
+          error: err instanceof Error ? err.message : String(err),
+        }));
+      } finally {
+        renderImageGallery(prefix, readImagesInput(prefix));
+        await autoSaveFigure();
+      }
+    };
+
+    function renderImageGallery(prefix, images) {
+      const gallery = document.getElementById(`img-gallery-${prefix}`);
+      if (!gallery) return;
+      gallery.classList.toggle("hidden", !images.length);
+      gallery.innerHTML = imageGalleryInnerHtml(prefix, images);
+    }
+
+    window.__generateImage = async function(prefix) {
+      const model  = document.getElementById(`f-${prefix}-model`)?.value?.trim();
+      const prompt = document.getElementById(`f-${prefix}-prompt`)?.value?.trim();
+      const neg    = document.getElementById(`f-${prefix}-neg`)?.value?.trim();
+      const statusEl = document.getElementById(`img-status-${prefix}`);
+      const btn = document.querySelector(`[data-gen-img-btn="${prefix}"]`);
+
+      if (!prompt) { statusEl.textContent = "Add a prompt first"; return; }
+
+      if (btn) btn.disabled = true;
+      statusEl.textContent = "Generating…";
+      statusEl.style.color = "";
+
+      try {
+        const body = { model, prompt };
+        if (neg) body.negativePrompt = neg;
+        const data = await apiFetch("/api/aiml/generate", {
+          method: "POST",
+          body: JSON.stringify(body),
+        });
+        if (data.error) throw new Error(data.error);
+
+        const first = data.data?.[0];
+        const url = first?.url ?? (first?.b64_json ? `data:image/png;base64,${first.b64_json}` : null);
+        if (!url) throw new Error("No image in response");
+
+        const images = readImagesInput(prefix);
+        images.push({ url, models3d: [] });
+        writeImagesInput(prefix, images);
+        renderImageGallery(prefix, images);
+
+        statusEl.textContent = "Saved";
+        await autoSaveFigure();
+        setTimeout(() => { statusEl.textContent = ""; }, 2000);
+      } catch (err) {
+        statusEl.textContent = "Error: " + err.message;
+        statusEl.style.color = "#fca5a5";
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    };
+
+    window.__removeImage = async function(prefix, index) {
+      const images = readImagesInput(prefix);
+      images.splice(index, 1);
+      writeImagesInput(prefix, images);
+      renderImageGallery(prefix, images);
+      await autoSaveFigure();
+    };
+
+    async function autoSaveFigure() {
+      if (!selectedName || isCreating) return;
+      try {
+        const figure = serializeForm();
+        const saved = await api.update(selectedName, figure);
+        const idx = allFigures.findIndex(f => f.name === selectedName);
+        if (idx !== -1) allFigures[idx] = saved;
+        renderList();
+      } catch { /* silent — user can still manually save */ }
+    }
+
+    window.__toggleVariantAi = function(prefix) {
+      const panel = document.getElementById(`variant-ai-${prefix}`);
+      const hidden = panel.classList.toggle("hidden");
+      if (!hidden) document.getElementById(`variant-ai-desc-${prefix}`)?.focus();
+      else document.getElementById(`variant-ai-status-${prefix}`).textContent = "";
+    };
+
+    window.__generateVariant = async function(prefix, variant) {
+      const descEl = document.getElementById(`variant-ai-desc-${prefix}`);
+      const statusEl = document.getElementById(`variant-ai-status-${prefix}`);
+      const genBtn = document.getElementById(`variant-ai-${prefix}`)?.querySelector("button");
+
+      const description = descEl?.value.trim();
+
+      if (genBtn) genBtn.disabled = true;
+      statusEl.textContent = "Generating…";
+      statusEl.style.color = "";
+
+      try {
+        // derive the other variant prefix for cross-reference
+        const otherPrefix = prefix.endsWith("-A")
+          ? prefix.slice(0, -2) + "-B"
+          : prefix.slice(0, -2) + "-A";
+
+        // skin name is available when prefix is "skin-{id}-{V}"
+        let skinName = "";
+        const skinMatch = prefix.match(/^skin-(\d+)-/);
+        if (skinMatch) skinName = document.getElementById(`skin-name-${skinMatch[1]}`)?.value.trim() ?? "";
+
+        const context = {
+          figureName:        document.getElementById("f-name").value.trim(),
+          figureType:        document.getElementById("f-type").value,
+          skinName,
+          existingModel:     document.getElementById(`f-${prefix}-model`)?.value.trim(),
+          existingPrompt:    document.getElementById(`f-${prefix}-prompt`)?.value.trim(),
+          existingNegPrompt: document.getElementById(`f-${prefix}-neg`)?.value.trim(),
+          otherVariantPrompt: document.getElementById(`f-${otherPrefix}-prompt`)?.value.trim(),
+        };
+
+        const result = await apiFetch("/api/figures/ai-variant", {
+          method: "POST",
+          body: JSON.stringify({ description, variant, context, availableModels: imageModels }),
+        });
+
+        // populate model select — add the returned model if not already present
+        const modelEl = document.getElementById(`f-${prefix}-model`);
+        if (modelEl && result.model) {
+          if (!Array.from(modelEl.options).some(o => o.value === result.model)) {
+            modelEl.add(new Option(result.model, result.model));
+          }
+          modelEl.value = result.model;
+        }
+        if (result.prompt)        document.getElementById(`f-${prefix}-prompt`).value = result.prompt;
+        if (result.negativePrompt !== undefined) document.getElementById(`f-${prefix}-neg`).value = result.negativePrompt ?? "";
+
+        document.getElementById(`variant-ai-${prefix}`)?.classList.add("hidden");
+        descEl.value = "";
+        statusEl.textContent = "";
+      } catch (err) {
+        statusEl.textContent = "Error: " + err.message;
+        statusEl.style.color = "#fca5a5";
+      } finally {
+        if (genBtn) genBtn.disabled = false;
+      }
+    };
+
+    function variantFieldsHtml(prefix, ip, variant) {
+      const placeholder = variant === "A"
+        ? "Describe what you want for the light variant…"
+        : "Describe what you want for the dark variant…";
+      return `
+        <div class="flex justify-end">
+          <button type="button" onclick="window.__toggleVariantAi('${prefix}')"
+                  class="text-[11px] font-mono text-violet-400 hover:text-violet-300 px-2 py-1 bg-violet-600/10 border border-violet-600/20 hover:border-violet-600/40 rounded transition-colors">✦ AI Fill</button>
+        </div>
+        <div id="variant-ai-${prefix}" class="hidden rounded border border-violet-600/20 bg-violet-600/5 p-2.5 space-y-2">
+          <textarea id="variant-ai-desc-${prefix}" rows="1" placeholder="${placeholder}"
+                    onkeydown="if(event.key==='Enter'&&(event.ctrlKey||event.metaKey))window.__generateVariant('${prefix}','${variant}')"
+                    class="w-full bg-[#080810] border border-[#1a1a2e] rounded px-2 py-1.5 text-xs font-mono text-slate-300 placeholder-slate-600 focus:outline-none focus:border-violet-600/40 resize-none leading-relaxed"></textarea>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="window.__generateVariant('${prefix}','${variant}')"
+                    class="px-2.5 py-1 bg-violet-600 hover:bg-violet-500 disabled:opacity-40 text-white text-[11px] font-mono rounded transition-colors">✦ Generate</button>
+            <span id="variant-ai-status-${prefix}" class="text-xs font-mono text-slate-400 min-h-[1.25rem]"></span>
+          </div>
+        </div>
+        <div>
+          <label class="block text-[11px] font-mono text-slate-500 mb-1">Model</label>
+          ${modelSelectHtml(`f-${prefix}-model`, ip.model ?? bestDefaultModel())}
+        </div>
+        <div>
+          <label class="block text-[11px] font-mono text-slate-500 mb-1">Prompt</label>
+          <textarea id="f-${prefix}-prompt" rows="3"
+                    class="w-full bg-[#080810] border border-[#1a1a2e] rounded px-3 py-2 text-xs font-mono text-slate-300 focus:outline-none focus:border-violet-600/50 transition-colors resize-none leading-relaxed">${escHtml(ip.prompt ?? '')}</textarea>
+        </div>
+        <div>
+          <label class="block text-[11px] font-mono text-slate-500 mb-1">Negative Prompt <span class="text-slate-700">(optional)</span></label>
+          <textarea id="f-${prefix}-neg" rows="2"
+                    class="w-full bg-[#080810] border border-[#1a1a2e] rounded px-3 py-2 text-xs font-mono text-slate-300 focus:outline-none focus:border-violet-600/50 transition-colors resize-none leading-relaxed">${escHtml(ip.negativePrompt ?? '')}</textarea>
+        </div>
+        <input type="hidden" id="f-${prefix}-images" value="${escAttr(JSON.stringify(normalizeImagesFromPrompt(ip)))}">
+        <div class="flex items-center gap-2 pt-1">
+          <button type="button" data-gen-img-btn="${prefix}" onclick="window.__generateImage('${prefix}')"
+                  class="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-40 text-white text-[11px] font-mono rounded transition-colors">⬡ Generate Image</button>
+          <span id="img-status-${prefix}" class="text-xs font-mono text-slate-400 min-h-[1.25rem] flex items-center"></span>
+        </div>
+        <div id="img-gallery-${prefix}" class="${normalizeImagesFromPrompt(ip).length ? '' : 'hidden'} space-y-1.5">
+          ${imageGalleryInnerHtml(prefix, normalizeImagesFromPrompt(ip))}
+        </div>`;
+    }
+
+    function collectSkins() {
+      const container = document.getElementById("skins-container");
+      return Array.from(container.querySelectorAll("[data-skin-id]")).map(card => {
+        const id = card.dataset.skinId;
+        return {
+          name: document.getElementById(`skin-name-${id}`)?.value.trim() ?? "",
+          variantA: getVariantFields(`skin-${id}-A`),
+          variantB: getVariantFields(`skin-${id}-B`),
+        };
+      });
+    }
+
+    window.__toggleSkin = function(id) {
+      const body = document.getElementById(`skin-body-${id}`);
+      const arrow = document.getElementById(`skin-arrow-${id}`);
+      const isHidden = body.classList.toggle("hidden");
+      arrow.textContent = isHidden ? "▶" : "▼";
+    };
+
+    window.__removeSkin = function(id) {
+      document.querySelector(`[data-skin-id="${id}"]`)?.remove();
+    };
+
+    window.__updateSkinTitle = function(id, value) {
+      document.getElementById(`skin-title-${id}`).textContent = value || "New Skin";
+    };
+
+    window.__switchSkinTab = function(id, variant) {
+      const panels = { A: `skin-A-panel-${id}`, B: `skin-B-panel-${id}` };
+      Object.entries(panels).forEach(([v, panelId]) => {
+        document.getElementById(panelId).classList.toggle("hidden", v !== variant);
+      });
+      document.querySelectorAll(`[data-skin-tab="${id}-A"], [data-skin-tab="${id}-B"]`).forEach(btn => {
+        btn.classList.toggle("active-skin-variant-tab", btn.dataset.skinTab === `${id}-${variant}`);
+      });
+    };
+
+    // ── Create / Edit / Delete ─────────────────────────────────────────────────
+
+    function showCreateForm() {
+      galleryCarouselSlide = {};
+      isCreating = true;
+      selectedName = null;
+      document.getElementById("empty-state").classList.add("hidden");
+      document.getElementById("figure-form").classList.remove("hidden");
+      document.getElementById("editor-title").textContent = "New Figure";
+      showEditorMode("create");
+
+      document.getElementById("f-name").value = "";
+      document.getElementById("f-type").value = "figure";
+      // setVariantFields seeds model dropdowns and clears text fields
+      ["default-A", "default-B"].forEach(p => setVariantFields(p, { model: bestDefaultModel() }));
+      document.getElementById("skins-container").innerHTML = "";
+      skinCount = 0;
+      document.getElementById("f-name").focus();
+      renderList();
+    }
+
+    function cancelNew() {
+      isCreating = false;
+      selectedName = null;
+      document.getElementById("empty-state").classList.remove("hidden");
+      document.getElementById("figure-form").classList.add("hidden");
+      showEditorMode("none");
+      renderList();
+    }
+
+    async function handleSave() {
+      const figure = serializeForm();
+      if (!figure.name) { setStatus("Name is required", true); return; }
+      try {
+        setStatus("Saving…");
+        await api.update(selectedName, figure);
+        selectedName = figure.name;
+        allFigures = await api.list();
+        renderList();
+        setStatus("Saved ✓");
+        document.getElementById("editor-title").textContent = figure.name;
+        updateCliPanel(figure.name);
+        setTimeout(() => setStatus(""), 2500);
+      } catch (err) {
+        setStatus(err.message, true);
+      }
+    }
+
+    async function handleCreate() {
+      const figure = serializeForm();
+      if (!figure.name) { setStatus("Name is required", true); return; }
+      try {
+        setStatus("Creating…");
+        await api.create(figure);
+        allFigures = await api.list();
+        isCreating = false;
+        selectedName = figure.name;
+        populateForm(figure);
+        renderList();
+        setStatus("Created ✓");
+        setTimeout(() => setStatus(""), 2500);
+      } catch (err) {
+        setStatus(err.message, true);
+      }
+    }
+
+    async function handleDelete() {
+      if (!selectedName) return;
+      if (!confirm(`Delete "${selectedName}"? This cannot be undone.`)) return;
+      try {
+        setStatus("Deleting…");
+        await api.delete(selectedName);
+        allFigures = await api.list();
+        selectedName = null;
+        document.getElementById("empty-state").classList.remove("hidden");
+        document.getElementById("figure-form").classList.add("hidden");
+        showEditorMode("none");
+        renderList();
+        setStatus("Deleted");
+        setTimeout(() => setStatus(""), 2500);
+      } catch (err) {
+        setStatus(err.message, true);
+      }
+    }
+
+    // ── Variant tabs ───────────────────────────────────────────────────────────
+
+    function wireVariantTabs(tabA, tabB, panelA, panelB) {
+      document.querySelectorAll("[data-variant-tab]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const target = btn.dataset.variantTab;
+          const isA = target.endsWith("-A");
+          document.getElementById(`${panelA}`).classList.toggle("hidden", !isA);
+          document.getElementById(`${panelB}`).classList.toggle("hidden", isA);
+          document.querySelectorAll("[data-variant-tab]").forEach(b => {
+            b.classList.toggle("active-variant-tab", b.dataset.variantTab === target);
+          });
+        });
+      });
+    }
+
+    // ── Filter buttons ─────────────────────────────────────────────────────────
+
+    function wireFilterButtons() {
+      document.querySelectorAll(".filter-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          currentFilter = btn.dataset.filter;
+          document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active-filter"));
+          btn.classList.add("active-filter");
+          renderList();
+        });
+      });
+    }
+
+    // ── CLI panel ──────────────────────────────────────────────────────────────
+
+    function updateCliPanel(name) {
+      const el = document.getElementById("cli-commands");
+      const n = JSON.stringify(name);
+      el.innerHTML = [
+        cliBlock("List all figures", `npm run agent -- run figures.list`),
+        cliBlock("Get this figure", `npm run agent -- run figures.get name=${n}`),
+        cliBlock("Delete this figure", `npm run agent -- run figures.delete name=${n}`),
+        cliBlock("AI chat (tool call)", `# In agent interactive mode:\nnpm run agent\n> get the figure named ${name}`),
+        cliBlock("API (curl)", `curl http://localhost:3000/api/figures/${encodeURIComponent(name)}`),
+      ].join("");
+    }
+
+    function cliBlock(label, code) {
+      return `
+        <div class="space-y-1">
+          <div class="text-[10px] font-mono text-slate-600 uppercase tracking-widest">${label}</div>
+          <pre class="bg-[#0a0a14] border border-[#1a1a2e] rounded p-2 text-[11px] font-mono text-violet-300 overflow-x-auto whitespace-pre-wrap">${escHtml(code)}</pre>
+        </div>`;
+    }
+
+    function toggleCli() {
+      const panel = document.getElementById("cli-panel");
+      const arrow = document.getElementById("cli-arrow");
+      const hidden = panel.classList.toggle("hidden");
+      arrow.textContent = hidden ? "▶" : "▼";
+    }
+
+    // ── Utilities ──────────────────────────────────────────────────────────────
+
+    function showEditorMode(mode) {
+      document.getElementById("editor-actions").classList.toggle("hidden", mode !== "edit");
+      document.getElementById("editor-create-actions").classList.toggle("hidden", mode !== "create");
+    }
+
+    function setStatus(msg, isError = false) {
+      const el = document.getElementById("editor-status");
+      el.textContent = msg;
+      el.style.color = isError ? "#fca5a5" : "#4a5568";
+    }
+
+    function escHtml(str) {
+      return String(str ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }
+
+    function escAttr(str) {
+      return String(str ?? "").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+
+    // ── Start ──────────────────────────────────────────────────────────────────
+    init();
+  </script>
 </body>
 </html>

@@ -90,6 +90,15 @@
                     "modelUrl": "https://tripo-data.rg1.data.tripo3d.com/tcli_36171dc1c2a54010bf133178663646c7/20260401/747e94f9-fa2a-4929-836b-40076b865c46/tripo_pbr_model_747e94f9-fa2a-4929-836b-40076b865c46.glb?Key-Pair-Id=K1676C64NMVM2J&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly90cmlwby1kYXRhLnJnMS5kYXRhLnRyaXBvM2QuY29tL3RjbGlfMzYxNzFkYzFjMmE1NDAxMGJmMTMzMTc4NjYzNjQ2YzcvMjAyNjA0MDEvNzQ3ZTk0ZjktZmEyYS00OTI5LTgzNmItNDAwNzZiODY1YzQ2L3RyaXBvX3Bicl9tb2RlbF83NDdlOTRmOS1mYTJhLTQ5MjktODM2Yi00MDA3NmI4NjVjNDYuZ2xiIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzc1MDg4MDAwfX19XX0_&Signature=Dvx8soZGxsVFE-kgcb3SbrHgk~ExT3F1WNhnKsRhHyPj~66d7VWKXpF0F~csMVsrToCs9DGeHhdRCINQZy0EyFLDZXf5lvTREZzwKimbDl9qjiRlPfozt9AbCQpt8sVWpKvSoyPhvFUc48DymOfsxkB~~NXBuzfF7K5fc8jDUsqLb3L4dzeO9WvR4ETZ1H1gMjeHhZpMuLPFz~dr-ZSK-wNlYe1sj4B7SHSCMgynITFpW-aPCN68gR4U8VSUHq3c31tBgmC2FPxYgypUuQQbY4ibczSumvEuTmiY6bL3nv7s6x3CGZIV3je2-2CpeiRCEr2-DqszS9spPAGIIhZOSg__",
                     "prerigTaskId": "d7f9a0e2-7ef9-4378-b4d2-4b088f7fde1c",
                     "rigTaskId": "e5f74ca6-e5fc-4fe0-af92-1b6b3dbf1cef"
+                  },
+                  {
+                    "id": "9bc4bc9d-a449-441e-ac6a-e5f565e74c11",
+                    "createdAt": "2026-04-02T05:39:06.606Z",
+                    "status": "success",
+                    "animations": [],
+                    "meshTaskId": "9c93c448-91f1-45ab-b0e7-9fe6ce39a2e6",
+                    "pbrModelUrl": "https://tripo-data.rg1.data.tripo3d.com/tcli_36171dc1c2a54010bf133178663646c7/20260402/9c93c448-91f1-45ab-b0e7-9fe6ce39a2e6/tripo_pbr_model_9c93c448-91f1-45ab-b0e7-9fe6ce39a2e6.glb?Key-Pair-Id=K1676C64NMVM2J&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly90cmlwby1kYXRhLnJnMS5kYXRhLnRyaXBvM2QuY29tL3RjbGlfMzYxNzFkYzFjMmE1NDAxMGJmMTMzMTc4NjYzNjQ2YzcvMjAyNjA0MDIvOWM5M2M0NDgtOTFmMS00NWFiLWIwZTctOWZlNmNlMzlhMmU2L3RyaXBvX3Bicl9tb2RlbF85YzkzYzQ0OC05MWYxLTQ1YWItYjBlNy05ZmU2Y2UzOWEyZTYuZ2xiIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzc1MTc0NDAwfX19XX0_&Signature=fticY2sWpxRVSBXycRIHN4-hrIsW~II4so8typJAVYv4HXljB826GPaW58xUbhu~cM2vwiU5sxerdYcPid0ej3Rr-kNq9NqPHByxE4PsbddaZS~L03RYZ-AqGEMTI19OWpeBOmslp1DX~gBGtLy9O~etZNayyJ~tgFMsQTUsx77bOHPe4gMlZU~5lSvZ~YNXR65BlaZMyeOY3kpMfO8RyAJD-5rOpF0-nD9Nh92cmCqJ78-iYbkWkiaxpVpfnoBdBmwdPj4Cub0Lsu31twMhgPoAzgkz~M6tMJmJL8PcmlysuuwRp24vv0yL-IHGBvUlIiN6gvQbsMMCiuWo3gdfcg__",
+                    "modelUrl": "https://tripo-data.rg1.data.tripo3d.com/tcli_36171dc1c2a54010bf133178663646c7/20260402/9c93c448-91f1-45ab-b0e7-9fe6ce39a2e6/tripo_pbr_model_9c93c448-91f1-45ab-b0e7-9fe6ce39a2e6.glb?Key-Pair-Id=K1676C64NMVM2J&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly90cmlwby1kYXRhLnJnMS5kYXRhLnRyaXBvM2QuY29tL3RjbGlfMzYxNzFkYzFjMmE1NDAxMGJmMTMzMTc4NjYzNjQ2YzcvMjAyNjA0MDIvOWM5M2M0NDgtOTFmMS00NWFiLWIwZTctOWZlNmNlMzlhMmU2L3RyaXBvX3Bicl9tb2RlbF85YzkzYzQ0OC05MWYxLTQ1YWItYjBlNy05ZmU2Y2UzOWEyZTYuZ2xiIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzc1MTc0NDAwfX19XX0_&Signature=fticY2sWpxRVSBXycRIHN4-hrIsW~II4so8typJAVYv4HXljB826GPaW58xUbhu~cM2vwiU5sxerdYcPid0ej3Rr-kNq9NqPHByxE4PsbddaZS~L03RYZ-AqGEMTI19OWpeBOmslp1DX~gBGtLy9O~etZNayyJ~tgFMsQTUsx77bOHPe4gMlZU~5lSvZ~YNXR65BlaZMyeOY3kpMfO8RyAJD-5rOpF0-nD9Nh92cmCqJ78-iYbkWkiaxpVpfnoBdBmwdPj4Cub0Lsu31twMhgPoAzgkz~M6tMJmJL8PcmlysuuwRp24vv0yL-IHGBvUlIiN6gvQbsMMCiuWo3gdfcg__"
                   }
                 ]
               }
@@ -497,6 +506,41 @@
             "imageUrls": [
               "https://cdn.aimlapi.com/flamingo/files/b/0a9489f4/Fw3HzS5Z1EP9L9E98Yru8.jpg"
             ]
+          }
+        }
+      },
+      {
+        "name": "",
+        "variantA": {
+          "imagePrompt": {
+            "model": "flux/schnell",
+            "prompt": "A regal cat emperor standing proudly, adorned with an ornate crown and royal garments in a warm palette of gold, bronze, and ivory. The attire features intricate details such as embroidery and jewels, exuding nobility and authority. The cat displays a confident expression and a majestic posture, with sleek, well-groomed fur enhancing its royal presence. Front view, facing forward, symmetrical pose, full body. 3d asset, 3d figure, board game asset, white background",
+            "negativePrompt": "side view, angled, 3/4 view, profile, turned, back view, cropped",
+            "images": [
+              {
+                "url": "https://cdn.aimlapi.com/flamingo/files/b/0a948a17/wdhRgz4i_IoREZthzgaOe.jpg",
+                "models3d": [
+                  {
+                    "id": "0d72bcab-00a1-473d-a6bf-a8fb2958644b",
+                    "createdAt": "2026-04-01T18:33:24.248Z",
+                    "status": "success",
+                    "animations": [],
+                    "meshTaskId": "b61767e2-13e1-469d-80d7-329904a06107",
+                    "pbrModelUrl": "https://tripo-data.rg1.data.tripo3d.com/tcli_36171dc1c2a54010bf133178663646c7/20260401/b61767e2-13e1-469d-80d7-329904a06107/tripo_pbr_model_b61767e2-13e1-469d-80d7-329904a06107.glb?Key-Pair-Id=K1676C64NMVM2J&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly90cmlwby1kYXRhLnJnMS5kYXRhLnRyaXBvM2QuY29tL3RjbGlfMzYxNzFkYzFjMmE1NDAxMGJmMTMzMTc4NjYzNjQ2YzcvMjAyNjA0MDEvYjYxNzY3ZTItMTNlMS00NjlkLTgwZDctMzI5OTA0YTA2MTA3L3RyaXBvX3Bicl9tb2RlbF9iNjE3NjdlMi0xM2UxLTQ2OWQtODBkNy0zMjk5MDRhMDYxMDcuZ2xiIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzc1MDg4MDAwfX19XX0_&Signature=IK~LXYdZgqyalwE4cJ5Kh-SevEehDzT3emiPx9MgMg4FmtFfZD3SjfxtV2wLniU-VTpX6TlfZg2YokvTP-g08-aIrNn0xBlngqGiAb1LVB6iZ4OX7B2ZVLG4VyaZMh128m360kV-JU7FbBh-RX2kUWU50uCkBSM6Vtd2ul2nwfxanAWnv109BRHiXsvPZ9RD8G7Su1IL70VeuP7Lneq~g4ztHWreM8QeYQsYEDf4QzmdXaSO77llhDDU1Y~X3lDQfnlfBallXs8F2NXD-vVkDi6YZ9AyHPHNKOSauW~pL8f1zM2dyxgXLIsQ4F9P3cDZRGKCisV8I6bPrd~uDtARhQ__",
+                    "modelUrl": "https://tripo-data.rg1.data.tripo3d.com/tcli_36171dc1c2a54010bf133178663646c7/20260401/b61767e2-13e1-469d-80d7-329904a06107/tripo_pbr_model_b61767e2-13e1-469d-80d7-329904a06107.glb?Key-Pair-Id=K1676C64NMVM2J&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly90cmlwby1kYXRhLnJnMS5kYXRhLnRyaXBvM2QuY29tL3RjbGlfMzYxNzFkYzFjMmE1NDAxMGJmMTMzMTc4NjYzNjQ2YzcvMjAyNjA0MDEvYjYxNzY3ZTItMTNlMS00NjlkLTgwZDctMzI5OTA0YTA2MTA3L3RyaXBvX3Bicl9tb2RlbF9iNjE3NjdlMi0xM2UxLTQ2OWQtODBkNy0zMjk5MDRhMDYxMDcuZ2xiIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzc1MDg4MDAwfX19XX0_&Signature=IK~LXYdZgqyalwE4cJ5Kh-SevEehDzT3emiPx9MgMg4FmtFfZD3SjfxtV2wLniU-VTpX6TlfZg2YokvTP-g08-aIrNn0xBlngqGiAb1LVB6iZ4OX7B2ZVLG4VyaZMh128m360kV-JU7FbBh-RX2kUWU50uCkBSM6Vtd2ul2nwfxanAWnv109BRHiXsvPZ9RD8G7Su1IL70VeuP7Lneq~g4ztHWreM8QeYQsYEDf4QzmdXaSO77llhDDU1Y~X3lDQfnlfBallXs8F2NXD-vVkDi6YZ9AyHPHNKOSauW~pL8f1zM2dyxgXLIsQ4F9P3cDZRGKCisV8I6bPrd~uDtARhQ__"
+                  }
+                ]
+              }
+            ],
+            "imageUrls": [
+              "https://cdn.aimlapi.com/flamingo/files/b/0a948a17/wdhRgz4i_IoREZthzgaOe.jpg"
+            ]
+          }
+        },
+        "variantB": {
+          "imagePrompt": {
+            "model": "flux-pro/v1.1-ultra",
+            "prompt": ""
           }
         }
       }

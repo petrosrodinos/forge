@@ -72,7 +72,7 @@ export function addSystemMessage(text, type = "info") {
   const div = document.createElement("div");
   div.className = "flex justify-center msg-appear";
   div.innerHTML = `
-    <span class="text-[10px] font-mono ${color} px-3 py-1 bg-[#0e0e1a] border border-[#1a1a2e] rounded-full">
+    <span class="text-[11px] font-mono ${color} px-3 py-1 bg-[#0e0e1a] border border-[#1a1a2e] rounded-full">
       ${escapeHtml(text)}
     </span>`;
   msgs.appendChild(div);
@@ -108,7 +108,7 @@ function appendUserMessage(text) {
   div.className = "msg-appear flex justify-end";
   div.innerHTML = `
     <div class="max-w-lg">
-      <div class="text-[10px] font-mono text-slate-600 text-right mb-1">
+      <div class="text-[11px] font-mono text-slate-600 text-right mb-1">
         You <span class="ml-2 text-slate-700">${timeNow()}</span>
       </div>
       <div class="bg-violet-600/15 border border-violet-600/20 rounded-lg px-4 py-3 text-sm text-slate-200 font-mono leading-relaxed whitespace-pre-wrap">
@@ -131,7 +131,7 @@ function appendAiContainer(id) {
       </svg>
     </div>
     <div class="flex-1 min-w-0">
-      <div class="text-[10px] font-mono text-slate-500 mb-1">
+      <div class="text-[11px] font-mono text-slate-500 mb-1">
         The Forge <span class="ml-2 text-slate-700">${timeNow()}</span>
       </div>
       <div class="msg-content space-y-2">
@@ -175,7 +175,7 @@ function appendInlineImage(contentEl, url) {
     <img src="${escapeHtml(url)}" class="max-w-full" loading="lazy" alt="result">
     <div class="px-3 py-1.5 bg-[#0e0e1a] flex justify-end">
       <a href="${escapeHtml(url)}" target="_blank"
-         class="text-[10px] font-mono tag-cyan px-2 py-0.5 rounded hover:opacity-80">Open ↗</a>
+         class="text-[11px] font-mono tag-cyan px-2 py-0.5 rounded hover:opacity-80">Open ↗</a>
     </div>`;
   contentEl?.appendChild(wrap);
 }
@@ -193,13 +193,13 @@ function appendToolCall(contentEl, data) {
          onclick="window.__toggleToolBody('${id}')">
       <div class="flex items-center gap-2">
         <div class="w-1.5 h-1.5 rounded-full bg-amber-400 progress-running"></div>
-        <span class="tag-amber px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider">tool</span>
+        <span class="tag-amber px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wider">tool</span>
         <span class="text-slate-300">${escapeHtml(data.name)}</span>
       </div>
-      <span id="${id}-icon" class="text-slate-600 text-[10px]">▾</span>
+      <span id="${id}-icon" class="text-slate-600 text-[11px]">▾</span>
     </div>
     <div id="${id}-body" class="tool-body expanded">
-      <pre class="px-3 py-2 text-[10px] text-slate-400 overflow-x-auto bg-[#080810]">${escapeHtml(args)}</pre>
+      <pre class="px-3 py-2 text-[11px] text-slate-400 overflow-x-auto bg-[#080810]">${escapeHtml(args)}</pre>
     </div>`;
   contentEl?.appendChild(div);
 }
@@ -214,11 +214,11 @@ function resolveToolCall({ id, result, error, name }, outcome) {
   if (outcome === "success") {
     dot?.classList.replace("bg-amber-400", "bg-emerald-400");
     dot?.classList.remove("progress-running");
-    if (badge) { badge.className = "tag-green px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider"; badge.textContent = "done"; }
+    if (badge) { badge.className = "tag-green px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wider"; badge.textContent = "done"; }
   } else {
     dot?.classList.replace("bg-amber-400", "bg-red-400");
     dot?.classList.remove("progress-running");
-    if (badge) { badge.className = "tag-red px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider"; badge.textContent = "error"; }
+    if (badge) { badge.className = "tag-red px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wider"; badge.textContent = "error"; }
   }
 
   const body = document.getElementById(`tc-${id}-body`);
@@ -230,9 +230,9 @@ function resolveToolCall({ id, result, error, name }, outcome) {
   if (outcome === "success") {
     let display = result ?? "";
     try { display = JSON.stringify(JSON.parse(result), null, 2); } catch {}
-    row.innerHTML = `<pre class="px-3 py-2 text-[10px] text-emerald-400/70 overflow-x-auto bg-[#080810] max-h-48">${escapeHtml(display)}</pre>`;
+    row.innerHTML = `<pre class="px-3 py-2 text-[11px] text-emerald-400/70 overflow-x-auto bg-[#080810] max-h-48">${escapeHtml(display)}</pre>`;
   } else {
-    row.innerHTML = `<div class="px-3 py-2 text-[10px] text-red-400 font-mono">${escapeHtml(error)}</div>`;
+    row.innerHTML = `<div class="px-3 py-2 text-[11px] text-red-400 font-mono">${escapeHtml(error)}</div>`;
   }
   body.appendChild(row);
 }

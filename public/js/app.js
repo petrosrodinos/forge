@@ -62,7 +62,7 @@ function setMode(mode) {
   };
   const info = modeInfo[mode] ?? modeInfo.chat;
   if (modeLabel) {
-    modeLabel.innerHTML = `<span class="${info.tagClass} px-2 py-0.5 rounded font-mono text-[10px]">${info.label}</span>`;
+    modeLabel.innerHTML = `<span class="${info.tagClass} px-2 py-0.5 rounded font-mono text-[11px]">${info.label}</span>`;
   }
 
   if (mode === "pipeline") {
@@ -171,13 +171,13 @@ function showImageResult(url, prompt, model) {
       <span class="text-emerald-400 text-xs">◉</span>
     </div>
     <div class="flex-1">
-      <div class="text-[10px] font-mono text-slate-500 mb-1">${escapeHtml(model)}</div>
+      <div class="text-[11px] font-mono text-slate-500 mb-1">${escapeHtml(model)}</div>
       <div class="rounded-lg overflow-hidden border border-[#1a1a2e]">
         <img src="${escapeHtml(url)}" class="max-w-full" loading="lazy" alt="Generated image">
         <div class="px-3 py-2 bg-[#0e0e1a] flex justify-between items-center">
-          <span class="text-[10px] font-mono text-slate-600 truncate max-w-xs">${escapeHtml(prompt)}</span>
+          <span class="text-[11px] font-mono text-slate-600 truncate max-w-xs">${escapeHtml(prompt)}</span>
           <a href="${escapeHtml(url)}" target="_blank"
-             class="text-[10px] font-mono tag-cyan px-2 py-0.5 rounded hover:opacity-80 flex-shrink-0 ml-2">Open ↗</a>
+             class="text-[11px] font-mono tag-cyan px-2 py-0.5 rounded hover:opacity-80 flex-shrink-0 ml-2">Open ↗</a>
         </div>
       </div>
     </div>`;
@@ -189,7 +189,7 @@ function showImageResult(url, prompt, model) {
     panel.classList.remove("hidden");
     const entry = document.createElement("div");
     entry.innerHTML = `
-      <div class="text-[10px] font-mono uppercase tracking-widest text-slate-600 mb-1">Generated Image</div>
+      <div class="text-[11px] font-mono uppercase tracking-widest text-slate-600 mb-1">Generated Image</div>
       <div class="rounded border border-[#1a1a2e] overflow-hidden">
         <img src="${escapeHtml(url)}" class="w-full" loading="lazy" alt="Generated">
       </div>`;
