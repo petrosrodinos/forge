@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { z } from "zod";
 import * as figuresSvc from "./figures.service";
 
 const router = Router();
@@ -57,6 +58,38 @@ router.post("/:id/generate-image", async (req, res, next) => {
       steps: req.body.steps,
     });
     res.status(201).json(result);
+  } catch (err) { next(err); }
+});
+
+router.post("/ai-variant", async (req, res, next) => {
+  try {
+    const schema = z.object({
+      description: z.string().min(1),
+      variant: z.enum(["A", "B"]),
+      context: z
+        .object({
+          figureName: z.string().optional(),
+          figureType: z.string().optional(),
+          skinName: z.string().optional(),
+          existingModel: z.string().optional().nullable(),
+          existingPrompt: z.string().optional().nullable(),
+          existingNegPrompt: z.string().optional().nullable(),
+          otherVariantPrompt: z.string().optional().nullable(),
+        })
+        .partial()
+        .optional(),
+      availableModels: z
+        .array(z.object({ id: z.string().min(1), label: z.string().optional() }))
+        .optional(),
+    });
+
+    const parsed = schema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: "Invalid request body", details: parsed.error.flatten() });
+    }
+
+    const result = await figuresSvc.generateAiVariant(parsed.data);
+    res.json(result);
   } catch (err) { next(err); }
 });
 

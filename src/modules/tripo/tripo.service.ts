@@ -2,7 +2,7 @@ import axios from "axios";
 import { getTripo } from "../../services";
 import { extractTripoUploadToken } from "../../integrations/trippo/uploadToken";
 import type { ModelVersion } from "../../integrations/trippo/types";
-import { fetchImageAsBuffer } from "../shared/image-fetch.util";
+import { fetchImageAsBuffer } from "../../lib/image-fetch.util";
 
 const DEFAULT_MODEL_VERSION = "v2.5-20250123";
 const PROXY_MAX_BYTES = 150 * 1024 * 1024;
