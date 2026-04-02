@@ -336,11 +336,14 @@
   <script type="module">
     // ── State ──────────────────────────────────────────────────────────────────
     let allFigures = [];
-    let imageModels = [];           // [{ id, label }] loaded from /api/aiml/models
-    let selectedName = null;        // original name of the figure being edited
+    let imageModels = [];           // [{ id, label }] loaded from /api/models
+    let selectedName = null;        // display name of the figure being edited
+    let selectedId = null;          // Mongo ObjectId of the figure being edited
     let isCreating = false;
     let currentFilter = "all";
     let skinCount = 0;  // for generating unique skin IDs
+    // Sidebar thumbnail choice per figure name.
+    let figureThumbChoice = {};
     /** @type {Record<string, number>} current slide index per gallery prefix (2 images per slide) */
     let galleryCarouselSlide = {};
     /** @type {null | { prefix: string, imageIndex: number, genId: string, meshTaskId: string, rigTaskId?: string }} */
@@ -379,8 +382,8 @@
       list:   ()           => apiFetch("/api/figures"),
       get:    (name)       => apiFetch(`/api/figures/${encodeURIComponent(name)}`),
       create: (figure)     => apiFetch("/api/figures", { method: "POST", body: JSON.stringify(figure) }),
-      update: (name, fig)  => apiFetch(`/api/figures/${encodeURIComponent(name)}`, { method: "PUT", body: JSON.stringify(fig) }),
-      delete: (name)       => apiFetch(`/api/figures/${encodeURIComponent(name)}`, { method: "DELETE" }),
+      update: (id, fig)    => apiFetch(`/api/figures/${encodeURIComponent(id)}`, { method: "PUT", body: JSON.stringify(fig) }),
+      delete: (id)         => apiFetch(`/api/figures/${encodeURIComponent(id)}`, { method: "DELETE" }),
     };
 
     // ── Init ───────────────────────────────────────────────────────────────────
@@ -718,7 +721,7 @@
 
     async function loadImageModels() {
       try {
-        const data = await apiFetch("/api/aiml/models");
+        const data = await apiFetch("/api/models");
         imageModels = Array.isArray(data) && data.length > 0 ? data : fallbackModels();
       } catch {
         imageModels = fallbackModels();
@@ -751,6 +754,91 @@
       return IMAGE_MODEL_PREFERENCE.find(p => ids.includes(p)) ?? ids[0] ?? "flux/dev";
     }
 
+    // ── API shape adapter (DB -> legacy editor model) ─────────────────────────
+    // The editor UI expects:
+    // - figure.default.variantA.imagePrompt / variantB.imagePrompt
+    // - skin.variantA.imagePrompt / variantB.imagePrompt
+    //
+    // But GET /api/figures returns:
+    // - figure.skins[].isBase, skins[].variants[].images[].models3d are named `models`
+    // - model URL fields are `pbrModelSourceUrl/modelSourceUrl`
+    // - animation URLs are `glbSourceUrl/gcsGlbUrl`
+    function dbAnimationToLegacy(a) {
+      if (!a || typeof a !== "object") return null;
+      return {
+        ...a,
+        glbUrl: a.gcsGlbUrl ?? a.glbSourceUrl ?? a.glbUrl ?? null,
+      };
+    }
+
+    function dbModelToLegacy(m) {
+      if (!m || typeof m !== "object") return null;
+      return {
+        ...m,
+        pbrModelUrl: m.pbrModelSourceUrl ?? m.pbrModelUrl ?? null,
+        modelUrl: m.modelSourceUrl ?? m.modelUrl ?? null,
+        animations: Array.isArray(m.animations)
+          ? m.animations.map(dbAnimationToLegacy).filter(Boolean)
+          : [],
+      };
+    }
+
+    function dbImageToLegacy(img) {
+      if (!img || typeof img !== "object") return null;
+      return {
+        id: img.id,
+        url: img.gcsUrl ?? img.sourceUrl ?? "",
+        models3d: Array.isArray(img.models) ? img.models.map(dbModelToLegacy).filter(Boolean) : [],
+      };
+    }
+
+    function dbVariantToLegacyImagePrompt(v) {
+      if (!v || typeof v !== "object") return {};
+      return {
+        model: v.imageModel ?? "",
+        prompt: v.prompt ?? "",
+        negativePrompt: v.negativePrompt ?? "",
+        images: Array.isArray(v.images)
+          ? v.images.map(dbImageToLegacy).filter(Boolean)
+          : [],
+      };
+    }
+
+    function dbSkinToLegacySkinCard(s) {
+      const vA = s?.variants?.find(x => x.variant === "A");
+      const vB = s?.variants?.find(x => x.variant === "B");
+      return {
+        name: s?.name ?? "",
+        variantA: { imagePrompt: dbVariantToLegacyImagePrompt(vA) },
+        variantB: { imagePrompt: dbVariantToLegacyImagePrompt(vB) },
+      };
+    }
+
+    function dbFigureToLegacyFigure(f) {
+      if (!f || typeof f !== "object" || !Array.isArray(f.skins)) return f;
+      const baseSkin = f.skins.find(s => s.isBase) ?? f.skins[0];
+      const otherSkins = f.skins.filter(s => !baseSkin || s.id !== baseSkin.id);
+
+      const vA = baseSkin?.variants?.find(x => x.variant === "A");
+      const vB = baseSkin?.variants?.find(x => x.variant === "B");
+      return {
+        id: f.id,
+        name: f.name,
+        type: f.type,
+        metadata: f.metadata ?? null,
+        default: {
+          variantA: { imagePrompt: dbVariantToLegacyImagePrompt(vA) },
+          variantB: { imagePrompt: dbVariantToLegacyImagePrompt(vB) },
+        },
+        skins: otherSkins.map(dbSkinToLegacySkinCard),
+      };
+    }
+
+    function coerceFiguresFromApi(figs) {
+      if (!Array.isArray(figs)) return [];
+      return figs.map(dbFigureToLegacyFigure);
+    }
+
     function modelSelectHtml(inputId, selectedValue) {
       const opts = imageModels.map(m =>
         `<option value="${escAttr(m.id)}" ${m.id === selectedValue ? "selected" : ""}>${escHtml(m.id)}</option>`
@@ -761,7 +849,7 @@
 
     async function loadFigures() {
       try {
-        allFigures = await api.list();
+        allFigures = coerceFiguresFromApi(await api.list());
         renderList();  // imageModels is always ready before this runs
       } catch (err) {
         setStatus("Failed to load: " + err.message, true);
@@ -853,12 +941,23 @@
       return imgs[0]?.url || ip.imageUrls?.[0] || null;
     }
 
+    function collectFigureThumbs(f) {
+      const out = [];
+      const push = (u) => { if (u && !out.includes(u)) out.push(u); };
+      push(firstImageUrlFromPrompt(f.default?.variantA?.imagePrompt));
+      push(firstImageUrlFromPrompt(f.default?.variantB?.imagePrompt));
+      (f.skins ?? []).forEach(s => {
+        push(firstImageUrlFromPrompt(s.variantA?.imagePrompt));
+        push(firstImageUrlFromPrompt(s.variantB?.imagePrompt));
+      });
+      return out;
+    }
+
     function figureThumb(f) {
-      return firstImageUrlFromPrompt(f.default?.variantA?.imagePrompt)
-          || firstImageUrlFromPrompt(f.default?.variantB?.imagePrompt)
-          || firstImageUrlFromPrompt(f.skins?.[0]?.variantA?.imagePrompt)
-          || firstImageUrlFromPrompt(f.skins?.[0]?.variantB?.imagePrompt)
-          || null;
+      const thumbs = collectFigureThumbs(f);
+      if (!thumbs.length) return null;
+      const i = figureThumbChoice[f.name] ?? 0;
+      return thumbs[Math.max(0, Math.min(i, thumbs.length - 1))] ?? thumbs[0];
     }
 
     function renderList() {
@@ -875,6 +974,8 @@
         const typeColor = f.type === "figure" ? "text-violet-400" : "text-emerald-400";
         const isSelected = f.name === selectedName && !isCreating;
         const thumb = figureThumb(f);
+        const thumbCount = collectFigureThumbs(f).length;
+        const thumbIdx = (figureThumbChoice[f.name] ?? 0) + 1;
         return `
           <div class="figure-item ${isSelected ? "selected" : ""} flex gap-2 items-center" data-name="${escHtml(f.name)}"
                onclick="window.__selectFigure('${escHtml(f.name)}')">
@@ -888,6 +989,7 @@
               <div class="flex items-center gap-2 mt-0.5">
                 <span class="text-[10px] font-mono ${typeColor}">${f.type}</span>
                 ${skinCount > 0 ? `<span class="text-[10px] font-mono text-slate-600">${skinCount} skin${skinCount !== 1 ? "s" : ""}</span>` : ""}
+                ${thumbCount > 1 ? `<button type="button" onclick="event.stopPropagation(); window.__cycleFigureThumb('${escHtml(f.name)}')" class="text-[10px] font-mono px-1 py-0.5 rounded border border-[#2a2a45] text-slate-400 hover:text-slate-200 hover:border-violet-600/40 transition-colors" title="Cycle card thumbnail image">${thumbIdx}/${thumbCount}</button>` : ""}
               </div>
             </div>
           </div>`;
@@ -904,7 +1006,18 @@
       }
       selectedName = name;
       const figure = allFigures.find(f => f.name === name);
+      selectedId = figure?.id ?? null;
       if (figure) populateForm(figure);
+      renderList();
+    };
+
+    window.__cycleFigureThumb = function(name) {
+      const f = allFigures.find(x => x.name === name);
+      if (!f) return;
+      const thumbs = collectFigureThumbs(f);
+      if (thumbs.length < 2) return;
+      const current = figureThumbChoice[name] ?? 0;
+      figureThumbChoice[name] = (current + 1) % thumbs.length;
       renderList();
     };
 
@@ -1070,6 +1183,8 @@
       const prefixJson = JSON.stringify(prefix);
       const url = asset.url || "";
       const label = `Generated ${globalIndex + 1}`;
+      const models = Array.isArray(asset.models3d) ? asset.models3d : [];
+      const hasMesh = models.some(m => m && m.status === "success" && (m.pbrModelUrl || m.modelUrl));
       return `
             <div class="flex flex-col min-h-0 rounded overflow-hidden border border-[#1a1a2e] bg-[#0a0a14]">
               <div class="relative group flex-shrink-0">
@@ -1080,8 +1195,15 @@
                 <a href="${escHtml(url)}" target="_blank" rel="noopener noreferrer"
                    class="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 bg-black/70 text-slate-300 rounded px-1.5 py-0.5 text-[10px] font-mono transition-all z-10">↗</a>
               </div>
-              <button type="button" onclick='window.__mesh3dFromImage(${prefixJson}, ${globalIndex})'
-                      class="w-full min-h-[2.25rem] py-2 px-2 text-[12px] font-mono font-medium tracking-wide bg-cyan-600 hover:bg-cyan-500 text-white border-t border-cyan-500/40 shadow-inner transition-colors">Create 3D mesh</button>
+              ${hasMesh ? `
+                <button type="button" disabled
+                        class="w-full min-h-[2.25rem] py-2 px-2 text-[12px] font-mono font-medium tracking-wide bg-emerald-700/70 text-white border-t border-emerald-400/30 shadow-inner transition-colors cursor-not-allowed">
+                  3D ready
+                </button>
+              ` : `
+                <button type="button" onclick='window.__mesh3dFromImage(${prefixJson}, ${globalIndex})'
+                        class="w-full min-h-[2.25rem] py-2 px-2 text-[12px] font-mono font-medium tracking-wide bg-cyan-600 hover:bg-cyan-500 text-white border-t border-cyan-500/40 shadow-inner transition-colors">Create 3D mesh</button>
+              `}
               ${models3dListHtml(prefix, globalIndex, asset)}
             </div>`;
     }
@@ -1197,7 +1319,7 @@
       renderImageGallery(prefix, images);
 
       try {
-        const start = await apiFetch("/api/tripo/mesh-from-image-url", {
+        const start = await apiFetch("/api/mesh-from-image-url", {
           method: "POST",
           body: JSON.stringify({ imageUrl: asset.url }),
         });
@@ -1243,22 +1365,29 @@
       const btn = document.querySelector(`[data-gen-img-btn="${prefix}"]`);
 
       if (!prompt) { statusEl.textContent = "Add a prompt first"; return; }
+      if (!selectedId) { statusEl.textContent = "Select and save figure first"; return; }
 
       if (btn) btn.disabled = true;
       statusEl.textContent = "Generating…";
       statusEl.style.color = "";
 
       try {
-        const body = { model, prompt };
+        const variant = prefix.endsWith("-B") ? "B" : "A";
+        let skinName = null;
+        const skinMatch = prefix.match(/^skin-(\d+)-[AB]$/);
+        if (skinMatch) {
+          skinName = document.getElementById(`skin-name-${skinMatch[1]}`)?.value?.trim() || null;
+        }
+
+        const body = { model, prompt, variant, skinName };
         if (neg) body.negativePrompt = neg;
-        const data = await apiFetch("/api/aiml/generate", {
+        const data = await apiFetch(`/api/figures/${encodeURIComponent(selectedId)}/generate-image`, {
           method: "POST",
           body: JSON.stringify(body),
         });
         if (data.error) throw new Error(data.error);
 
-        const first = data.data?.[0];
-        const url = first?.url ?? (first?.b64_json ? `data:image/png;base64,${first.b64_json}` : null);
+        const url = data.image?.gcsUrl || data.image?.sourceUrl || data.imageUrl || null;
         if (!url) throw new Error("No image in response");
 
         const images = readImagesInput(prefix);
@@ -1286,12 +1415,13 @@
     };
 
     async function autoSaveFigure() {
-      if (!selectedName || isCreating) return;
+      if (!selectedId || isCreating) return;
       try {
         const figure = serializeForm();
-        const saved = await api.update(selectedName, figure);
-        const idx = allFigures.findIndex(f => f.name === selectedName);
-        if (idx !== -1) allFigures[idx] = saved;
+        await api.update(selectedId, figure);
+        allFigures = coerceFiguresFromApi(await api.list());
+        const justSaved = allFigures.find(f => f.name === figure.name);
+        selectedId = justSaved?.id ?? selectedId;
         renderList();
       } catch { /* silent — user can still manually save */ }
     }
@@ -1478,9 +1608,12 @@
       if (!figure.name) { setStatus("Name is required", true); return; }
       try {
         setStatus("Saving…");
-        await api.update(selectedName, figure);
+        const saved = await api.update(selectedId, figure);
         selectedName = figure.name;
-        allFigures = await api.list();
+        selectedId = saved?.id ?? selectedId;
+        allFigures = coerceFiguresFromApi(await api.list());
+        const justSaved = allFigures.find(f => f.name === selectedName);
+        selectedId = justSaved?.id ?? selectedId;
         renderList();
         setStatus("Saved ✓");
         document.getElementById("editor-title").textContent = figure.name;
@@ -1497,10 +1630,12 @@
       try {
         setStatus("Creating…");
         await api.create(figure);
-        allFigures = await api.list();
+        allFigures = coerceFiguresFromApi(await api.list());
         isCreating = false;
         selectedName = figure.name;
-        populateForm(figure);
+        const created = allFigures.find(f => f.name === selectedName);
+        selectedId = created?.id ?? null;
+        if (created) populateForm(created);
         renderList();
         setStatus("Created ✓");
         setTimeout(() => setStatus(""), 2500);
@@ -1514,9 +1649,11 @@
       if (!confirm(`Delete "${selectedName}"? This cannot be undone.`)) return;
       try {
         setStatus("Deleting…");
-        await api.delete(selectedName);
-        allFigures = await api.list();
+        if (!selectedId) throw new Error("Missing figure id for delete.");
+        await api.delete(selectedId);
+        allFigures = coerceFiguresFromApi(await api.list());
         selectedName = null;
+        selectedId = null;
         document.getElementById("empty-state").classList.remove("hidden");
         document.getElementById("figure-form").classList.add("hidden");
         showEditorMode("none");

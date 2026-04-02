@@ -1,3 +1,9 @@
+---
+description: Express API best practices (scalable structure)
+globs: src/**/*.ts
+alwaysApply: false
+---
+
 # Express API Best Practices (3d-figures)
 
 ## Goal

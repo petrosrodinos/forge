@@ -36,4 +36,28 @@ router.delete("/:id", async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+router.post("/:id/generate-image", async (req, res, next) => {
+  try {
+    const { variant, prompt } = req.body as { variant?: "A" | "B"; prompt?: string };
+    if (variant !== "A" && variant !== "B") {
+      return res.status(400).json({ error: "variant must be A or B" });
+    }
+    if (!prompt || !prompt.trim()) {
+      return res.status(400).json({ error: "prompt is required" });
+    }
+
+    const result = await figuresSvc.generateAndSaveFigureImage({
+      figureId: req.params.id,
+      skinName: req.body.skinName,
+      variant,
+      model: req.body.model,
+      prompt: prompt.trim(),
+      negativePrompt: req.body.negativePrompt,
+      size: req.body.size,
+      steps: req.body.steps,
+    });
+    res.status(201).json(result);
+  } catch (err) { next(err); }
+});
+
 export default router;

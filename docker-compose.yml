@@ -3,6 +3,7 @@ services:
     image: mongo:7
     container_name: "3d-figures-mongodb"
     restart: unless-stopped
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
     environment:
       # Creates the default DB at first startup (no auth configured).
       MONGO_INITDB_DATABASE: 3d-figures
@@ -19,6 +20,21 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
+
+  # One-shot replica-set initializer (runs once Mongo is healthy).
+  # This is required for Prisma writes on MongoDB.
+  mongodb-init:
+    image: mongo:7
+    container_name: "3d-figures-mongodb-init"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    restart: "no"
+    command: [
+      "bash",
+      "-lc",
+      "mongosh --host mongodb:27017 --quiet --eval \"try { rs.status(); } catch (e) { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'localhost:27017' }] }); }\""
+    ]
 
 volumes:
   mongodb-data:
