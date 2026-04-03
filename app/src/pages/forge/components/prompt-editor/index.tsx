@@ -4,8 +4,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
 import { IMAGE_MODELS } from "@/utils/constants";
-import { apiFetch, jsonInit } from "@/utils/apiClient";
-import { useQueryClient } from "@tanstack/react-query";
+import { useGenerateAiPrompt, useUpdateVariant, useGenerateImage } from "@/features/skin-variants/hooks/use-skin-variants.hooks";
 import type { SkinVariant } from "@/interfaces";
 
 interface PromptEditorProps {
@@ -15,65 +14,46 @@ interface PromptEditorProps {
 }
 
 export function PromptEditor({ variant, figureId, onImageGenerated }: PromptEditorProps) {
-  const qc = useQueryClient();
   const [prompt, setPrompt] = useState(variant.prompt ?? "");
   const [negPrompt, setNegPrompt] = useState(variant.negativePrompt ?? "");
   const [model, setModel] = useState(variant.imageModel ?? IMAGE_MODELS[0].id);
   const [aiOpen, setAiOpen] = useState(false);
   const [aiDescription, setAiDescription] = useState("");
-  const [aiLoading, setAiLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [generating, setGenerating] = useState(false);
 
-  const variantUrl = `/api/figures/${figureId}/skins/${variant.skinId}/variants/${variant.variant}`;
+  const generateAiPrompt = useGenerateAiPrompt();
+  const updateVariant = useUpdateVariant();
+  const generateImage = useGenerateImage();
 
-  async function handleAiGenerate() {
+  function handleAiGenerate() {
     if (!aiDescription.trim()) return;
-    setAiLoading(true);
-    try {
-      const res = await apiFetch<{ prompt: string; negativePrompt?: string; model?: string }>("/api/figures/ai-variant", {
-        method: "POST",
-        ...jsonInit({
-          description: aiDescription.trim(),
-          variant: variant.variant,
-          availableModels: IMAGE_MODELS.map((m) => ({ id: m.id, label: m.label })),
-        }),
-      });
-      if (res.prompt) setPrompt(res.prompt);
-      if (res.negativePrompt) setNegPrompt(res.negativePrompt);
-      if (res.model) setModel(res.model);
-      setAiOpen(false);
-      setAiDescription("");
-    } finally {
-      setAiLoading(false);
-    }
+    generateAiPrompt.mutate(
+      { description: aiDescription.trim(), variant: variant.variant, availableModels: IMAGE_MODELS.map((m) => ({ id: m.id, label: m.label })) },
+      {
+        onSuccess: (res) => {
+          if (res.prompt) setPrompt(res.prompt);
+          if (res.negativePrompt) setNegPrompt(res.negativePrompt);
+          if (res.model) setModel(res.model);
+          setAiOpen(false);
+          setAiDescription("");
+        },
+      },
+    );
   }
 
-  async function handleSave() {
-    setSaving(true);
-    try {
-      await apiFetch(variantUrl, {
-        method: "PUT",
-        ...jsonInit({ prompt, negativePrompt: negPrompt, imageModel: model }),
-      });
-      qc.invalidateQueries({ queryKey: ["figures"] });
-    } finally {
-      setSaving(false);
-    }
+  function handleSave() {
+    updateVariant.mutate({
+      figureId,
+      skinId: variant.skinId,
+      variantCode: variant.variant,
+      dto: { prompt, negativePrompt: negPrompt, imageModel: model },
+    });
   }
 
-  async function handleGenerateImage() {
-    setGenerating(true);
-    try {
-      await apiFetch(`${variantUrl}/generate-image`, {
-        method: "POST",
-        ...jsonInit({ prompt, negativePrompt: negPrompt, model }),
-      });
-      qc.invalidateQueries({ queryKey: ["figures"] });
-      onImageGenerated?.();
-    } finally {
-      setGenerating(false);
-    }
+  function handleGenerateImage() {
+    generateImage.mutate(
+      { figureId, skinId: variant.skinId, variantCode: variant.variant, dto: { prompt, negativePrompt: negPrompt, model } },
+      { onSuccess: () => onImageGenerated?.() },
+    );
   }
 
   return (
@@ -123,15 +103,15 @@ export function PromptEditor({ variant, figureId, onImageGenerated }: PromptEdit
             autoFocus
             value={aiDescription}
             onChange={(e) => setAiDescription(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) void handleAiGenerate(); }}
+            onKeyDown={(e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) handleAiGenerate(); }}
             rows={3}
             placeholder={`e.g. "armored warrior with golden trim"`}
             className="w-full bg-surface border border-border rounded px-2 py-1.5 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-accent/50 resize-y"
           />
           <div className="flex gap-2 items-center">
-            <Button size="sm" onClick={handleAiGenerate} disabled={aiLoading || !aiDescription.trim()}>
-              {aiLoading ? <Spinner className="w-3 h-3" /> : <Sparkles size={12} />}
-              {aiLoading ? "Generating…" : "Generate"}
+            <Button size="sm" onClick={handleAiGenerate} disabled={generateAiPrompt.isPending || !aiDescription.trim()}>
+              {generateAiPrompt.isPending ? <Spinner className="w-3 h-3" /> : <Sparkles size={12} />}
+              {generateAiPrompt.isPending ? "Generating…" : "Generate"}
             </Button>
             <span className="text-[10px] text-slate-600">⌘↵ to submit</span>
           </div>
@@ -143,11 +123,11 @@ export function PromptEditor({ variant, figureId, onImageGenerated }: PromptEdit
           <Sparkles size={12} />
           AI Prompt
         </Button>
-        <Button variant="secondary" size="sm" onClick={handleSave} disabled={saving}>
-          {saving ? <Spinner className="w-3 h-3" /> : "Save"}
+        <Button variant="secondary" size="sm" onClick={handleSave} disabled={updateVariant.isPending}>
+          {updateVariant.isPending ? <Spinner className="w-3 h-3" /> : "Save"}
         </Button>
-        <Button size="sm" onClick={handleGenerateImage} disabled={generating || !prompt.trim()}>
-          {generating ? <Spinner className="w-3 h-3" /> : "Generate Image"}
+        <Button size="sm" onClick={handleGenerateImage} disabled={generateImage.isPending || !prompt.trim()}>
+          {generateImage.isPending ? <Spinner className="w-3 h-3" /> : "Generate Image"}
         </Button>
       </div>
     </div>

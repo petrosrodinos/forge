@@ -29,7 +29,7 @@ export function VariantPanel({ variant, figureId }: VariantPanelProps) {
   const updateVariant = useUpdateVariant();
   const deleteSkinImage = useDeleteSkinImage();
 
-  const { run } = usePipeline(
+  const { running, error: pipelineError, run } = usePipeline(
     () => { setActiveImageId(null); qc.invalidateQueries({ queryKey: ["figures"] }); },
     () => { setActiveImageId(null); },
     () => { qc.invalidateQueries({ queryKey: ["figures"] }); },

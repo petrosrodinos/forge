@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { cn } from "@/utils/cn";
 import { useFigures } from "@/features/figures/hooks/use-figures.hooks";
+import { useCreateSkin, useDeleteSkin } from "@/features/skins/hooks/use-skins.hooks";
 import { useForgeStore } from "@/store/forgeStore";
 import { FigureList } from "@/pages/forge/components/figure-list";
 import { SkinTabs } from "@/pages/forge/components/skin-tabs";
@@ -8,26 +10,21 @@ import { SkinPanel } from "@/pages/forge/components/skin-panel";
 import { ChatPanel } from "@/pages/forge/components/chat-panel";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { useQueryClient } from "@tanstack/react-query";
-import { apiFetch, jsonInit } from "@/utils/apiClient";
 import type { Skin } from "@/interfaces";
 
 function ForgeSkeleton() {
   return (
     <div className="flex flex-col h-full">
-      {/* Fake tab bar */}
       <div className="flex items-center gap-3 px-4 py-2.5 border-b border-border bg-panel shrink-0">
         {Array.from({ length: 3 }).map((_, i) => (
           <Skeleton key={i} className={`h-4 ${i === 0 ? "w-12" : i === 1 ? "w-16" : "w-10"}`} />
         ))}
       </div>
-      {/* Fake variant tab bar */}
       <div className="flex items-center gap-3 px-3 py-2 border-b border-border shrink-0">
         {Array.from({ length: 2 }).map((_, i) => (
           <Skeleton key={i} className="h-3.5 w-16" />
         ))}
       </div>
-      {/* Fake content */}
       <div className="flex flex-col gap-5 px-4 py-5">
         <div className="flex flex-col gap-2">
           <Skeleton className="h-3 w-20" />
@@ -53,7 +50,6 @@ function ForgeSkeleton() {
 
 export default function ForgePage() {
   const { data: figures, isLoading } = useFigures();
-  const qc = useQueryClient();
   const {
     activeFigure,
     setActiveFigure,
@@ -62,16 +58,18 @@ export default function ForgePage() {
     syncFigureData,
     chatPanelOpen,
     setChatPanelOpen,
+    figurePanelOpen,
+    setFigurePanelOpen,
   } = useForgeStore();
 
   const activeFigureId = activeFigure?.id;
-  const activeSkinId = activeSkin?.id;
 
   const [addSkinOpen, setAddSkinOpen] = useState(false);
   const [newSkinName, setNewSkinName] = useState("");
-  const [addingSkin, setAddingSkin] = useState(false);
 
-  // Auto-select first figure on load, or if active figure was deleted
+  const createSkin = useCreateSkin();
+  const deleteSkin = useDeleteSkin();
+
   useEffect(() => {
     if (!figures || figures.length === 0) return;
     const stillExists = activeFigure && figures.some((f) => f.id === activeFigure.id);
@@ -81,14 +79,12 @@ export default function ForgePage() {
     }
   }, [figures, activeFigure, setActiveFigure, setActiveSkin]);
 
-  // Auto-select first skin when figure changes
   useEffect(() => {
     if (activeFigure && !activeSkin && activeFigure.skins.length > 0) {
       setActiveSkin(activeFigure.skins[0]);
     }
   }, [activeFigure, activeSkin, setActiveSkin]);
 
-  // Keep figure + selected skin in sync with React Query (atomic — no reset flash)
   useEffect(() => {
     if (!figures || !activeFigureId) return;
     const fresh = figures.find((f) => f.id === activeFigureId);
@@ -96,29 +92,13 @@ export default function ForgePage() {
     syncFigureData(fresh);
   }, [figures, activeFigureId, syncFigureData]);
 
-  async function handleAddSkin(name: string) {
+  function handleDeleteSkin(skin: Skin) {
     if (!activeFigure) return;
-    setAddingSkin(true);
-    try {
-      const skin = await apiFetch<Skin>(`/api/figures/${activeFigure.id}/skins`, {
-        method: "POST",
-        ...jsonInit({ name: name.trim() || "New Skin" }),
-      });
-      setActiveSkin(skin);
-      await qc.invalidateQueries({ queryKey: ["figures"] });
-    } finally {
-      setAddingSkin(false);
-    }
-  }
-
-  async function handleDeleteSkin(skin: Skin) {
-    if (!activeFigure) return;
-    await apiFetch(`/api/figures/${activeFigure.id}/skins/${skin.id}`, { method: "DELETE" });
     if (activeSkin?.id === skin.id) {
       const next = activeFigure.skins.find((s) => s.id !== skin.id);
       setActiveSkin(next ?? null);
     }
-    await qc.invalidateQueries({ queryKey: ["figures"] });
+    deleteSkin.mutate({ figureId: activeFigure.id, skinId: skin.id });
   }
 
   function openAddSkin() {
@@ -126,23 +106,50 @@ export default function ForgePage() {
     setAddSkinOpen(true);
   }
 
-  async function submitAddSkin(e: React.FormEvent) {
+  function submitAddSkin(e: React.FormEvent) {
     e.preventDefault();
-    await handleAddSkin(newSkinName);
-    setAddSkinOpen(false);
-    setNewSkinName("");
+    if (!activeFigure) return;
+    createSkin.mutate(
+      { figureId: activeFigure.id, name: newSkinName.trim() || "New Skin" },
+      { onSuccess: (skin) => { setActiveSkin(skin); setAddSkinOpen(false); } },
+    );
   }
 
   return (
     <>
+      {/* Mobile backdrop */}
+      {figurePanelOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/60 md:hidden"
+          onClick={() => setFigurePanelOpen(false)}
+        />
+      )}
+
       <div className="flex h-full overflow-hidden">
-        {/* Left: Figure list */}
-        <aside className="w-52 shrink-0 border-r border-border bg-panel overflow-hidden flex flex-col">
+        {/* Left sidebar — drawer on mobile, inline on desktop */}
+        <aside
+          className={cn(
+            "flex flex-col w-52 shrink-0 border-r border-border bg-panel overflow-hidden",
+            // Mobile: fixed drawer sliding in from the left
+            "fixed top-0 bottom-0 left-0 z-40 transition-transform duration-200",
+            figurePanelOpen ? "translate-x-0" : "-translate-x-full",
+            // Desktop: inline, no transform, collapses by width
+            "md:relative md:top-auto md:bottom-auto md:left-auto md:z-auto md:translate-x-0 md:transition-none",
+            !figurePanelOpen && "md:w-0 md:border-r-0",
+          )}
+        >
           <FigureList />
         </aside>
 
-        {/* Center: Skin editor */}
         <div className="flex-1 flex flex-col overflow-hidden min-w-0 relative">
+          {/* Desktop sidebar toggle */}
+          <button
+            onClick={() => setFigurePanelOpen(!figurePanelOpen)}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 hidden md:flex items-center justify-center w-4 h-8 bg-panel border border-border rounded-r text-slate-400 hover:text-slate-200 hover:bg-surface transition-colors"
+          >
+            {figurePanelOpen ? <ChevronLeft size={12} /> : <ChevronRight size={12} />}
+          </button>
+
           {isLoading && !activeFigure ? (
             <ForgeSkeleton />
           ) : activeFigure ? (
@@ -151,7 +158,7 @@ export default function ForgePage() {
                 skins={activeFigure.skins}
                 figureId={activeFigure.id}
                 onAddSkin={openAddSkin}
-                onDeleteSkin={(skin) => void handleDeleteSkin(skin)}
+                onDeleteSkin={handleDeleteSkin}
               />
               <div className="flex-1 overflow-hidden">
                 {activeFigure.skins.length === 0 ? (
@@ -176,7 +183,6 @@ export default function ForgePage() {
           )}
         </div>
 
-        {/* Chat toggle button */}
         <button
           onClick={() => setChatPanelOpen(!chatPanelOpen)}
           className="absolute right-0 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-4 h-8 bg-panel border border-border rounded-l text-slate-400 hover:text-slate-200 hover:bg-surface transition-colors"
@@ -184,7 +190,6 @@ export default function ForgePage() {
           {chatPanelOpen ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
         </button>
 
-        {/* Right: Chat panel */}
         {chatPanelOpen && (
           <aside className="w-80 shrink-0 border-l border-border bg-panel overflow-hidden flex flex-col">
             <ChatPanel />
@@ -192,12 +197,11 @@ export default function ForgePage() {
         )}
       </div>
 
-      {/* Add Skin modal */}
       {addSkinOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/60" onClick={() => setAddSkinOpen(false)} />
           <form
-            onSubmit={(e) => void submitAddSkin(e)}
+            onSubmit={submitAddSkin}
             className="relative z-10 bg-panel border border-border rounded-lg p-5 w-72 flex flex-col gap-4 shadow-xl"
           >
             <p className="text-sm font-semibold text-slate-100">New Skin</p>
@@ -215,8 +219,8 @@ export default function ForgePage() {
               <Button type="button" variant="ghost" size="sm" onClick={() => setAddSkinOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit" size="sm" disabled={addingSkin}>
-                {addingSkin ? "Adding…" : "Add"}
+              <Button type="submit" size="sm" disabled={createSkin.isPending}>
+                {createSkin.isPending ? "Adding…" : "Add"}
               </Button>
             </div>
           </form>

@@ -4,8 +4,7 @@ import { useForgeStore } from "@/store/forgeStore";
 import { cn } from "@/utils/cn";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { apiFetch, jsonInit } from "@/utils/apiClient";
-import { useQueryClient } from "@tanstack/react-query";
+import { useUpdateSkin } from "@/features/skins/hooks/use-skins.hooks";
 import type { Skin } from "@/interfaces";
 
 interface SkinTabsProps {
@@ -16,12 +15,12 @@ interface SkinTabsProps {
 }
 
 export function SkinTabs({ skins, figureId, onAddSkin, onDeleteSkin }: SkinTabsProps) {
-  const qc = useQueryClient();
   const { activeSkin, setActiveSkin } = useForgeStore();
   const [pendingDelete, setPendingDelete] = useState<Skin | null>(null);
   const [editingSkin, setEditingSkin] = useState<Skin | null>(null);
   const [editName, setEditName] = useState("");
-  const [saving, setSaving] = useState(false);
+
+  const updateSkin = useUpdateSkin();
 
   function openEdit(e: React.MouseEvent, skin: Skin) {
     e.stopPropagation();
@@ -29,20 +28,13 @@ export function SkinTabs({ skins, figureId, onAddSkin, onDeleteSkin }: SkinTabsP
     setEditName(skin.name ?? "");
   }
 
-  async function handleEditSubmit(e: React.FormEvent) {
+  function handleEditSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!editingSkin || !editName.trim()) return;
-    setSaving(true);
-    try {
-      await apiFetch(`/api/figures/${figureId}/skins/${editingSkin.id}`, {
-        method: "PUT",
-        ...jsonInit({ name: editName.trim() }),
-      });
-      await qc.invalidateQueries({ queryKey: ["figures"] });
-      setEditingSkin(null);
-    } finally {
-      setSaving(false);
-    }
+    updateSkin.mutate(
+      { figureId, skinId: editingSkin.id, name: editName.trim() },
+      { onSuccess: () => setEditingSkin(null) },
+    );
   }
 
   function handleConfirmDelete() {
@@ -97,12 +89,11 @@ export function SkinTabs({ skins, figureId, onAddSkin, onDeleteSkin }: SkinTabsP
         </button>
       </div>
 
-      {/* Edit skin name modal */}
       {editingSkin && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/60" onClick={() => setEditingSkin(null)} />
           <form
-            onSubmit={(e) => void handleEditSubmit(e)}
+            onSubmit={handleEditSubmit}
             className="relative z-10 bg-panel border border-border rounded-lg p-5 w-72 flex flex-col gap-4 shadow-xl"
           >
             <p className="text-sm font-semibold text-slate-100">Rename Skin</p>
@@ -120,8 +111,8 @@ export function SkinTabs({ skins, figureId, onAddSkin, onDeleteSkin }: SkinTabsP
               <Button type="button" variant="ghost" size="sm" onClick={() => setEditingSkin(null)}>
                 Cancel
               </Button>
-              <Button type="submit" size="sm" disabled={saving || !editName.trim()}>
-                {saving ? "Saving…" : "Save"}
+              <Button type="submit" size="sm" disabled={updateSkin.isPending || !editName.trim()}>
+                {updateSkin.isPending ? "Saving…" : "Save"}
               </Button>
             </div>
           </form>

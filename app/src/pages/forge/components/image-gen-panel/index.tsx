@@ -1,48 +1,26 @@
 import { useState } from "react";
-import { apiFetch, jsonInit } from "@/utils/apiClient";
 import { useForgeStore } from "@/store/forgeStore";
-import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
 import { Textarea } from "@/components/ui/Textarea";
 import { IMAGE_MODELS } from "@/utils/constants";
-
-interface GenerateImageResponse {
-  imageUrl: string;
-  skinImageId: string;
-}
+import { useGenerateImage } from "@/features/skin-variants/hooks/use-skin-variants.hooks";
 
 export function ImageGenPanel() {
   const { activeFigure, activeVariant } = useForgeStore();
-  const qc = useQueryClient();
   const [prompt, setPrompt] = useState("");
   const [model, setModel] = useState<string>(IMAGE_MODELS[0].id);
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<GenerateImageResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
-  async function handleGenerate() {
-    if (!activeVariant) return;
-    setLoading(true);
-    setError(null);
-    setResult(null);
-    try {
-      const res = await apiFetch<GenerateImageResponse>("/api/images/generate", {
-        method: "POST",
-        ...jsonInit({
-          variantId: activeVariant.id,
-          figureId: activeFigure?.id,
-          prompt,
-          imageModel: model,
-        }),
-      });
-      setResult(res);
-      qc.invalidateQueries({ queryKey: ["figures"] });
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Generation failed");
-    } finally {
-      setLoading(false);
-    }
+  const generateImage = useGenerateImage();
+
+  function handleGenerate() {
+    if (!activeVariant || !activeFigure) return;
+    generateImage.mutate({
+      figureId: activeFigure.id,
+      skinId: activeVariant.skinId,
+      variantCode: activeVariant.variant,
+      dto: { prompt, model },
+    });
   }
 
   return (
@@ -74,17 +52,19 @@ export function ImageGenPanel() {
             placeholder="Describe the image to generate…"
           />
 
-          <Button onClick={handleGenerate} disabled={loading || !prompt.trim()}>
-            {loading ? <Spinner className="w-3.5 h-3.5" /> : "Generate Image"}
+          <Button onClick={handleGenerate} disabled={generateImage.isPending || !prompt.trim()}>
+            {generateImage.isPending ? <Spinner className="w-3.5 h-3.5" /> : "Generate Image"}
           </Button>
 
-          {error && <p className="text-xs text-red-400">{error}</p>}
+          {generateImage.isError && (
+            <p className="text-xs text-red-400">{(generateImage.error as Error).message}</p>
+          )}
 
-          {result && (
+          {generateImage.isSuccess && generateImage.data && (
             <div className="flex flex-col gap-2">
               <p className="text-xs text-green-400">Image generated and linked to variant</p>
               <img
-                src={result.imageUrl}
+                src={generateImage.data.imageUrl}
                 alt="Generated"
                 className="w-full aspect-square object-cover rounded-lg border border-border"
               />

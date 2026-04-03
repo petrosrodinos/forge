@@ -8,8 +8,7 @@ import { ModelViewer } from "@/pages/forge/components/model-card/model-viewer";
 import { AnimationList } from "@/pages/forge/components/animation-list";
 import { AnimationPicker } from "@/pages/forge/components/animation-list/animation-picker";
 import { useAnimate } from "@/features/pipeline/hooks/use-animate.hooks";
-import { useQueryClient } from "@tanstack/react-query";
-import { apiFetch } from "@/utils/apiClient";
+import { useDeleteModel3d } from "@/features/models3d/hooks/use-models3d.hooks";
 import type { Model3D } from "@/interfaces";
 
 interface ModelCardProps {
@@ -17,18 +16,11 @@ interface ModelCardProps {
 }
 
 export function ModelCard({ model }: ModelCardProps) {
-  const qc = useQueryClient();
   const [selectedAnimations, setSelectedAnimations] = useState<string[]>([]);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const { running, error, run } = useAnimate(() => {
-    qc.invalidateQueries({ queryKey: ["figures"] });
-  });
-
-  async function handleDelete() {
-    await apiFetch(`/api/models3d/${model.id}`, { method: "DELETE" });
-    qc.invalidateQueries({ queryKey: ["figures"] });
-  }
+  const deleteModel = useDeleteModel3d();
+  const { running, error, run } = useAnimate(() => {});
 
   const canAnimate = model.status === "success" && !!model.rigTaskId;
 
@@ -50,9 +42,7 @@ export function ModelCard({ model }: ModelCardProps) {
           </div>
         </div>
 
-        {model.error && (
-          <p className="text-xs text-red-400">{model.error}</p>
-        )}
+        {model.error && <p className="text-xs text-red-400">{model.error}</p>}
 
         {model.status === "processing" || model.status === "pending" ? (
           <Skeleton className="w-full aspect-square" />
@@ -85,7 +75,7 @@ export function ModelCard({ model }: ModelCardProps) {
         title="Delete 3D model?"
         description="This will permanently delete the model and all its animations."
         confirmLabel="Delete"
-        onConfirm={() => { setConfirmDelete(false); void handleDelete(); }}
+        onConfirm={() => { setConfirmDelete(false); deleteModel.mutate(model.id); }}
         onCancel={() => setConfirmDelete(false)}
         danger
       />

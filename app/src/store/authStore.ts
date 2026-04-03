@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { apiFetch } from "@/utils/apiClient";
+import { fetchMe, login as loginService, logout as logoutService } from "@/features/auth/services/auth.services";
 import type { User } from "@/interfaces";
 
 interface AuthState {
@@ -17,7 +17,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   fetchMe: async () => {
     try {
-      const me = await apiFetch<User>("/api/auth/me");
+      const me = await fetchMe();
       set({ user: me });
     } catch {
       set({ user: null });
@@ -25,16 +25,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   login: async (email, password) => {
-    await apiFetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
+    await loginService(email, password);
     await get().fetchMe();
   },
 
   logout: async () => {
-    await apiFetch("/api/auth/logout", { method: "POST" }).catch(() => {});
+    await logoutService().catch(() => {});
     set({ user: null });
   },
 

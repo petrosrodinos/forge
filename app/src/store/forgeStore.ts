@@ -8,12 +8,14 @@ interface ForgeState {
   activeVariant: SkinVariant | null;
   selectedImage: SkinImage | null;
   chatPanelOpen: boolean;
+  figurePanelOpen: boolean;
 
   setActiveFigure: (f: Figure | null) => void;
   setActiveSkin: (s: Skin | null) => void;
   setActiveVariant: (v: SkinVariant | null) => void;
   setSelectedImage: (i: SkinImage | null) => void;
   setChatPanelOpen: (open: boolean) => void;
+  setFigurePanelOpen: (open: boolean) => void;
   /** Sync fresh server data without resetting the active skin selection. */
   syncFigureData: (fresh: Figure) => void;
 }
@@ -26,6 +28,7 @@ export const useForgeStore = create<ForgeState>()(
       activeVariant: null,
       selectedImage: null,
       chatPanelOpen: true,
+      figurePanelOpen: true,
 
       setActiveFigure: (activeFigure) =>
         set({ activeFigure, activeSkin: null, activeVariant: null, selectedImage: null }),
@@ -34,6 +37,7 @@ export const useForgeStore = create<ForgeState>()(
       setActiveVariant: (activeVariant) => set({ activeVariant }),
       setSelectedImage: (selectedImage) => set({ selectedImage }),
       setChatPanelOpen: (chatPanelOpen) => set({ chatPanelOpen }),
+      setFigurePanelOpen: (figurePanelOpen) => set({ figurePanelOpen }),
       syncFigureData: (fresh) =>
         set((state) => ({
           activeFigure: fresh,
@@ -49,6 +53,7 @@ export const useForgeStore = create<ForgeState>()(
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         chatPanelOpen: state.chatPanelOpen,
+        figurePanelOpen: state.figurePanelOpen,
       }),
     },
   ),

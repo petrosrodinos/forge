@@ -28,6 +28,7 @@ interface ImageCardProps {
 
 export function ImageCard({ image, isRunning, onRunPipeline, onSelect, onDelete, selected }: ImageCardProps) {
   const status = bestModelStatus(image.models);
+  const isProcessing = status === "processing";
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -62,6 +63,7 @@ export function ImageCard({ image, isRunning, onRunPipeline, onSelect, onDelete,
               variant="ghost"
               size="sm"
               className="shrink-0 px-2 py-1.5 text-slate-400 hover:text-red-400 hover:bg-red-400/10"
+              disabled={isProcessing}
               onClick={(e) => { e.stopPropagation(); setConfirmOpen(true); }}
             >
               <Trash2 size={14} />
@@ -81,7 +83,7 @@ export function ImageCard({ image, isRunning, onRunPipeline, onSelect, onDelete,
               variant="secondary"
               size="sm"
               className="shrink-0"
-              disabled={isRunning}
+              disabled={isRunning || isProcessing}
               onClick={(e) => { e.stopPropagation(); onRunPipeline(image); }}
             >
               {isRunning ? <Spinner className="w-2.5 h-2.5" /> : <Play size={10} />}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { Plus, Trash2, Pencil } from "lucide-react";
 import { useFigures, useCreateFigure, useUpdateFigure, useDeleteFigure } from "@/features/figures/hooks/use-figures.hooks";
 import { useForgeStore } from "@/store/forgeStore";
@@ -158,7 +159,7 @@ export function FigureList() {
       </div>
 
       {/* Create / Edit Figure modal */}
-      {modal && (
+      {modal && createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/60" onClick={closeModal} />
           <form
@@ -204,7 +205,8 @@ export function FigureList() {
               </Button>
             </div>
           </form>
-        </div>
+        </div>,
+        document.body,
       )}
 
       <ConfirmDialog

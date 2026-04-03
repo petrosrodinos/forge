@@ -3,8 +3,7 @@ import { Plus, X } from "lucide-react";
 import { VariantPanel } from "@/pages/forge/components/skin-panel/variant-panel";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { cn } from "@/utils/cn";
-import { apiFetch, jsonInit } from "@/utils/apiClient";
-import { useQueryClient } from "@tanstack/react-query";
+import { useCreateVariant, useDeleteVariant } from "@/features/skin-variants/hooks/use-skin-variants.hooks";
 import type { Skin, SkinVariant } from "@/interfaces";
 
 interface SkinPanelProps {
@@ -13,19 +12,22 @@ interface SkinPanelProps {
 }
 
 export function SkinPanel({ skin, figureId }: SkinPanelProps) {
-  const qc = useQueryClient();
   const [activeVariantId, setActiveVariantId] = useState<string | null>(
     skin.variants[0]?.id ?? null,
   );
   const [pendingDelete, setPendingDelete] = useState<SkinVariant | null>(null);
-  const [adding, setAdding] = useState(false);
   const autoAddedForSkin = useRef<string | null>(null);
 
-  // Auto-create first variant when a fresh skin with no variants is opened
+  const createVariant = useCreateVariant();
+  const deleteVariant = useDeleteVariant();
+
   useEffect(() => {
     if (skin.variants.length === 0 && autoAddedForSkin.current !== skin.id) {
       autoAddedForSkin.current = skin.id;
-      void handleAddVariant();
+      createVariant.mutate(
+        { figureId, skinId: skin.id },
+        { onSuccess: (created) => setActiveVariantId(created.id) },
+      );
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skin.id]);
@@ -33,31 +35,20 @@ export function SkinPanel({ skin, figureId }: SkinPanelProps) {
   const activeVariant =
     skin.variants.find((v) => v.id === activeVariantId) ?? skin.variants[0] ?? null;
 
-  async function handleAddVariant() {
-    if (adding) return;
-    setAdding(true);
-    try {
-      const created = await apiFetch<SkinVariant>(
-        `/api/figures/${figureId}/skins/${skin.id}/variants`,
-        { method: "POST", ...jsonInit({}) },
-      );
-      await qc.invalidateQueries({ queryKey: ["figures"] });
-      setActiveVariantId(created.id);
-    } finally {
-      setAdding(false);
-    }
+  function handleAddVariant() {
+    createVariant.mutate(
+      { figureId, skinId: skin.id },
+      { onSuccess: (created) => setActiveVariantId(created.id) },
+    );
   }
 
-  async function handleConfirmDelete() {
+  function handleConfirmDelete() {
     if (!pendingDelete) return;
-    await apiFetch(`/api/figures/${figureId}/skins/${skin.id}/variants/by-id/${pendingDelete.id}`, {
-      method: "DELETE",
-    });
-    await qc.invalidateQueries({ queryKey: ["figures"] });
-    if (activeVariantId === pendingDelete.id) {
-      const next = skin.variants.find((v) => v.id !== pendingDelete.id);
-      setActiveVariantId(next?.id ?? null);
-    }
+    const next = skin.variants.find((v) => v.id !== pendingDelete.id);
+    deleteVariant.mutate(
+      { figureId, skinId: skin.id, variantId: pendingDelete.id },
+      { onSuccess: () => { if (activeVariantId === pendingDelete.id) setActiveVariantId(next?.id ?? null); } },
+    );
     setPendingDelete(null);
   }
 
@@ -66,8 +57,8 @@ export function SkinPanel({ skin, figureId }: SkinPanelProps) {
       <div className="flex flex-col h-full items-center justify-center gap-3 text-slate-500">
         <p className="text-sm">No variants yet</p>
         <button
-          onClick={() => void handleAddVariant()}
-          disabled={adding}
+          onClick={handleAddVariant}
+          disabled={createVariant.isPending}
           className="text-xs px-3 py-1.5 bg-accent/20 border border-accent/40 text-accent-light rounded hover:bg-accent/30 transition-colors disabled:opacity-50"
         >
           + Add Variant
@@ -79,7 +70,6 @@ export function SkinPanel({ skin, figureId }: SkinPanelProps) {
   return (
     <>
       <div className="flex flex-col h-full overflow-hidden">
-        {/* Variant tab bar */}
         <div className="flex items-center gap-1 px-3 border-b border-border bg-surface shrink-0 overflow-x-auto">
           {skin.variants.map((v) => (
             <div
@@ -107,15 +97,14 @@ export function SkinPanel({ skin, figureId }: SkinPanelProps) {
             </div>
           ))}
           <button
-            onClick={() => void handleAddVariant()}
-            disabled={adding}
+            onClick={handleAddVariant}
+            disabled={createVariant.isPending}
             className="text-xs px-2 py-1.5 text-slate-500 hover:text-slate-300 transition-colors disabled:opacity-50"
           >
             <Plus size={13} />
           </button>
         </div>
 
-        {/* Active variant content */}
         <div className="flex-1 overflow-hidden">
           {activeVariant ? (
             <VariantPanel variant={activeVariant} figureId={figureId} />
@@ -128,7 +117,7 @@ export function SkinPanel({ skin, figureId }: SkinPanelProps) {
         title={`Delete variant "${pendingDelete?.name ?? pendingDelete?.variant}"?`}
         description="All images and models under this variant will be permanently deleted."
         confirmLabel="Delete"
-        onConfirm={() => void handleConfirmDelete()}
+        onConfirm={handleConfirmDelete}
         onCancel={() => setPendingDelete(null)}
         danger
       />

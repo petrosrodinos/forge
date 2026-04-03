@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { apiFetch, jsonInit } from "@/utils/apiClient";
+import { useRegister } from "@/features/auth/hooks/use-auth.hooks";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
@@ -10,24 +10,15 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+  const register = useRegister();
+
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
-    setLoading(true);
-    try {
-      await apiFetch("/api/auth/register", {
-        method: "POST",
-        ...jsonInit({ email, password, displayName }),
-      });
-      navigate("/login");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Registration failed");
-    } finally {
-      setLoading(false);
-    }
+    register.mutate(
+      { email, password, displayName },
+      { onSuccess: () => navigate("/login") },
+    );
   }
 
   return (
@@ -60,9 +51,11 @@ export default function RegisterPage() {
             placeholder="••••••••"
             required
           />
-          {error && <p className="text-xs text-red-400">{error}</p>}
-          <Button type="submit" disabled={loading} className="w-full mt-2">
-            {loading ? <Spinner className="w-3.5 h-3.5" /> : "Create account"}
+          {register.isError && (
+            <p className="text-xs text-red-400">{(register.error as Error).message}</p>
+          )}
+          <Button type="submit" disabled={register.isPending} className="w-full mt-2">
+            {register.isPending ? <Spinner className="w-3.5 h-3.5" /> : "Create account"}
           </Button>
         </form>
         <p className="mt-4 text-xs text-slate-500 text-center">
