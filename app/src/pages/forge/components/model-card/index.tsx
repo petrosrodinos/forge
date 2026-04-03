@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { Skeleton } from "@/components/ui/Skeleton";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { ModelViewer } from "@/pages/forge/components/model-card/model-viewer";
+import { ModelViewerModal } from "@/pages/forge/components/model-card/model-viewer-modal";
 import { AnimationList } from "@/pages/forge/components/animation-list";
 import { AnimationPicker } from "@/pages/forge/components/animation-list/animation-picker";
 import { useAnimate } from "@/features/pipeline/hooks/use-animate.hooks";
@@ -18,6 +17,7 @@ interface ModelCardProps {
 export function ModelCard({ model }: ModelCardProps) {
   const [selectedAnimations, setSelectedAnimations] = useState<string[]>([]);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [viewerOpen, setViewerOpen] = useState(false);
 
   const deleteModel = useDeleteModel3d();
   const { running, error, run } = useAnimate(() => {});
@@ -31,6 +31,17 @@ export function ModelCard({ model }: ModelCardProps) {
           <span className="text-xs text-slate-400 font-mono">{model.id.slice(0, 8)}</span>
           <div className="flex items-center gap-1.5">
             <Badge status={running ? "processing" : model.status} />
+            {model.gcsPbrModelUrl && model.status === "success" && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="px-1.5 py-1 text-accent-light hover:bg-accent/10"
+                onClick={() => setViewerOpen(true)}
+              >
+                <Eye size={12} />
+                View
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="sm"
@@ -43,12 +54,6 @@ export function ModelCard({ model }: ModelCardProps) {
         </div>
 
         {model.error && <p className="text-xs text-red-400">{model.error}</p>}
-
-        {model.status === "processing" || model.status === "pending" ? (
-          <Skeleton className="w-full aspect-square" />
-        ) : model.gcsPbrModelUrl ? (
-          <ModelViewer src={model.gcsPbrModelUrl} />
-        ) : null}
 
         {model.animations.length > 0 && (
           <AnimationList model3dId={model.id} animations={model.animations} />
@@ -79,6 +84,10 @@ export function ModelCard({ model }: ModelCardProps) {
         onCancel={() => setConfirmDelete(false)}
         danger
       />
+
+      {viewerOpen && model.gcsPbrModelUrl && (
+        <ModelViewerModal src={model.gcsPbrModelUrl} onClose={() => setViewerOpen(false)} />
+      )}
     </>
   );
 }

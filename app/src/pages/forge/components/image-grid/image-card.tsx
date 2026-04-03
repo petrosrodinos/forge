@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { Play, Trash2, Eye } from "lucide-react";
+import { Play, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { ModelViewerModal } from "@/pages/forge/components/model-card/model-viewer-modal";
 import type { SkinImage } from "@/interfaces";
 
 function bestModelStatus(models: SkinImage["models"]): string {
@@ -31,9 +30,6 @@ export function ImageCard({ image, isRunning, onRunPipeline, onSelect, onDelete,
   const isProcessing = status === "processing";
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
-  const [viewerOpen, setViewerOpen] = useState(false);
-
-  const readyModel = image.models.find((m) => m.status === "success" && m.gcsPbrModelUrl);
 
   return (
     <>
@@ -53,42 +49,33 @@ export function ImageCard({ image, isRunning, onRunPipeline, onSelect, onDelete,
           />
         </div>
 
-        <div className="bg-panel px-2 py-2 flex items-center justify-between gap-1">
-          <div className="flex items-center gap-1.5">
+        <div className="bg-panel px-2 pt-1.5 pb-2 flex flex-col gap-1">
+          <div className="flex items-center justify-between">
             <Badge status={status} />
             <span className="text-[10px] text-slate-500">{image.models.length} models</span>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center justify-between">
             <Button
               variant="ghost"
               size="sm"
-              className="shrink-0 px-2 py-1.5 text-slate-400 hover:text-red-400 hover:bg-red-400/10"
+              className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-400/10"
               disabled={isProcessing}
               onClick={(e) => { e.stopPropagation(); setConfirmOpen(true); }}
             >
-              <Trash2 size={14} />
+              <Trash2 size={13} />
             </Button>
-            {readyModel && (
+            <div className="flex items-center gap-1">
               <Button
-                variant="ghost"
+                variant="secondary"
                 size="sm"
-                className="shrink-0 px-2 py-1.5 text-accent-light hover:bg-accent/10"
-                onClick={(e) => { e.stopPropagation(); setViewerOpen(true); }}
+                className="px-2 py-1 gap-1"
+                disabled={isRunning || isProcessing}
+                onClick={(e) => { e.stopPropagation(); onRunPipeline(image); }}
               >
-                <Eye size={12} />
-                View
+                {isRunning ? <Spinner className="w-2.5 h-2.5" /> : <Play size={10} />}
+                {isRunning ? "Running…" : "Run 3D"}
               </Button>
-            )}
-            <Button
-              variant="secondary"
-              size="sm"
-              className="shrink-0"
-              disabled={isRunning || isProcessing}
-              onClick={(e) => { e.stopPropagation(); onRunPipeline(image); }}
-            >
-              {isRunning ? <Spinner className="w-2.5 h-2.5" /> : <Play size={10} />}
-              {isRunning ? "Running…" : "Run 3D"}
-            </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -103,9 +90,6 @@ export function ImageCard({ image, isRunning, onRunPipeline, onSelect, onDelete,
         danger
       />
 
-      {viewerOpen && readyModel?.gcsPbrModelUrl && (
-        <ModelViewerModal src={readyModel.gcsPbrModelUrl} onClose={() => setViewerOpen(false)} />
-      )}
     </>
   );
 }

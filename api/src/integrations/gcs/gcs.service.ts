@@ -18,7 +18,6 @@ export async function archiveRemoteUrl(
 
   const file = bucket.file(gcsKey);
   await file.save(buffer, { contentType, resumable: false });
-  await file.makePublic();
 
   return {
     gcsUrl:    `${baseUrl}/${gcsKey}`,
@@ -35,7 +34,6 @@ export async function uploadBuffer(
   const { bucket, baseUrl, gcsBucket } = requireGcs();
   const file = bucket.file(gcsKey);
   await file.save(buffer, { contentType, resumable: false });
-  await file.makePublic();
 
   return {
     gcsUrl:    `${baseUrl}/${gcsKey}`,
