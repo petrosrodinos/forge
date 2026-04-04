@@ -1,7 +1,9 @@
-import { archiveRemoteUrl } from "../../integrations/gcs/gcs.service";
+import { archiveRemoteUrl, deleteGcsFiles } from "../../integrations/gcs/gcs.service";
+import { collectGcsKeysFromSkinImage } from "../../integrations/gcs/collectGcsAssetKeys";
 import {
   createSkinImageRecord,
   deleteImage as deleteImageRepo,
+  findSkinImageWithGcsAssets,
   getSkinImageById,
   listImages as listImagesRepo,
   updateSkinImageGcs,
@@ -35,5 +37,7 @@ export async function listImages(variantId: string) {
 }
 
 export async function deleteImage(id: string) {
+  const existing = await findSkinImageWithGcsAssets(id);
+  if (existing) await deleteGcsFiles(collectGcsKeysFromSkinImage(existing));
   return deleteImageRepo(id);
 }

@@ -1,4 +1,5 @@
-import { archiveRemoteUrl } from "../../integrations/gcs/gcs.service";
+import { archiveRemoteUrl, deleteGcsFiles } from "../../integrations/gcs/gcs.service";
+import { collectGcsKeysFromModel3D } from "../../integrations/gcs/collectGcsAssetKeys";
 import type { TaskIds, TripoModelUrls } from "./interfaces/models3d.types";
 import {
   createModel3D as createModel3DRepo,
@@ -41,5 +42,7 @@ export async function getModel3D(id: string) {
 }
 
 export async function deleteModel3D(id: string) {
+  const existing = await getModel3DRepo(id);
+  if (existing) await deleteGcsFiles(collectGcsKeysFromModel3D(existing));
   return deleteModel3DRepo(id);
 }

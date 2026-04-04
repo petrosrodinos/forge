@@ -40,6 +40,13 @@ export async function setBaseSkin(figureId: string, skinId: string) {
   return prisma.skin.update({ where: { id: skinId }, data: { isBase: true } });
 }
 
+export async function findSkinWithGcsAssets(id: string) {
+  return prisma.skin.findUnique({
+    where: { id },
+    include: VARIANT_INCLUDE,
+  });
+}
+
 export async function deleteSkin(id: string) {
   return prisma.skin.delete({ where: { id } });
 }

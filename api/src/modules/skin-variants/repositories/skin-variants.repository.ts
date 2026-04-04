@@ -33,6 +33,13 @@ export async function createVariant(skinId: string, input: CreateVariantInput) {
   });
 }
 
+export async function findVariantWithGcsAssets(id: string) {
+  return prisma.skinVariant.findUnique({
+    where: { id },
+    include: { images: { include: { models: { include: { animations: true } } } } },
+  });
+}
+
 export async function deleteVariantById(id: string) {
   return prisma.skinVariant.delete({ where: { id } });
 }

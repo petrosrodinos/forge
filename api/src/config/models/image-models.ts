@@ -1,7 +1,33 @@
 import { usdToTokens } from "../../lib/models-cost";
 import { MARKUP_FACTOR } from "./pricing";
 
-const imageModels = [
+/** How AIML `/v1/images/generations` expects the reference image for this model */
+export type AimlI2iSourceKey = "image" | "image_url" | "image_urls";
+
+export type ImageModelDefinition = {
+  id: string;
+  name: string;
+  provider: string;
+  tokens_original: number;
+  price_original: number;
+  tokens: null;
+  price: null;
+  is_image_to_image: boolean;
+  available: boolean;
+  /** AIML wiring; omit when `id` matches AIML and defaults suffice */
+  aiml_api?: {
+    modelId?: string;
+    i2i?: {
+      sourceKey: AimlI2iSourceKey;
+      negativeStyle: "inline" | "negative_prompt_field";
+      mergedPromptMax?: number;
+      promptMax?: number;
+      negativeMax?: number;
+    };
+  };
+};
+
+const imageModels: ImageModelDefinition[] = [
     {
         id: "grok-imagine-image-pro",
         name: "xAI / Grok Imagine Image Pro",
@@ -66,7 +92,11 @@ const imageModels = [
         tokens: null,
         price: null,
         is_image_to_image: true,
-        available: true
+        available: true,
+        aiml_api: {
+            modelId: "blackforestlabs/flux-2-edit",
+            i2i: { sourceKey: "image_urls", negativeStyle: "inline", mergedPromptMax: 4000 },
+        },
     },
     {
         id: "flux-2-max",
@@ -253,7 +283,11 @@ const imageModels = [
         tokens: null,
         price: null,
         is_image_to_image: true,
-        available: true
+        available: true,
+        aiml_api: {
+            modelId: "reve/remix-edit-image",
+            i2i: { sourceKey: "image_urls", negativeStyle: "inline", mergedPromptMax: 2560 },
+        },
     },
     {
         id: "reve-edit-image",
@@ -264,7 +298,11 @@ const imageModels = [
         tokens: null,
         price: null,
         is_image_to_image: true,
-        available: true
+        available: true,
+        aiml_api: {
+            modelId: "reve/edit-image",
+            i2i: { sourceKey: "image_url", negativeStyle: "inline", mergedPromptMax: 2560 },
+        },
     },
     {
         id: "reve-create-image",
@@ -286,7 +324,16 @@ const imageModels = [
         tokens: null,
         price: null,
         is_image_to_image: true,
-        available: true
+        available: true,
+        aiml_api: {
+            modelId: "alibaba/qwen-image-edit",
+            i2i: {
+                sourceKey: "image",
+                negativeStyle: "negative_prompt_field",
+                promptMax: 800,
+                negativeMax: 500,
+            },
+        },
     },
     {
         id: "flux-1-srpo-i2i",
@@ -297,7 +344,11 @@ const imageModels = [
         tokens: null,
         price: null,
         is_image_to_image: true,
-        available: true
+        available: true,
+        aiml_api: {
+            modelId: "flux/srpo/image-to-image",
+            i2i: { sourceKey: "image_url", negativeStyle: "inline", mergedPromptMax: 4000 },
+        },
     },
     {
         id: "flux-1-srpo-t2i",
@@ -352,7 +403,11 @@ const imageModels = [
         tokens: null,
         price: null,
         is_image_to_image: true,
-        available: true
+        available: true,
+        aiml_api: {
+            modelId: "bytedance/seedream-v4-edit",
+            i2i: { sourceKey: "image_urls", negativeStyle: "inline", mergedPromptMax: 4000 },
+        },
     },
     {
         id: "seedream-4",
@@ -587,7 +642,9 @@ const imageModels = [
     }
 ];
 
-export const ImageModels = imageModels.map((model: any) => ({
+export type ImageModel = Omit<ImageModelDefinition, "tokens" | "price"> & { tokens: number; price: number };
+
+export const ImageModels: ImageModel[] = imageModels.map((model) => ({
     ...model,
     tokens: model.tokens_original * MARKUP_FACTOR,
     price: model.price_original * MARKUP_FACTOR,

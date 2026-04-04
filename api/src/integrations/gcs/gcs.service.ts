@@ -1,5 +1,5 @@
 import axios from "axios";
-import { requireGcs } from "./gcs.client";
+import { bucket, requireGcs } from "./gcs.client";
 
 export interface UploadResult {
   gcsUrl:    string;
@@ -43,6 +43,11 @@ export async function uploadBuffer(
 }
 
 export async function deleteGcsFile(gcsKey: string): Promise<void> {
-  const { bucket } = requireGcs();
+  if (!bucket) return;
   await bucket.file(gcsKey).delete({ ignoreNotFound: true });
+}
+
+export async function deleteGcsFiles(gcsKeys: (string | null | undefined)[]): Promise<void> {
+  const unique = [...new Set(gcsKeys.filter((k): k is string => Boolean(k?.trim())))];
+  await Promise.all(unique.map((k) => deleteGcsFile(k)));
 }

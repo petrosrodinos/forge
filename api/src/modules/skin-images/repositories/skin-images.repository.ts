@@ -31,6 +31,13 @@ export async function getSkinImageById(id: string) {
   return prisma.skinImage.findUnique({ where: { id } });
 }
 
+export async function findSkinImageWithGcsAssets(id: string) {
+  return prisma.skinImage.findUnique({
+    where: { id },
+    include: { models: { include: { animations: true } } },
+  });
+}
+
 export async function deleteImage(id: string) {
   return prisma.skinImage.delete({ where: { id } });
 }

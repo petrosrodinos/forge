@@ -1,4 +1,6 @@
 import { prisma } from "../../integrations/db/client";
+import { deleteGcsFiles } from "../../integrations/gcs/gcs.service";
+import { collectGcsKeysFromFigure } from "../../integrations/gcs/collectGcsAssetKeys";
 import { agentModel, getAiml } from "../../services";
 import * as skinImageSvc from "../skin-images/skin-images.service";
 
@@ -44,6 +46,9 @@ export async function updateFigure(userId: string, id: string, input: UpdateFigu
 }
 
 export async function deleteFigure(userId: string, id: string) {
+  const existing = await getFigureByIdRepo(userId, id);
+  if (!existing) return null;
+  await deleteGcsFiles(collectGcsKeysFromFigure(existing));
   return deleteFigureRepo(userId, id);
 }
 

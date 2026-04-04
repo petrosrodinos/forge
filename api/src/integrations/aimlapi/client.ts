@@ -10,6 +10,8 @@ export function createAimlHttpClient(apiKey: string): AxiosInstance {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
+    maxBodyLength: Infinity,
+    maxContentLength: Infinity,
   });
 
   client.interceptors.request.use((config) => {

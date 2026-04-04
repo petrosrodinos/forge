@@ -1,7 +1,10 @@
+import { deleteGcsFiles } from "../../integrations/gcs/gcs.service";
+import { collectGcsKeysFromSkin } from "../../integrations/gcs/collectGcsAssetKeys";
 import type { CreateSkinInput } from "./interfaces/skins.types";
 import {
   createSkin as createSkinRepo,
   deleteSkin as deleteSkinRepo,
+  findSkinWithGcsAssets,
   listSkins as listSkinsRepo,
   setBaseSkin as setBaseSkinRepo,
   updateSkin as updateSkinRepo,
@@ -24,6 +27,8 @@ export async function setBaseSkin(figureId: string, skinId: string) {
 }
 
 export async function deleteSkin(id: string) {
+  const existing = await findSkinWithGcsAssets(id);
+  if (existing) await deleteGcsFiles(collectGcsKeysFromSkin(existing));
   return deleteSkinRepo(id);
 }
 

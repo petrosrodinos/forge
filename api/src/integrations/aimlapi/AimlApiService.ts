@@ -70,7 +70,7 @@ export class AimlApiService {
 
   // ── Image generation ────────────────────────────────────────────────────────
 
-  async generateImage(body: ImageGenerationRequest): Promise<ImageGenerationResponse> {
+  async generateImage(body: ImageGenerationRequest | Record<string, unknown>): Promise<ImageGenerationResponse> {
     const res = await this.http.post<ImageGenerationResponse>("/v1/images/generations", body);
     return res.data;
   }
