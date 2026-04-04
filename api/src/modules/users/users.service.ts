@@ -1,6 +1,6 @@
-import { prisma } from "../../db/client";
+import { prisma } from "../../integrations/db/client";
 
-export const findUserById    = (id: string)    => prisma.user.findUnique({ where: { id } });
+export const findUserById = (id: string) => prisma.user.findUnique({ where: { id } });
 export const findUserByEmail = (email: string) => prisma.user.findUnique({ where: { email } });
 
 export const createUser = (data: { email: string; passwordHash: string; displayName?: string }) =>

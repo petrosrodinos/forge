@@ -1,4 +1,4 @@
-import { prisma } from "../../../db/client";
+import { prisma } from "../../../integrations/db/client";
 import type { TaskIds, TripoModelUrls } from "../interfaces/models3d.types";
 
 export async function createModel3D(imageId: string) {

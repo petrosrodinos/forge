@@ -1,4 +1,4 @@
-import { prisma } from "../../../db/client";
+import { prisma } from "../../../integrations/db/client";
 
 export async function createAnimation(model3dId: string, animationKey: string) {
   return prisma.animation.create({

@@ -1,5 +1,4 @@
 import bcrypt from "bcryptjs";
-import { prisma } from "../../db/client";
 import * as users from "../users/users.service";
 import { copyTemplateFigures } from "../figures/figures.service";
 import {
@@ -7,6 +6,7 @@ import {
   REFRESH_TTL,
 } from "../../lib/jwt";
 import type { AuthResult } from "./auth.types";
+import { prisma } from "../../integrations/db/client";
 
 export async function register(email: string, password: string, displayName?: string): Promise<AuthResult> {
   if (await users.findUserByEmail(email)) {
@@ -21,7 +21,7 @@ export async function register(email: string, password: string, displayName?: st
 }
 
 export async function login(email: string, password: string): Promise<AuthResult> {
-  const user  = await users.findUserByEmail(email);
+  const user = await users.findUserByEmail(email);
   const valid = user && await bcrypt.compare(password, user.passwordHash);
   if (!valid) { const e = new Error("Invalid credentials"); (e as any).status = 401; throw e; }
   return issueTokens(user!);
@@ -43,7 +43,7 @@ export async function logout(rawToken: string) {
 }
 
 async function issueTokens(user: { id: string; email: string; displayName: string | null; role: string }): Promise<AuthResult> {
-  const accessToken  = signAccessToken({ sub: user.id, email: user.email, role: user.role });
+  const accessToken = signAccessToken({ sub: user.id, email: user.email, role: user.role });
   const refreshToken = signRefreshToken({ sub: user.id });
   await prisma.refreshToken.create({
     data: { token: refreshToken, userId: user.id, expiresAt: new Date(Date.now() + REFRESH_TTL * 1000) },

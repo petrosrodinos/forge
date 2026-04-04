@@ -53,7 +53,7 @@ export const AI_VARIANT_SYSTEM_PROMPT =
   "Your prompt MUST satisfy the strict front-facing + visible rig landmarks requirements (humans OR objects).";
 
 export interface BuildAiVariantUserPromptInput {
-  variant: "A" | "B";
+  variant: string;
   figureName?: string;
   figureType: string;
   skinName?: string;
@@ -66,7 +66,7 @@ export interface BuildAiVariantUserPromptInput {
 
 export function buildAiVariantUserPrompt(input: BuildAiVariantUserPromptInput): string {
   return `
-Variant: ${input.variant}
+Variant name: ${input.variant}
 Figure name: ${input.figureName ?? "unknown"}
 Figure type: ${input.figureType}
 Skin/material: ${input.skinName ?? "unspecified"}

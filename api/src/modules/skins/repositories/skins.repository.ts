@@ -1,4 +1,4 @@
-import { prisma } from "../../../db/client";
+import { prisma } from "../../../integrations/db/client";
 import type { CreateSkinInput } from "../interfaces/skins.types";
 
 const VARIANT_INCLUDE = {

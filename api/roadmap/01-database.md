@@ -93,18 +93,18 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const schema = z.object({
-  NODE_ENV:              z.enum(["development", "production", "test"]).default("development"),
-  PORT:                  z.coerce.number().default(3000),
-  DATABASE_URL:          z.string().min(1),
-  AIML_API_KEY:          z.string().min(1),
-  TRIPO_API_KEY:         z.string().min(1),
-  AGENT_MODEL:           z.string().default("gpt-4o-mini"),
-  GCS_BUCKET:            z.string().min(1),
-  GCS_PROJECT_ID:        z.string().min(1),
+  NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+  PORT: z.coerce.number().default(3000),
+  DATABASE_URL: z.string().min(1),
+  AIML_API_KEY: z.string().min(1),
+  TRIPO_API_KEY: z.string().min(1),
+  AGENT_MODEL: z.string().default("gpt-4o-mini"),
+  GCS_BUCKET: z.string().min(1),
+  GCS_PROJECT_ID: z.string().min(1),
   // Path to service account JSON key file, OR use Workload Identity in prod
-  GCS_KEY_FILE:          z.string().optional(),
+  GCS_KEY_FILE: z.string().optional(),
   // Public base URL for GCS assets (e.g. https://storage.googleapis.com/your-bucket)
-  GCS_PUBLIC_BASE_URL:   z.string().url(),
+  GCS_PUBLIC_BASE_URL: z.string().url(),
 });
 
 const parsed = schema.safeParse(process.env);
@@ -117,6 +117,7 @@ export const env = parsed.data;
 ```
 
 `.env.example` additions:
+
 ```
 DATABASE_URL=mongodb+srv://...
 GCS_BUCKET=3d-figures-assets
@@ -286,9 +287,11 @@ import { env } from "../config/env";
 
 const g = globalThis as unknown as { prisma?: PrismaClient };
 
-export const prisma = g.prisma ?? new PrismaClient({
-  log: env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
-});
+export const prisma =
+  g.prisma ??
+  new PrismaClient({
+    log: env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
+  });
 
 if (env.NODE_ENV !== "production") g.prisma = prisma;
 ```
@@ -305,7 +308,7 @@ import { env } from "../../config/env";
 
 export const storage = new Storage({
   projectId: env.GCS_PROJECT_ID,
-  keyFilename: env.GCS_KEY_FILE,   // undefined in prod → uses Application Default Credentials
+  keyFilename: env.GCS_KEY_FILE, // undefined in prod → uses Application Default Credentials
 });
 
 export const bucket = storage.bucket(env.GCS_BUCKET);
@@ -325,9 +328,9 @@ import { bucket } from "./gcs.client";
 import { env } from "../../config/env";
 
 export interface UploadResult {
-  gcsUrl:   string;
-  gcsBucket:string;
-  gcsKey:   string;
+  gcsUrl: string;
+  gcsBucket: string;
+  gcsKey: string;
 }
 
 /**
@@ -336,18 +339,18 @@ export interface UploadResult {
  */
 export async function archiveRemoteUrl(
   remoteUrl: string,
-  gcsKey: string,        // e.g. "models3d/<model3dId>/pbr.glb"
+  gcsKey: string, // e.g. "models3d/<model3dId>/pbr.glb"
   contentType: string,
 ): Promise<UploadResult> {
   const response = await axios.get<Buffer>(remoteUrl, { responseType: "arraybuffer" });
-  const buffer   = Buffer.from(response.data);
+  const buffer = Buffer.from(response.data);
 
   const file = bucket.file(gcsKey);
   await file.save(buffer, { contentType, resumable: false });
   await file.makePublic();
 
   return {
-    gcsUrl:    `${env.GCS_PUBLIC_BASE_URL}/${gcsKey}`,
+    gcsUrl: `${env.GCS_PUBLIC_BASE_URL}/${gcsKey}`,
     gcsBucket: env.GCS_BUCKET,
     gcsKey,
   };
@@ -356,17 +359,13 @@ export async function archiveRemoteUrl(
 /**
  * Upload a buffer directly (e.g., from multer memory storage).
  */
-export async function uploadBuffer(
-  buffer: Buffer,
-  gcsKey: string,
-  contentType: string,
-): Promise<UploadResult> {
+export async function uploadBuffer(buffer: Buffer, gcsKey: string, contentType: string): Promise<UploadResult> {
   const file = bucket.file(gcsKey);
   await file.save(buffer, { contentType, resumable: false });
   await file.makePublic();
 
   return {
-    gcsUrl:    `${env.GCS_PUBLIC_BASE_URL}/${gcsKey}`,
+    gcsUrl: `${env.GCS_PUBLIC_BASE_URL}/${gcsKey}`,
     gcsBucket: env.GCS_BUCKET,
     gcsKey,
   };
@@ -393,7 +392,7 @@ animations/<animationId>/<animationKey>.glb
 File: `src/modules/figures/figures.service.ts`
 
 ```ts
-import { prisma } from "../../db/client";
+import { prisma } from "../../integrations/db/client";
 import type { CreateFigureInput, UpdateFigureInput } from "./figures.types";
 
 export async function listFigures() {
@@ -449,7 +448,7 @@ export async function createFigure(input: CreateFigureInput) {
 export async function updateFigure(id: string, input: UpdateFigureInput) {
   return prisma.figure.update({
     where: { id },
-    data:  { name: input.name, type: input.type, metadata: input.metadata },
+    data: { name: input.name, type: input.type, metadata: input.metadata },
   });
 }
 
@@ -466,12 +465,12 @@ export async function deleteFigure(id: string) {
 File: `src/modules/skins/skins.service.ts`
 
 ```ts
-import { prisma } from "../../db/client";
+import { prisma } from "../../integrations/db/client";
 import type { CreateSkinInput } from "./skins.types";
 
 export async function listSkins(figureId: string) {
   return prisma.skin.findMany({
-    where:   { figureId },
+    where: { figureId },
     include: { variants: { include: { images: { include: { models: { include: { animations: true } } } } } } },
     orderBy: [{ isBase: "desc" }, { createdAt: "asc" }],
   });
@@ -500,13 +499,13 @@ export async function deleteSkin(id: string) {
 File: `src/modules/skin-variants/skin-variants.service.ts`
 
 ```ts
-import { prisma } from "../../db/client";
+import { prisma } from "../../integrations/db/client";
 import type { UpsertVariantInput } from "./skin-variants.types";
 
 /** Upsert variant A or B for a skin — one record per variant per skin */
 export async function upsertVariant(skinId: string, input: UpsertVariantInput) {
   return prisma.skinVariant.upsert({
-    where:  { skinId_variant: { skinId, variant: input.variant } },
+    where: { skinId_variant: { skinId, variant: input.variant } },
     update: { prompt: input.prompt, negativePrompt: input.negativePrompt, imageModel: input.imageModel },
     create: { skinId, variant: input.variant, prompt: input.prompt, negativePrompt: input.negativePrompt, imageModel: input.imageModel },
     include: { images: { include: { models: { include: { animations: true } } } } },
@@ -515,7 +514,7 @@ export async function upsertVariant(skinId: string, input: UpsertVariantInput) {
 
 export async function getVariant(skinId: string, variant: string) {
   return prisma.skinVariant.findUnique({
-    where:   { skinId_variant: { skinId, variant } },
+    where: { skinId_variant: { skinId, variant } },
     include: { images: { include: { models: { include: { animations: true } } } } },
   });
 }
@@ -530,14 +529,10 @@ File: `src/modules/skin-images/skin-images.service.ts`
 Handles archiving AIML-generated images to GCS immediately on creation.
 
 ```ts
-import { prisma } from "../../db/client";
+import { prisma } from "../../integrations/db/client";
 import { archiveRemoteUrl } from "../../integrations/gcs/gcs.service";
 
-export async function createSkinImage(
-  variantId: string,
-  figureId: string,
-  sourceUrl: string,
-) {
+export async function createSkinImage(variantId: string, figureId: string, sourceUrl: string) {
   // Create the DB record first to get the ID for the GCS key
   const image = await prisma.skinImage.create({
     data: { variantId, sourceUrl },
@@ -551,7 +546,7 @@ export async function createSkinImage(
     const { gcsUrl, gcsBucket } = await archiveRemoteUrl(sourceUrl, gcsKey, `image/${ext}`);
     return prisma.skinImage.update({
       where: { id: image.id },
-      data:  { gcsUrl, gcsBucket, gcsKey },
+      data: { gcsUrl, gcsBucket, gcsKey },
     });
   } catch (err) {
     // GCS upload failed — keep record with sourceUrl only, log warning
@@ -562,7 +557,7 @@ export async function createSkinImage(
 
 export async function listImages(variantId: string) {
   return prisma.skinImage.findMany({
-    where:   { variantId },
+    where: { variantId },
     include: { models: { include: { animations: true } } },
     orderBy: { createdAt: "desc" },
   });
@@ -581,43 +576,49 @@ export async function deleteImage(id: string) {
 File: `src/modules/models3d/models3d.service.ts`
 
 ```ts
-import { prisma } from "../../db/client";
+import { prisma } from "../../integrations/db/client";
 import { archiveRemoteUrl } from "../../integrations/gcs/gcs.service";
 
 export async function createModel3D(imageId: string) {
   return prisma.model3D.create({ data: { imageId, status: "pending" } });
 }
 
-export async function updateModel3DProcessing(id: string, taskIds: {
-  meshTaskId?: string; prerigTaskId?: string; rigTaskId?: string;
-}) {
+export async function updateModel3DProcessing(
+  id: string,
+  taskIds: {
+    meshTaskId?: string;
+    prerigTaskId?: string;
+    rigTaskId?: string;
+  },
+) {
   return prisma.model3D.update({
     where: { id },
-    data:  { status: "processing", ...taskIds },
+    data: { status: "processing", ...taskIds },
   });
 }
 
 /** Called when Tripo mesh+rig pipeline completes — archives GLBs to GCS */
-export async function finalizeModel3D(id: string, modelId: string, tripoUrls: {
-  pbrModelSourceUrl: string;
-  modelSourceUrl:    string;
-}) {
+export async function finalizeModel3D(
+  id: string,
+  modelId: string,
+  tripoUrls: {
+    pbrModelSourceUrl: string;
+    modelSourceUrl: string;
+  },
+) {
   // Archive both GLBs to GCS
-  const [pbr, plain] = await Promise.all([
-    archiveRemoteUrl(tripoUrls.pbrModelSourceUrl, `models3d/${id}/pbr.glb`,   "model/gltf-binary"),
-    archiveRemoteUrl(tripoUrls.modelSourceUrl,    `models3d/${id}/model.glb`, "model/gltf-binary"),
-  ]);
+  const [pbr, plain] = await Promise.all([archiveRemoteUrl(tripoUrls.pbrModelSourceUrl, `models3d/${id}/pbr.glb`, "model/gltf-binary"), archiveRemoteUrl(tripoUrls.modelSourceUrl, `models3d/${id}/model.glb`, "model/gltf-binary")]);
 
   return prisma.model3D.update({
     where: { id },
-    data:  {
-      status:               "success",
-      pbrModelSourceUrl:    tripoUrls.pbrModelSourceUrl,
-      modelSourceUrl:       tripoUrls.modelSourceUrl,
-      gcsPbrModelUrl:       pbr.gcsUrl,
-      gcsPbrModelKey:       pbr.gcsKey,
-      gcsModelUrl:          plain.gcsUrl,
-      gcsModelKey:          plain.gcsKey,
+    data: {
+      status: "success",
+      pbrModelSourceUrl: tripoUrls.pbrModelSourceUrl,
+      modelSourceUrl: tripoUrls.modelSourceUrl,
+      gcsPbrModelUrl: pbr.gcsUrl,
+      gcsPbrModelKey: pbr.gcsKey,
+      gcsModelUrl: plain.gcsUrl,
+      gcsModelKey: plain.gcsKey,
     },
   });
 }
@@ -638,7 +639,7 @@ export async function getModel3D(id: string) {
 File: `src/modules/animations/animations.service.ts`
 
 ```ts
-import { prisma } from "../../db/client";
+import { prisma } from "../../integrations/db/client";
 import { archiveRemoteUrl } from "../../integrations/gcs/gcs.service";
 
 export async function createAnimation(model3dId: string, animationKey: string) {
@@ -650,12 +651,12 @@ export async function createAnimation(model3dId: string, animationKey: string) {
 /** Called when Tripo retarget task succeeds — archives animated GLB to GCS */
 export async function finalizeAnimation(id: string, model3dId: string, animationKey: string, tripoGlbUrl: string) {
   const safeKey = animationKey.replace(/[^a-z0-9_:.-]/gi, "_");
-  const gcsKey  = `animations/${model3dId}/${safeKey}_${id}.glb`;
+  const gcsKey = `animations/${model3dId}/${safeKey}_${id}.glb`;
   const { gcsUrl } = await archiveRemoteUrl(tripoGlbUrl, gcsKey, "model/gltf-binary");
 
   return prisma.animation.update({
     where: { id },
-    data:  { status: "success", glbSourceUrl: tripoGlbUrl, gcsGlbUrl: gcsUrl, gcsGlbKey: gcsKey, retargetTaskId: id },
+    data: { status: "success", glbSourceUrl: tripoGlbUrl, gcsGlbUrl: gcsUrl, gcsGlbKey: gcsKey, retargetTaskId: id },
   });
 }
 
@@ -683,18 +684,18 @@ import { getTripo } from "../../services";
 import { sseWrite } from "../../lib/sse";
 import { extractTripoUploadToken } from "../../integrations/trippo/uploadToken";
 import { uploadBuffer } from "../../integrations/gcs/gcs.service";
-import * as model3dSvc    from "../models3d/models3d.service";
-import * as animationSvc  from "../animations/animations.service";
+import * as model3dSvc from "../models3d/models3d.service";
+import * as animationSvc from "../animations/animations.service";
 
 interface RunPipelineOpts {
-  imageId:      string;   // SkinImage document ID
-  figureId:     string;
-  imageBuffer:  Buffer;
-  filename:     string;
-  mimeType:     "image/png" | "image/jpeg";
-  animations:   string[];
+  imageId: string; // SkinImage document ID
+  figureId: string;
+  imageBuffer: Buffer;
+  filename: string;
+  mimeType: "image/png" | "image/jpeg";
+  animations: string[];
   modelVersion: string;
-  res:          Response; // SSE response
+  res: Response; // SSE response
 }
 
 function emit(res: Response, step: string, status: string, data: Record<string, unknown> = {}) {
@@ -712,12 +713,12 @@ export async function runPipeline(opts: RunPipelineOpts) {
     // ── 1. Upload image to Tripo ────────────────────────────────────────
     emit(res, "upload", "running");
     const uploadResult = await tripo.uploadFile(imageBuffer, filename, mimeType);
-    const fileToken    = extractTripoUploadToken(uploadResult);
+    const fileToken = extractTripoUploadToken(uploadResult);
     emit(res, "upload", "success");
 
     // ── 2. Mesh generation ──────────────────────────────────────────────
     emit(res, "mesh", "running");
-    const meshTask   = await tripo.createTask({
+    const meshTask = await tripo.createTask({
       type: "image_to_model",
       file: { type: mimeType === "image/jpeg" ? "jpeg" : "png", file_token: fileToken },
       model_version: modelVersion as never,
@@ -729,15 +730,16 @@ export async function runPipeline(opts: RunPipelineOpts) {
     await model3dSvc.updateModel3DProcessing(model.id, { meshTaskId });
     emit(res, "mesh", "queued", { taskId: meshTaskId });
 
-    const meshResult   = await tripo.pollTask(meshTaskId, { intervalMs: 2000 });
-    const pbrModelUrl  = meshResult.output?.pbr_model ?? meshResult.output?.model;
+    const meshResult = await tripo.pollTask(meshTaskId, { intervalMs: 2000 });
+    const pbrModelUrl = meshResult.output?.pbr_model ?? meshResult.output?.model;
     const meshModelUrl = meshResult.output?.model ?? pbrModelUrl;
     emit(res, "mesh", "success", { taskId: meshTaskId });
 
     // ── 3. Pre-rig check ────────────────────────────────────────────────
     emit(res, "prerig", "running");
-    const prerigTask   = await tripo.createTask({
-      type: "animate_prerigcheck", original_model_task_id: meshTaskId,
+    const prerigTask = await tripo.createTask({
+      type: "animate_prerigcheck",
+      original_model_task_id: meshTaskId,
     } as never);
     const prerigTaskId = (prerigTask.data as any).task_id as string;
     await model3dSvc.updateModel3DProcessing(model.id, { prerigTaskId });
@@ -748,7 +750,7 @@ export async function runPipeline(opts: RunPipelineOpts) {
       // Still archive the static GLB even if not riggable
       await model3dSvc.finalizeModel3D(model.id, model.id, {
         pbrModelSourceUrl: pbrModelUrl,
-        modelSourceUrl:    meshModelUrl,
+        modelSourceUrl: meshModelUrl,
       });
       emit(res, "prerig", "failed", { error: "Model is not riggable" });
       sseWrite(res, "complete", { error: "Not riggable — static model archived to GCS.", model3dId: model.id });
@@ -758,8 +760,10 @@ export async function runPipeline(opts: RunPipelineOpts) {
 
     // ── 4. Rig ──────────────────────────────────────────────────────────
     emit(res, "rig", "running");
-    const rigTask   = await tripo.createTask({
-      type: "animate_rig", original_model_task_id: meshTaskId, out_format: "glb",
+    const rigTask = await tripo.createTask({
+      type: "animate_rig",
+      original_model_task_id: meshTaskId,
+      out_format: "glb",
     } as never);
     const rigTaskId = (rigTask.data as any).task_id as string;
     await model3dSvc.updateModel3DProcessing(model.id, { rigTaskId });
@@ -770,7 +774,7 @@ export async function runPipeline(opts: RunPipelineOpts) {
     // Archive the static GLB now (before animations, so it's always saved)
     await model3dSvc.finalizeModel3D(model.id, model.id, {
       pbrModelSourceUrl: pbrModelUrl,
-      modelSourceUrl:    meshModelUrl,
+      modelSourceUrl: meshModelUrl,
     });
     emit(res, "rig", "success");
 
@@ -782,25 +786,24 @@ export async function runPipeline(opts: RunPipelineOpts) {
       const animRecord = await animationSvc.createAnimation(model.id, animationKey);
 
       try {
-        const animTask   = await tripo.createTask({
+        const animTask = await tripo.createTask({
           type: "animate_retarget",
           original_model_task_id: rigTaskId,
-          animations:            [animationKey] as never,
-          out_format:            "glb",
-          bake_animation:        true,
-          export_with_geometry:  true,
+          animations: [animationKey] as never,
+          out_format: "glb",
+          bake_animation: true,
+          export_with_geometry: true,
         } as never);
         const animTaskId = (animTask.data as any).task_id as string;
 
         const animResult = await tripo.pollTask(animTaskId, { intervalMs: 2000, timeoutMs: 600_000 });
-        const glbUrl     = animResult.output?.model;
+        const glbUrl = animResult.output?.model;
 
         if (!glbUrl) throw new Error("Tripo returned no GLB URL");
 
         const finalAnim = await animationSvc.finalizeAnimation(animRecord.id, model.id, animationKey, glbUrl);
         animationResults.push({ animationKey, gcsGlbUrl: finalAnim.gcsGlbUrl!, status: "success" });
         emit(res, "animate", "success", { animationKey, gcsGlbUrl: finalAnim.gcsGlbUrl });
-
       } catch (err) {
         await animationSvc.failAnimation(animRecord.id, String(err));
         animationResults.push({ animationKey, gcsGlbUrl: "", status: "failed" });
@@ -811,12 +814,11 @@ export async function runPipeline(opts: RunPipelineOpts) {
 
     const finishedModel = await model3dSvc.getModel3D(model.id);
     sseWrite(res, "complete", {
-      model3dId:    model.id,
+      model3dId: model.id,
       gcsPbrModelUrl: finishedModel?.gcsPbrModelUrl,
-      gcsModelUrl:    finishedModel?.gcsModelUrl,
-      animations:     animationResults,
+      gcsModelUrl: finishedModel?.gcsModelUrl,
+      animations: animationResults,
     });
-
   } catch (err) {
     await model3dSvc.failModel3D(model.id, String(err));
     sseWrite(res, "error", { message: String(err) });
@@ -847,42 +849,43 @@ router.post("/", upload.single("image"), async (req, res, next) => {
   const file = req.file;
   if (!file) return res.status(400).json({ error: "No image file provided" });
 
-  const variantId   = req.body.variantId   as string | undefined;
-  const figureId    = req.body.figureId    as string | undefined;
+  const variantId = req.body.variantId as string | undefined;
+  const figureId = req.body.figureId as string | undefined;
 
   if (!variantId || !figureId) {
     return res.status(400).json({ error: "variantId and figureId are required" });
   }
 
   const rawAnimations = req.body.animations as string | string[] | undefined;
-  const animations    = Array.isArray(rawAnimations) ? rawAnimations
-    : rawAnimations ? [rawAnimations] : ["preset:idle"];
-  const modelVersion  = (req.body.modelVersion as string) ?? "v2.5-20250123";
-  const mimeType: "image/png" | "image/jpeg" =
-    file.mimetype === "image/jpeg" ? "image/jpeg" : "image/png";
+  const animations = Array.isArray(rawAnimations) ? rawAnimations : rawAnimations ? [rawAnimations] : ["preset:idle"];
+  const modelVersion = (req.body.modelVersion as string) ?? "v2.5-20250123";
+  const mimeType: "image/png" | "image/jpeg" = file.mimetype === "image/jpeg" ? "image/jpeg" : "image/png";
 
   // Archive the source image to GCS and create SkinImage record
-  const sourceUrl  = `data:${mimeType};base64,...`; // placeholder — replace with actual origin URL
+  const sourceUrl = `data:${mimeType};base64,...`; // placeholder — replace with actual origin URL
   // If image was generated by AIML, pass the AIML URL instead. For user-uploaded images,
   // upload buffer directly to GCS and use GCS URL as sourceUrl.
-  const imageUrl   = `images/figures/${figureId}/${variantId}/${Date.now()}-source.${mimeType === "image/jpeg" ? "jpg" : "png"}`;
-  const { gcsUrl } = await require("../../integrations/gcs/gcs.service")
-    .uploadBuffer(file.buffer, imageUrl, mimeType);
-  const skinImage  = await skinImageSvc.createSkinImage(variantId, figureId, gcsUrl);
+  const imageUrl = `images/figures/${figureId}/${variantId}/${Date.now()}-source.${mimeType === "image/jpeg" ? "jpg" : "png"}`;
+  const { gcsUrl } = await require("../../integrations/gcs/gcs.service").uploadBuffer(file.buffer, imageUrl, mimeType);
+  const skinImage = await skinImageSvc.createSkinImage(variantId, figureId, gcsUrl);
 
   sseHeaders(res);
   try {
     await runPipeline({
-      imageId:      skinImage.id,
+      imageId: skinImage.id,
       figureId,
-      imageBuffer:  file.buffer,
-      filename:     file.originalname ?? "upload.png",
+      imageBuffer: file.buffer,
+      filename: file.originalname ?? "upload.png",
       mimeType,
       animations,
       modelVersion,
       res,
     });
-  } catch (e) { next(e); } finally { res.end(); }
+  } catch (e) {
+    next(e);
+  } finally {
+    res.end();
+  }
 });
 
 export default router;
@@ -893,36 +896,40 @@ export default router;
 ### 15. Update all routers in `src/server.ts`
 
 ```ts
-import express    from "express";
+import express from "express";
 import cookieParser from "cookie-parser";
-import { env }    from "./config/env";
+import { env } from "./config/env";
 import { prisma } from "./db/client";
 import { errorHandler } from "./middleware/errorHandler";
 
-import figuresRouter    from "./modules/figures/figures.router";
-import skinsRouter      from "./modules/skins/skins.router";
-import variantsRouter   from "./modules/skin-variants/skin-variants.router";
-import imagesRouter     from "./modules/skin-images/skin-images.router";
-import models3dRouter   from "./modules/models3d/models3d.router";
+import figuresRouter from "./modules/figures/figures.router";
+import skinsRouter from "./modules/skins/skins.router";
+import variantsRouter from "./modules/skin-variants/skin-variants.router";
+import imagesRouter from "./modules/skin-images/skin-images.router";
+import models3dRouter from "./modules/models3d/models3d.router";
 import animationsRouter from "./modules/animations/animations.router";
-import pipelineRouter   from "./modules/pipeline/pipeline.router";
+import pipelineRouter from "./modules/pipeline/pipeline.router";
 
 const app = express();
 app.use(cookieParser());
 app.use(express.json());
 
-app.use("/api/figures",                                              figuresRouter);
-app.use("/api/figures/:figureId/skins",                             skinsRouter);
-app.use("/api/figures/:figureId/skins/:skinId/variants",            variantsRouter);
+app.use("/api/figures", figuresRouter);
+app.use("/api/figures/:figureId/skins", skinsRouter);
+app.use("/api/figures/:figureId/skins/:skinId/variants", variantsRouter);
 app.use("/api/figures/:figureId/skins/:skinId/variants/:variantId/images", imagesRouter);
-app.use("/api/models3d/:model3dId/animations",                      animationsRouter);
-app.use("/api/pipeline",                                            pipelineRouter);
+app.use("/api/models3d/:model3dId/animations", animationsRouter);
+app.use("/api/pipeline", pipelineRouter);
 
 app.use(errorHandler);
 
-prisma.$connect()
+prisma
+  .$connect()
   .then(() => app.listen(env.PORT, () => console.log(`Server on :${env.PORT}`)))
-  .catch(err => { console.error("MongoDB connection failed:", err.message); process.exit(1); });
+  .catch((err) => {
+    console.error("MongoDB connection failed:", err.message);
+    process.exit(1);
+  });
 ```
 
 ---
@@ -942,45 +949,46 @@ async function seedVariant(skinId: string, variant: "A" | "B", vData: any) {
   if (!ip) return;
 
   const sv = await prisma.skinVariant.upsert({
-    where:  { skinId_variant: { skinId, variant } },
+    where: { skinId_variant: { skinId, variant } },
     update: {},
     create: {
-      skinId, variant,
-      prompt:         ip.prompt,
+      skinId,
+      variant,
+      prompt: ip.prompt,
       negativePrompt: ip.negativePrompt,
-      imageModel:     ip.model,
+      imageModel: ip.model,
     },
   });
 
-  for (const imgObj of (ip.images ?? [])) {
+  for (const imgObj of ip.images ?? []) {
     const si = await prisma.skinImage.create({
       data: { variantId: sv.id, sourceUrl: imgObj.url, gcsUrl: null },
     });
 
-    for (const m of (imgObj.models3d ?? [])) {
+    for (const m of imgObj.models3d ?? []) {
       const m3 = await prisma.model3D.create({
         data: {
-          imageId:           si.id,
-          status:            m.status ?? "failed",
-          error:             m.error ?? null,
-          meshTaskId:        m.meshTaskId ?? null,
-          prerigTaskId:      m.prerigTaskId ?? null,
-          rigTaskId:         m.rigTaskId ?? null,
+          imageId: si.id,
+          status: m.status ?? "failed",
+          error: m.error ?? null,
+          meshTaskId: m.meshTaskId ?? null,
+          prerigTaskId: m.prerigTaskId ?? null,
+          rigTaskId: m.rigTaskId ?? null,
           pbrModelSourceUrl: m.pbrModelUrl ?? null,
-          modelSourceUrl:    m.modelUrl ?? null,
+          modelSourceUrl: m.modelUrl ?? null,
           // GCS URLs are null for seeded data — Tripo URLs may have expired
         },
       });
 
-      for (const anim of (m.animations ?? [])) {
+      for (const anim of m.animations ?? []) {
         await prisma.animation.create({
           data: {
-            model3dId:      m3.id,
-            animationKey:   anim.animationKey,
+            model3dId: m3.id,
+            animationKey: anim.animationKey,
             retargetTaskId: anim.retargetTaskId ?? null,
-            glbSourceUrl:   anim.glbUrl ?? null,
-            gcsGlbUrl:      null, // original Tripo URLs may be expired
-            status:         anim.status ?? "success",
+            glbSourceUrl: anim.glbUrl ?? null,
+            gcsGlbUrl: null, // original Tripo URLs may be expired
+            status: anim.status ?? "success",
           },
         });
       }
@@ -1002,7 +1010,7 @@ async function main() {
     await seedVariant(baseSkin.id, "B", fig.default?.variantB);
 
     // Named skins
-    for (const sk of (fig.skins ?? [])) {
+    for (const sk of fig.skins ?? []) {
       const skin = await prisma.skin.create({
         data: { figureId: figure.id, name: sk.name, isBase: false },
       });
@@ -1013,10 +1021,13 @@ async function main() {
   console.log("Seed complete");
 }
 
-main().catch(console.error).finally(() => prisma.$disconnect());
+main()
+  .catch(console.error)
+  .finally(() => prisma.$disconnect());
 ```
 
 Add to `package.json`:
+
 ```json
 "prisma": { "seed": "ts-node prisma/seed.ts" }
 ```

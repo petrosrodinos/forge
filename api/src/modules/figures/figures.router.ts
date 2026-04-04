@@ -69,7 +69,7 @@ router.post("/ai-variant", async (req, res, next) => {
   try {
     const schema = z.object({
       description: z.string().min(1),
-      variant: z.enum(["A", "B"]),
+      variant: z.string().min(1),
       context: z
         .object({
           figureName: z.string().optional(),

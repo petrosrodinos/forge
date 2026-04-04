@@ -10,17 +10,17 @@
 
 `src/lib/tokenCosts.ts`:
 
-| Operation | Tokens | Note |
-|-----------|--------|------|
-| `chat` | 1 | Per message round-trip |
-| `image` | 5 | Per AIML generation call |
-| `pipeline` | 20 | Full mesh → rig → animate pipeline |
-| `tripoMesh` | 8 | Mesh-only (no rig/animate) |
-| `animationRetarget` | 5 | Per additional animation on existing model |
-| `video` | 10 | AIML video generation |
-| `tts` | 2 | Text-to-speech |
-| `stt` | 2 | Speech-to-text |
-| `embeddings` | 1 | Embeddings call |
+| Operation           | Tokens | Note                                       |
+| ------------------- | ------ | ------------------------------------------ |
+| `chat`              | 1      | Per message round-trip                     |
+| `image`             | 5      | Per AIML generation call                   |
+| `pipeline`          | 20     | Full mesh → rig → animate pipeline         |
+| `tripoMesh`         | 8      | Mesh-only (no rig/animate)                 |
+| `animationRetarget` | 5      | Per additional animation on existing model |
+| `video`             | 10     | AIML video generation                      |
+| `tts`               | 2      | Text-to-speech                             |
+| `stt`               | 2      | Speech-to-text                             |
+| `embeddings`        | 1      | Embeddings call                            |
 
 ---
 
@@ -55,6 +55,7 @@ npm install stripe
 ```
 
 Add to `.env.example`:
+
 ```
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
@@ -63,6 +64,7 @@ APP_URL=http://localhost:3000
 ```
 
 Extend `src/config/env.ts`:
+
 ```ts
 STRIPE_SECRET_KEY:     z.string().min(1),
 STRIPE_WEBHOOK_SECRET: z.string().min(1),
@@ -91,15 +93,15 @@ File: `src/lib/tokenCosts.ts`
 
 ```ts
 export const TOKEN_COSTS = {
-  chat:              1,
-  image:             5,
-  pipeline:         20,
-  tripoMesh:         8,
+  chat: 1,
+  image: 5,
+  pipeline: 20,
+  tripoMesh: 8,
   animationRetarget: 5,
-  video:            10,
-  tts:               2,
-  stt:               2,
-  embeddings:        1,
+  video: 10,
+  tts: 2,
+  stt: 2,
+  embeddings: 1,
 } as const;
 
 export type TokenOperation = keyof typeof TOKEN_COSTS;
@@ -113,20 +115,20 @@ File: `src/lib/tokenPacks.ts`
 
 ```ts
 export interface TokenPack {
-  id:            string;
-  name:          string;
-  tokens:        number;
-  priceUsd:      number;
-  stripePriceId: string;  // populate after running createStripeProducts script
+  id: string;
+  name: string;
+  tokens: number;
+  priceUsd: number;
+  stripePriceId: string; // populate after running createStripeProducts script
 }
 
 export const TOKEN_PACKS: TokenPack[] = [
-  { id: "starter", name: "Starter", tokens: 100,  priceUsd: 5,  stripePriceId: "" },
-  { id: "creator", name: "Creator", tokens: 500,  priceUsd: 20, stripePriceId: "" },
-  { id: "studio",  name: "Studio",  tokens: 1500, priceUsd: 50, stripePriceId: "" },
+  { id: "starter", name: "Starter", tokens: 100, priceUsd: 5, stripePriceId: "" },
+  { id: "creator", name: "Creator", tokens: 500, priceUsd: 20, stripePriceId: "" },
+  { id: "studio", name: "Studio", tokens: 1500, priceUsd: 50, stripePriceId: "" },
 ];
 
-export const getPackById = (id: string) => TOKEN_PACKS.find(p => p.id === id);
+export const getPackById = (id: string) => TOKEN_PACKS.find((p) => p.id === id);
 ```
 
 ---
@@ -142,11 +144,14 @@ import { TOKEN_PACKS } from "../lib/tokenPacks";
 async function main() {
   for (const pack of TOKEN_PACKS) {
     const product = await stripe.products.create({
-      name: pack.name, description: `${pack.tokens} tokens`,
+      name: pack.name,
+      description: `${pack.tokens} tokens`,
     });
     const price = await stripe.prices.create({
-      product: product.id, unit_amount: pack.priceUsd * 100,
-      currency: "usd", lookup_key: pack.id,
+      product: product.id,
+      unit_amount: pack.priceUsd * 100,
+      currency: "usd",
+      lookup_key: pack.id,
     });
     console.log(`${pack.id}: "${price.id}"`);
   }
@@ -200,15 +205,18 @@ export function requireTokens(operation: TokenOperation) {
     try {
       await prisma.user.update({
         where: { id: req.userId, tokenBalance: { gte: cost } },
-        data:  { tokenBalance: { decrement: cost } },
+        data: { tokenBalance: { decrement: cost } },
       });
       next();
     } catch {
       const user = await prisma.user.findUnique({
-        where: { id: req.userId }, select: { tokenBalance: true },
+        where: { id: req.userId },
+        select: { tokenBalance: true },
       });
       res.status(402).json({
-        error: "Insufficient tokens", required: cost, balance: user?.tokenBalance ?? 0,
+        error: "Insufficient tokens",
+        required: cost,
+        balance: user?.tokenBalance ?? 0,
       });
     }
   };
@@ -222,11 +230,19 @@ export function requireTokens(operation: TokenOperation) {
 File: `src/modules/billing/billing.types.ts`
 
 ```ts
-export interface CheckoutInput  { packId: string }
-export interface PurchaseRecord {
-  id: string; packId: string; tokens: number; amountCents: number; createdAt: string;
+export interface CheckoutInput {
+  packId: string;
 }
-export interface BalanceResponse { balance: number }
+export interface PurchaseRecord {
+  id: string;
+  packId: string;
+  tokens: number;
+  amountCents: number;
+  createdAt: string;
+}
+export interface BalanceResponse {
+  balance: number;
+}
 ```
 
 ---
@@ -237,21 +253,29 @@ File: `src/modules/billing/billing.service.ts`
 
 ```ts
 import { stripe } from "../../integrations/stripe/stripe.client";
-import { prisma } from "../../db/client";
+import { prisma } from "../../integrations/db/client";
 import { env } from "../../config/env";
 import { getPackById, TOKEN_PACKS } from "../../lib/tokenPacks";
 
 export async function createCheckoutSession(userId: string, packId: string) {
   const pack = getPackById(packId);
-  if (!pack) { const e = new Error("Invalid pack"); (e as any).status = 400; throw e; }
-  if (!pack.stripePriceId) { const e = new Error("Pack not configured"); (e as any).status = 500; throw e; }
+  if (!pack) {
+    const e = new Error("Invalid pack");
+    (e as any).status = 400;
+    throw e;
+  }
+  if (!pack.stripePriceId) {
+    const e = new Error("Pack not configured");
+    (e as any).status = 500;
+    throw e;
+  }
 
   const session = await stripe.checkout.sessions.create({
-    mode:       "payment",
+    mode: "payment",
     line_items: [{ price: pack.stripePriceId, quantity: 1 }],
-    success_url:`${env.APP_URL}/billing?success=1`,
+    success_url: `${env.APP_URL}/billing?success=1`,
     cancel_url: `${env.APP_URL}/billing?cancelled=1`,
-    metadata:   { userId, packId: pack.id, tokens: String(pack.tokens) },
+    metadata: { userId, packId: pack.id, tokens: String(pack.tokens) },
   });
   return { url: session.url };
 }
@@ -265,19 +289,13 @@ export async function getPurchaseHistory(userId: string) {
   return prisma.tokenPurchase.findMany({ where: { userId }, orderBy: { createdAt: "desc" }, take: 50 });
 }
 
-export const getTokenPacks = () =>
-  TOKEN_PACKS.map(({ id, name, tokens, priceUsd }) => ({ id, name, tokens, priceUsd }));
+export const getTokenPacks = () => TOKEN_PACKS.map(({ id, name, tokens, priceUsd }) => ({ id, name, tokens, priceUsd }));
 
 /** Called by webhook — idempotent via stripeSessionId unique index */
-export async function creditTokensFromWebhook(
-  userId: string, packId: string, tokens: number, amountCents: number, stripeSessionId: string,
-) {
+export async function creditTokensFromWebhook(userId: string, packId: string, tokens: number, amountCents: number, stripeSessionId: string) {
   if (await prisma.tokenPurchase.findUnique({ where: { stripeSessionId } })) return;
 
-  await prisma.$transaction([
-    prisma.user.update({ where: { id: userId }, data: { tokenBalance: { increment: tokens } } }),
-    prisma.tokenPurchase.create({ data: { userId, packId, tokens, amountCents, stripeSessionId } }),
-  ]);
+  await prisma.$transaction([prisma.user.update({ where: { id: userId }, data: { tokenBalance: { increment: tokens } } }), prisma.tokenPurchase.create({ data: { userId, packId, tokens, amountCents, stripeSessionId } })]);
 }
 ```
 
@@ -294,21 +312,36 @@ import * as billing from "./billing.service";
 
 const router = Router();
 
-router.get("/packs",    async (_req, res, next) => {
-  try { res.json(billing.getTokenPacks()); } catch (e) { next(e); }
+router.get("/packs", async (_req, res, next) => {
+  try {
+    res.json(billing.getTokenPacks());
+  } catch (e) {
+    next(e);
+  }
 });
 
 router.post("/checkout", requireAuth, async (req, res, next) => {
-  try { res.json(await billing.createCheckoutSession(req.userId, req.body.packId)); }
-  catch (e) { next(e); }
+  try {
+    res.json(await billing.createCheckoutSession(req.userId, req.body.packId));
+  } catch (e) {
+    next(e);
+  }
 });
 
-router.get("/balance",  requireAuth, async (req, res, next) => {
-  try { res.json(await billing.getBalance(req.userId)); } catch (e) { next(e); }
+router.get("/balance", requireAuth, async (req, res, next) => {
+  try {
+    res.json(await billing.getBalance(req.userId));
+  } catch (e) {
+    next(e);
+  }
 });
 
-router.get("/history",  requireAuth, async (req, res, next) => {
-  try { res.json(await billing.getPurchaseHistory(req.userId)); } catch (e) { next(e); }
+router.get("/history", requireAuth, async (req, res, next) => {
+  try {
+    res.json(await billing.getPurchaseHistory(req.userId));
+  } catch (e) {
+    next(e);
+  }
 });
 
 export default router;
@@ -332,37 +365,30 @@ import { creditTokensFromWebhook } from "../../modules/billing/billing.service";
 
 const router = Router();
 
-router.post(
-  "/stripe/webhook",
-  express.raw({ type: "application/json" }),
-  async (req, res) => {
-    const sig = req.headers["stripe-signature"] as string;
+router.post("/stripe/webhook", express.raw({ type: "application/json" }), async (req, res) => {
+  const sig = req.headers["stripe-signature"] as string;
 
-    let event: Stripe.Event;
+  let event: Stripe.Event;
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, env.STRIPE_WEBHOOK_SECRET);
+  } catch (err) {
+    return res.status(400).send(`Webhook error: ${(err as Error).message}`);
+  }
+
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object as Stripe.Checkout.Session;
+    const { userId, packId, tokens } = session.metadata!;
+
     try {
-      event = stripe.webhooks.constructEvent(req.body, sig, env.STRIPE_WEBHOOK_SECRET);
+      await creditTokensFromWebhook(userId, packId, parseInt(tokens, 10), session.amount_total ?? 0, session.id);
     } catch (err) {
-      return res.status(400).send(`Webhook error: ${(err as Error).message}`);
+      console.error("Webhook processing error:", err);
+      return res.status(500).json({ error: "Failed to credit tokens" });
     }
+  }
 
-    if (event.type === "checkout.session.completed") {
-      const session = event.data.object as Stripe.Checkout.Session;
-      const { userId, packId, tokens } = session.metadata!;
-
-      try {
-        await creditTokensFromWebhook(
-          userId, packId, parseInt(tokens, 10),
-          session.amount_total ?? 0, session.id,
-        );
-      } catch (err) {
-        console.error("Webhook processing error:", err);
-        return res.status(500).json({ error: "Failed to credit tokens" });
-      }
-    }
-
-    res.json({ received: true });
-  },
-);
+  res.json({ received: true });
+});
 
 export default router;
 ```
@@ -373,8 +399,8 @@ export default router;
 
 ```ts
 import stripeWebhookRouter from "./integrations/stripe/stripe.webhook.router";
-import billingRouter       from "./modules/billing/billing.router";
-import { requireTokens }   from "./middleware/requireTokens";
+import billingRouter from "./modules/billing/billing.router";
+import { requireTokens } from "./middleware/requireTokens";
 
 // MUST be before express.json()
 app.use("/api", stripeWebhookRouter);
@@ -385,9 +411,9 @@ app.use(express.json());
 app.use("/api/billing", billingRouter);
 
 // Token-gated routes
-app.post("/api/chat",           requireAuth, requireTokens("chat"),      chatRouter);
-app.post("/api/image-gen",      requireAuth, requireTokens("image"),     imageGenRouter);
-app.post("/api/pipeline",       requireAuth, requireTokens("pipeline"),  pipelineRouter);
+app.post("/api/chat", requireAuth, requireTokens("chat"), chatRouter);
+app.post("/api/image-gen", requireAuth, requireTokens("image"), imageGenRouter);
+app.post("/api/pipeline", requireAuth, requireTokens("pipeline"), pipelineRouter);
 // Additional animation retargeting on an existing model (cheaper than full pipeline)
 app.post("/api/models3d/:id/animate", requireAuth, requireTokens("animationRetarget"), animateRouter);
 ```
@@ -410,21 +436,27 @@ stripe trigger checkout.session.completed
 Complete the stub from Phase 03.
 
 **`features/billing/api.ts`**:
+
 ```ts
-export const getBalance  = ()         => apiFetch<{ balance: number }>("/api/billing/balance");
-export const getPacks    = ()         => apiFetch<TokenPack[]>("/api/billing/packs");
-export const getHistory  = ()         => apiFetch<PurchaseRecord[]>("/api/billing/history");
-export const checkout    = (packId: string) =>
-  apiFetch<{ url: string }>("/api/billing/checkout", { method:"POST", ...json({ packId }) });
+export const getBalance = () => apiFetch<{ balance: number }>("/api/billing/balance");
+export const getPacks = () => apiFetch<TokenPack[]>("/api/billing/packs");
+export const getHistory = () => apiFetch<PurchaseRecord[]>("/api/billing/history");
+export const checkout = (packId: string) => apiFetch<{ url: string }>("/api/billing/checkout", { method: "POST", ...json({ packId }) });
 ```
 
 **`features/billing/hooks/useBilling.ts`**:
+
 ```ts
 export function useBalance() {
-  return useQuery({ queryKey: ["billing","balance"], queryFn: getBalance, refetchInterval: 30_000 });
+  return useQuery({ queryKey: ["billing", "balance"], queryFn: getBalance, refetchInterval: 30_000 });
 }
 export function useCheckout() {
-  return useMutation({ mutationFn: checkout, onSuccess: ({ url }) => { window.location.href = url; } });
+  return useMutation({
+    mutationFn: checkout,
+    onSuccess: ({ url }) => {
+      window.location.href = url;
+    },
+  });
 }
 ```
 
@@ -438,6 +470,7 @@ On return from Stripe (`/billing?success=1`): show a toast + invalidate balance 
 On `/billing?cancelled=1`: show a neutral toast "Purchase cancelled".
 
 **`app/layout/TopBar.tsx`** — token balance display:
+
 ```tsx
 const { data } = useBalance();
 <span className="font-mono text-accent-light">{data?.balance ?? "—"} tokens</span>

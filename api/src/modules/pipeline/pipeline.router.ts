@@ -5,7 +5,7 @@ import { runPipeline } from "./pipeline.service";
 import { runAnimations } from "./animate.service";
 import { TRIPO_CONFIG } from "../tripo/config/tripo.config";
 import { PIPELINE_CONFIG } from "./config/pipeline.config";
-import { prisma } from "../../db/client";
+import { prisma } from "../../integrations/db/client";
 
 const upload = multer({ storage: multer.memoryStorage() });
 const router = Router();
@@ -14,7 +14,7 @@ const router = Router();
 // Body (multipart): (image file OR imageId), variantId, figureId, modelVersion
 router.post("/mesh", upload.single("image"), async (req, res, next) => {
   const variantId = req.body.variantId as string | undefined;
-  const figureId  = req.body.figureId  as string | undefined;
+  const figureId = req.body.figureId as string | undefined;
 
   if (!variantId || !figureId) {
     return res.status(400).json({ error: "variantId and figureId are required" });
@@ -30,8 +30,8 @@ router.post("/mesh", upload.single("image"), async (req, res, next) => {
 
   if (req.file) {
     imageBuffer = req.file.buffer;
-    filename    = req.file.originalname ?? "upload.png";
-    mimeType    = req.file.mimetype === "image/jpeg" ? "image/jpeg" : "image/png";
+    filename = req.file.originalname ?? "upload.png";
+    mimeType = req.file.mimetype === "image/jpeg" ? "image/jpeg" : "image/png";
   } else {
     const imageId = req.body.imageId as string | undefined;
     if (!imageId) {
@@ -47,8 +47,8 @@ router.post("/mesh", upload.single("image"), async (req, res, next) => {
 
     imageBuffer = Buffer.from(await fetchRes.arrayBuffer());
     const isJpeg = url.match(/\.jpe?g(\?|$)/i);
-    mimeType    = isJpeg ? "image/jpeg" : "image/png";
-    filename    = url.split("/").pop()?.split("?")[0] ?? `image.${mimeType === "image/jpeg" ? "jpg" : "png"}`;
+    mimeType = isJpeg ? "image/jpeg" : "image/png";
+    filename = url.split("/").pop()?.split("?")[0] ?? `image.${mimeType === "image/jpeg" ? "jpg" : "png"}`;
     skinImageId = imageId;
   }
 

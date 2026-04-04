@@ -112,7 +112,7 @@ export const OPEN_API_DOCUMENT = {
         type: "object",
         properties: {
           description: { type: "string" },
-          variant: { type: "string", enum: ["A", "B"] },
+          variant: { type: "string", description: "Human-readable variant label (e.g. saved display name)" },
           context: { type: "object", additionalProperties: true },
           availableModels: {
             type: "array",

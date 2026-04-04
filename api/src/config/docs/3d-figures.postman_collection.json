@@ -395,7 +395,7 @@
             "url": { "raw": "{{baseUrl}}/api/figures/ai-variant", "host": ["{{baseUrl}}"], "path": ["api", "figures", "ai-variant"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"description\": \"A powerful warrior\",\n  \"variant\": \"A\",\n  \"context\": {},\n  \"availableModels\": [\n    { \"id\": \"flux/schnell\", \"label\": \"Flux Schnell\" }\n  ]\n}"
+              "raw": "{\n  \"description\": \"A powerful warrior\",\n  \"variant\": \"Hero armor\",\n  \"context\": {},\n  \"availableModels\": [\n    { \"id\": \"flux/schnell\", \"label\": \"Flux Schnell\" }\n  ]\n}"
             }
           }
         }

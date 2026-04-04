@@ -1,10 +1,9 @@
-import fs from "fs/promises";
 import { getAiml } from "../../services";
 import { IMAGES_CONFIG } from "./config/images.config";
+import { ImageModels } from "../../config/models/image-models";
 
 export async function listImageModels() {
-  const raw = await fs.readFile(IMAGES_CONFIG.IMAGE_MODELS_PATH, "utf-8");
-  return JSON.parse(raw);
+  return ImageModels.filter(model => model.available);
 }
 
 export async function generateImage(input: {

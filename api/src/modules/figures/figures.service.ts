@@ -1,4 +1,4 @@
-import { prisma } from "../../db/client";
+import { prisma } from "../../integrations/db/client";
 import { agentModel, getAiml } from "../../services";
 import * as skinImageSvc from "../skin-images/skin-images.service";
 
@@ -22,7 +22,7 @@ import {
   buildAiVariantUserPrompt,
   HUMAN_RIG_GUIDANCE,
   OBJECT_RIG_GUIDANCE,
-} from "../../ai-prompts/figures/aiVariant.prompts";
+} from "../../config/ai-prompts/figures/aiVariant.prompts";
 
 /** Sentinel userId for seeded template figures */
 export const SEED_USER_ID = "000000000000000000000000";

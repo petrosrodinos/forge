@@ -9,10 +9,10 @@
 
 ## New collections added this phase
 
-| Collection | Note |
-|-----------|------|
-| `users` | Email, bcrypt password hash, token balance |
-| `refresh_tokens` | One per session, rotated on each use |
+| Collection       | Note                                       |
+| ---------------- | ------------------------------------------ |
+| `users`          | Email, bcrypt password hash, token balance |
+| `refresh_tokens` | One per session, rotated on each use       |
 
 All existing collections gain a `userId` field (added to `Figure` only — lower collections are already scoped via cascade FKs).
 
@@ -52,6 +52,7 @@ npm install --save-dev @types/bcryptjs @types/jsonwebtoken @types/cookie-parser
 ### 2. Extend env schema
 
 `src/config/env.ts` — add to Zod schema:
+
 ```ts
 JWT_ACCESS_SECRET:     z.string().min(32),
 JWT_REFRESH_SECRET:    z.string().min(32),
@@ -60,6 +61,7 @@ JWT_REFRESH_EXPIRES_IN:z.string().default("7d"),
 ```
 
 `.env.example`:
+
 ```
 JWT_ACCESS_SECRET=<node -e "console.log(require('crypto').randomBytes(64).toString('hex'))">
 JWT_REFRESH_SECRET=<same command>
@@ -120,23 +122,24 @@ File: `src/lib/jwt.ts`
 import jwt from "jsonwebtoken";
 import { env } from "../config/env";
 
-export interface AccessPayload  { sub: string; email: string }
-export interface RefreshPayload { sub: string }
+export interface AccessPayload {
+  sub: string;
+  email: string;
+}
+export interface RefreshPayload {
+  sub: string;
+}
 
-export const ACCESS_TTL  = 15 * 60;
+export const ACCESS_TTL = 15 * 60;
 export const REFRESH_TTL = 7 * 24 * 60 * 60;
 
-export const signAccessToken  = (p: AccessPayload)  =>
-  jwt.sign(p, env.JWT_ACCESS_SECRET,  { expiresIn: env.JWT_ACCESS_EXPIRES_IN });
+export const signAccessToken = (p: AccessPayload) => jwt.sign(p, env.JWT_ACCESS_SECRET, { expiresIn: env.JWT_ACCESS_EXPIRES_IN });
 
-export const signRefreshToken = (p: RefreshPayload) =>
-  jwt.sign(p, env.JWT_REFRESH_SECRET, { expiresIn: env.JWT_REFRESH_EXPIRES_IN });
+export const signRefreshToken = (p: RefreshPayload) => jwt.sign(p, env.JWT_REFRESH_SECRET, { expiresIn: env.JWT_REFRESH_EXPIRES_IN });
 
-export const verifyAccessToken  = (t: string) =>
-  jwt.verify(t, env.JWT_ACCESS_SECRET)  as AccessPayload;
+export const verifyAccessToken = (t: string) => jwt.verify(t, env.JWT_ACCESS_SECRET) as AccessPayload;
 
-export const verifyRefreshToken = (t: string) =>
-  jwt.verify(t, env.JWT_REFRESH_SECRET) as RefreshPayload;
+export const verifyRefreshToken = (t: string) => jwt.verify(t, env.JWT_REFRESH_SECRET) as RefreshPayload;
 
 export function cookieOptions(maxAgeSec: number): import("express").CookieOptions {
   return { httpOnly: true, secure: env.NODE_ENV === "production", sameSite: "lax", maxAge: maxAgeSec * 1000 };
@@ -155,7 +158,10 @@ import { verifyAccessToken } from "../lib/jwt";
 
 declare global {
   namespace Express {
-    interface Request { userId: string; userEmail: string }
+    interface Request {
+      userId: string;
+      userEmail: string;
+    }
   }
 }
 
@@ -163,9 +169,9 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
   const token = req.cookies?.access_token;
   if (!token) return res.status(401).json({ error: "Unauthorized" });
   try {
-    const p      = verifyAccessToken(token);
-    req.userId   = p.sub;
-    req.userEmail= p.email;
+    const p = verifyAccessToken(token);
+    req.userId = p.sub;
+    req.userEmail = p.email;
     next();
   } catch {
     res.status(401).json({ error: "Token expired or invalid" });
@@ -180,19 +186,16 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
 File: `src/modules/users/users.service.ts`
 
 ```ts
-import { prisma } from "../../db/client";
+import { prisma } from "../../integrations/db/client";
 
-export const findUserById    = (id: string)    => prisma.user.findUnique({ where: { id } });
+export const findUserById = (id: string) => prisma.user.findUnique({ where: { id } });
 export const findUserByEmail = (email: string) => prisma.user.findUnique({ where: { email } });
 
-export const createUser = (data: { email: string; passwordHash: string; displayName?: string }) =>
-  prisma.user.create({ data });
+export const createUser = (data: { email: string; passwordHash: string; displayName?: string }) => prisma.user.create({ data });
 
-export const incrementBalance = (userId: string, amount: number) =>
-  prisma.user.update({ where: { id: userId }, data: { tokenBalance: { increment: amount } } });
+export const incrementBalance = (userId: string, amount: number) => prisma.user.update({ where: { id: userId }, data: { tokenBalance: { increment: amount } } });
 
-export const decrementBalance = (userId: string, amount: number) =>
-  prisma.user.update({ where: { id: userId }, data: { tokenBalance: { decrement: amount } } });
+export const decrementBalance = (userId: string, amount: number) => prisma.user.update({ where: { id: userId }, data: { tokenBalance: { decrement: amount } } });
 ```
 
 ---
@@ -203,23 +206,22 @@ File: `src/modules/auth/auth.service.ts`
 
 ```ts
 import bcrypt from "bcryptjs";
-import { prisma } from "../../db/client";
+import { prisma } from "../../integrations/db/client";
 import * as users from "../users/users.service";
 import * as figures from "../figures/figures.service";
-import {
-  signAccessToken, signRefreshToken, verifyRefreshToken,
-  REFRESH_TTL, ACCESS_TTL,
-} from "../../lib/jwt";
+import { signAccessToken, signRefreshToken, verifyRefreshToken, REFRESH_TTL, ACCESS_TTL } from "../../lib/jwt";
 
 interface AuthResult {
-  user:         { id: string; email: string; displayName: string | null };
-  accessToken:  string;
+  user: { id: string; email: string; displayName: string | null };
+  accessToken: string;
   refreshToken: string;
 }
 
 export async function register(email: string, password: string, displayName?: string): Promise<AuthResult> {
   if (await users.findUserByEmail(email)) {
-    const e = new Error("Email already in use"); (e as any).status = 409; throw e;
+    const e = new Error("Email already in use");
+    (e as any).status = 409;
+    throw e;
   }
   const passwordHash = await bcrypt.hash(password, 12);
   const user = await users.createUser({ email, passwordHash, displayName });
@@ -231,16 +233,22 @@ export async function register(email: string, password: string, displayName?: st
 }
 
 export async function login(email: string, password: string): Promise<AuthResult> {
-  const user  = await users.findUserByEmail(email);
-  const valid = user && await bcrypt.compare(password, user.passwordHash);
-  if (!valid) { const e = new Error("Invalid credentials"); (e as any).status = 401; throw e; }
+  const user = await users.findUserByEmail(email);
+  const valid = user && (await bcrypt.compare(password, user.passwordHash));
+  if (!valid) {
+    const e = new Error("Invalid credentials");
+    (e as any).status = 401;
+    throw e;
+  }
   return issueTokens(user!);
 }
 
 export async function refresh(rawToken: string): Promise<AuthResult> {
   const stored = await prisma.refreshToken.findUnique({ where: { token: rawToken } });
   if (!stored || stored.expiresAt < new Date()) {
-    const e = new Error("Invalid or expired refresh token"); (e as any).status = 401; throw e;
+    const e = new Error("Invalid or expired refresh token");
+    (e as any).status = 401;
+    throw e;
   }
   verifyRefreshToken(rawToken);
   await prisma.refreshToken.delete({ where: { id: stored.id } });
@@ -253,7 +261,7 @@ export async function logout(rawToken: string) {
 }
 
 async function issueTokens(user: { id: string; email: string; displayName: string | null }): Promise<AuthResult> {
-  const accessToken  = signAccessToken({ sub: user.id, email: user.email });
+  const accessToken = signAccessToken({ sub: user.id, email: user.email });
   const refreshToken = signRefreshToken({ sub: user.id });
   await prisma.refreshToken.create({
     data: { token: refreshToken, userId: user.id, expiresAt: new Date(Date.now() + REFRESH_TTL * 1000) },
@@ -278,7 +286,7 @@ import { cookieOptions, ACCESS_TTL, REFRESH_TTL } from "../../lib/jwt";
 const router = Router();
 
 const setCookies = (res: import("express").Response, a: string, r: string) => {
-  res.cookie("access_token",  a, cookieOptions(ACCESS_TTL));
+  res.cookie("access_token", a, cookieOptions(ACCESS_TTL));
   res.cookie("refresh_token", r, cookieOptions(REFRESH_TTL));
 };
 
@@ -288,7 +296,9 @@ router.post("/register", async (req, res, next) => {
     const result = await auth.register(email, password, displayName);
     setCookies(res, result.accessToken, result.refreshToken);
     res.status(201).json({ user: result.user });
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 });
 
 router.post("/login", async (req, res, next) => {
@@ -296,7 +306,9 @@ router.post("/login", async (req, res, next) => {
     const result = await auth.login(req.body.email, req.body.password);
     setCookies(res, result.accessToken, result.refreshToken);
     res.json({ user: result.user });
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 });
 
 router.post("/refresh", async (req, res, next) => {
@@ -306,7 +318,9 @@ router.post("/refresh", async (req, res, next) => {
     const result = await auth.refresh(token);
     setCookies(res, result.accessToken, result.refreshToken);
     res.json({ ok: true });
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 });
 
 router.post("/logout", async (req, res, next) => {
@@ -315,7 +329,9 @@ router.post("/logout", async (req, res, next) => {
     res.clearCookie("access_token");
     res.clearCookie("refresh_token");
     res.json({ ok: true });
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 });
 
 router.get("/me", requireAuth, async (req, res, next) => {
@@ -323,7 +339,9 @@ router.get("/me", requireAuth, async (req, res, next) => {
     const user = await findUserById(req.userId);
     if (!user) return res.status(404).json({ error: "Not found" });
     res.json({ id: user.id, email: user.email, displayName: user.displayName, tokenBalance: user.tokenBalance });
-  } catch (e) { next(e); }
+  } catch (e) {
+    next(e);
+  }
 });
 
 export default router;
@@ -345,7 +363,12 @@ export async function listFigures(userId: string) {
 }
 
 export async function getFigureById(userId: string, id: string) {
-  return prisma.figure.findFirst({ where: { id, userId }, include: { /* full hierarchy */ } });
+  return prisma.figure.findFirst({
+    where: { id, userId },
+    include: {
+      /* full hierarchy */
+    },
+  });
 }
 
 export async function createFigure(userId: string, input: CreateFigureInput) {
@@ -354,7 +377,11 @@ export async function createFigure(userId: string, input: CreateFigureInput) {
 
 export async function deleteFigure(userId: string, id: string) {
   const fig = await prisma.figure.findFirst({ where: { id, userId } });
-  if (!fig) { const e = new Error("Not found"); (e as any).status = 404; throw e; }
+  if (!fig) {
+    const e = new Error("Not found");
+    (e as any).status = 404;
+    throw e;
+  }
   // Also delete all GCS assets in the cascade tree before removing DB records
   // See: deleteGcsAssetsForFigure() helper — queries all animations/models under figure
   return prisma.figure.delete({ where: { id } });
@@ -363,7 +390,7 @@ export async function deleteFigure(userId: string, id: string) {
 /** Template figures are seeded under a dedicated "seed" user — copy on new user registration */
 export async function copyTemplateFigures(userId: string) {
   const templates = await prisma.figure.findMany({
-    where:   { userId: "000000000000000000000000" }, // seed userId constant
+    where: { userId: "000000000000000000000000" }, // seed userId constant
     include: { skins: { include: { variants: { include: { images: { include: { models: { include: { animations: true } } } } } } } } },
   });
 
@@ -419,10 +446,10 @@ import authRouter from "./modules/auth/auth.router";
 import { requireAuth } from "./middleware/requireAuth";
 
 app.use(cookieParser());
-app.use("/api/auth", authRouter);   // public
+app.use("/api/auth", authRouter); // public
 
-app.use("/api/figures",     requireAuth, figuresRouter);
-app.use("/api/pipeline",    requireAuth, pipelineRouter);
+app.use("/api/figures", requireAuth, figuresRouter);
+app.use("/api/pipeline", requireAuth, pipelineRouter);
 // all other /api routes...
 ```
 

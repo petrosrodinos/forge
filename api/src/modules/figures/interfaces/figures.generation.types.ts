@@ -21,7 +21,8 @@ export interface AiVariantContext {
 
 export interface GenerateAiVariantInput {
   description: string;
-  variant: "A" | "B";
+  /** Human-readable variant label (e.g. saved display name), not necessarily the internal A/B code */
+  variant: string;
   context?: AiVariantContext;
   availableModels?: Array<{ id: string; label?: string }>;
 }

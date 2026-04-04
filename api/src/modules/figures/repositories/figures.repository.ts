@@ -1,4 +1,4 @@
-import { prisma } from "../../../db/client";
+import { prisma } from "../../../integrations/db/client";
 import type { CreateFigureInput, UpdateFigureInput } from "../interfaces/figures.types";
 import { isObjectIdLike } from "../helpers/objectIdLike.helper";
 

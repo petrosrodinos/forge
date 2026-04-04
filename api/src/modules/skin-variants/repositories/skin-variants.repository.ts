@@ -1,4 +1,4 @@
-import { prisma } from "../../../db/client";
+import { prisma } from "../../../integrations/db/client";
 import type { CreateVariantInput, UpsertVariantInput } from "../interfaces/skin-variants.types";
 
 export async function upsertVariant(skinId: string, input: UpsertVariantInput) {

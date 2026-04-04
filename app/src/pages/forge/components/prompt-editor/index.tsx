@@ -36,18 +36,19 @@ export function PromptEditor({
 
   function handleAiGenerate() {
     if (!aiDescription.trim()) return;
+    const variantLabel = variant.name?.trim() || `Variant ${variant.variant}`;
     generateAiPrompt.mutate(
       {
         description: aiDescription.trim(),
-        variant: variant.variant,
+        variant: variantLabel,
         availableModels: IMAGE_MODELS.map((m) => ({ id: m.id, label: m.label })),
         context: {
           figureType,
           figureName,
           skinName: skinName?.trim() || undefined,
-          existingModel: variant.imageModel,
-          existingPrompt: variant.prompt,
-          existingNegPrompt: variant.negativePrompt,
+          existingModel: model || null,
+          existingPrompt: prompt.trim() ? prompt : null,
+          existingNegPrompt: negPrompt.trim() ? negPrompt : null,
         },
       },
       {

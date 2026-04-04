@@ -1,4 +1,4 @@
-import { prisma } from "../../../db/client";
+import { prisma } from "../../../integrations/db/client";
 
 export async function createSkinImageRecord(variantId: string, figureId: string, sourceUrl: string) {
   return prisma.skinImage.create({
