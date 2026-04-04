@@ -15,11 +15,14 @@ import type { SkinVariant, SkinImage } from "@/interfaces";
 interface VariantPanelProps {
   variant: SkinVariant;
   figureId: string;
+  figureType: string;
+  figureName: string;
+  skinName: string | null;
 }
 
 type Section = "generate" | "upload";
 
-export function VariantPanel({ variant, figureId }: VariantPanelProps) {
+export function VariantPanel({ variant, figureId, figureType, figureName, skinName }: VariantPanelProps) {
   const qc = useQueryClient();
   const { selectedImage, setSelectedImage } = useForgeStore();
   const [name, setName] = useState(variant.name ?? "");
@@ -116,7 +119,13 @@ export function VariantPanel({ variant, figureId }: VariantPanelProps) {
 
       <div className="px-4 py-4 border-b border-border">
         {activeSection === "generate" && (
-          <PromptEditor variant={variant} figureId={figureId} />
+          <PromptEditor
+            variant={variant}
+            figureId={figureId}
+            figureType={figureType}
+            figureName={figureName}
+            skinName={skinName}
+          />
         )}
         {activeSection === "upload" && (
           <div className="flex flex-col gap-3">

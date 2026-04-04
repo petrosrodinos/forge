@@ -50,9 +50,9 @@ export function ImageCard({ image, isRunning, onRunPipeline, onSelect, onDelete,
         </div>
 
         <div className="bg-panel px-2 pt-1.5 pb-2 flex flex-col gap-1">
-          <div className="flex items-center justify-between">
-            <Badge status={status} />
-            <span className="text-[10px] text-slate-500">{image.models.length} models</span>
+          <div className="flex items-center gap-2">
+            {status !== "success" && <Badge status={status} />}
+            <span className="text-[10px] text-slate-500 ml-auto">{image.models.length} models</span>
           </div>
           <div className="flex items-center justify-between">
             <Button

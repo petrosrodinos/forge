@@ -26,10 +26,21 @@ export async function deleteVariant(figureId: string, skinId: string, variantId:
   });
 }
 
+export type GenerateAiPromptContext = {
+  figureName?: string;
+  figureType?: string;
+  skinName?: string;
+  existingModel?: string | null;
+  existingPrompt?: string | null;
+  existingNegPrompt?: string | null;
+  otherVariantPrompt?: string | null;
+};
+
 export async function generateAiPrompt(dto: {
   description: string;
   variant: string;
   availableModels: { id: string; label: string }[];
+  context?: GenerateAiPromptContext;
 }): Promise<{ prompt: string; negativePrompt?: string; model?: string }> {
   return apiFetch("/api/figures/ai-variant", { method: "POST", ...jsonInit(dto) });
 }

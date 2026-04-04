@@ -172,7 +172,12 @@ export default function ForgePage() {
                     </button>
                   </div>
                 ) : activeSkin ? (
-                  <SkinPanel skin={activeSkin} figureId={activeFigure.id} />
+                  <SkinPanel
+                    skin={activeSkin}
+                    figureId={activeFigure.id}
+                    figureType={activeFigure.type}
+                    figureName={activeFigure.name}
+                  />
                 ) : null}
               </div>
             </>

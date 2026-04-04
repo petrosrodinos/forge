@@ -5,6 +5,7 @@ import {
   deleteVariant,
   generateAiPrompt,
   generateImage,
+  type GenerateAiPromptContext,
 } from "@/features/skin-variants/services/skin-variants.services";
 
 export function useCreateVariant() {
@@ -49,6 +50,7 @@ export function useGenerateAiPrompt() {
       description: string;
       variant: string;
       availableModels: { id: string; label: string }[];
+      context?: GenerateAiPromptContext;
     }) => generateAiPrompt(dto),
   });
 }

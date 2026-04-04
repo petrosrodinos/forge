@@ -9,9 +9,11 @@ import type { Skin, SkinVariant } from "@/interfaces";
 interface SkinPanelProps {
   skin: Skin;
   figureId: string;
+  figureType: string;
+  figureName: string;
 }
 
-export function SkinPanel({ skin, figureId }: SkinPanelProps) {
+export function SkinPanel({ skin, figureId, figureType, figureName }: SkinPanelProps) {
   const [activeVariantId, setActiveVariantId] = useState<string | null>(
     skin.variants[0]?.id ?? null,
   );
@@ -107,7 +109,13 @@ export function SkinPanel({ skin, figureId }: SkinPanelProps) {
 
         <div className="flex-1 overflow-hidden">
           {activeVariant ? (
-            <VariantPanel variant={activeVariant} figureId={figureId} />
+            <VariantPanel
+              variant={activeVariant}
+              figureId={figureId}
+              figureType={figureType}
+              figureName={figureName}
+              skinName={skin.name}
+            />
           ) : null}
         </div>
       </div>

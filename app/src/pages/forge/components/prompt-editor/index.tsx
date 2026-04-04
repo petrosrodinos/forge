@@ -10,10 +10,20 @@ import type { SkinVariant } from "@/interfaces";
 interface PromptEditorProps {
   variant: SkinVariant;
   figureId: string;
+  figureType: string;
+  figureName?: string;
+  skinName?: string | null;
   onImageGenerated?: () => void;
 }
 
-export function PromptEditor({ variant, figureId, onImageGenerated }: PromptEditorProps) {
+export function PromptEditor({
+  variant,
+  figureId,
+  figureType,
+  figureName,
+  skinName,
+  onImageGenerated,
+}: PromptEditorProps) {
   const [prompt, setPrompt] = useState(variant.prompt ?? "");
   const [negPrompt, setNegPrompt] = useState(variant.negativePrompt ?? "");
   const [model, setModel] = useState(variant.imageModel ?? IMAGE_MODELS[0].id);
@@ -27,7 +37,19 @@ export function PromptEditor({ variant, figureId, onImageGenerated }: PromptEdit
   function handleAiGenerate() {
     if (!aiDescription.trim()) return;
     generateAiPrompt.mutate(
-      { description: aiDescription.trim(), variant: variant.variant, availableModels: IMAGE_MODELS.map((m) => ({ id: m.id, label: m.label })) },
+      {
+        description: aiDescription.trim(),
+        variant: variant.variant,
+        availableModels: IMAGE_MODELS.map((m) => ({ id: m.id, label: m.label })),
+        context: {
+          figureType,
+          figureName,
+          skinName: skinName?.trim() || undefined,
+          existingModel: variant.imageModel,
+          existingPrompt: variant.prompt,
+          existingNegPrompt: variant.negativePrompt,
+        },
+      },
       {
         onSuccess: (res) => {
           if (res.prompt) setPrompt(res.prompt);
