@@ -39,6 +39,8 @@ export interface GenerateSkinImageDto {
   prompt: string;
   negativePrompt?: string;
   model?: string;
+  /** Base64 data URL (`data:image/...;base64,...`) for image-to-image models */
+  sourceImageDataUrl?: string;
 }
 
 export interface GenerateSkinImageResponse {

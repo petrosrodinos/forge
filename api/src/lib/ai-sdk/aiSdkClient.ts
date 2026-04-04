@@ -1,5 +1,5 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import { requireEnv } from "../../env";
+import { requireEnv } from "../../config/env";
 
 /**
  * AI SDK provider pointed at AIML's OpenAI-compatible endpoint.

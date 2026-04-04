@@ -159,6 +159,9 @@ export interface ImageGenerationRequest {
   n?: number;
   steps?: number;
   response_format?: "url" | "b64_json";
+  /** Reference image for image-to-image models (URL or data URI). See AIML model docs. */
+  image_url?: string;
+  strength?: number;
 }
 
 export interface ImageData {

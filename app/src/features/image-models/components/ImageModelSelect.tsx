@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDown, Coins } from "lucide-react";
+import { ChevronDown, Coins, ImagePlus } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { Spinner } from "@/components/ui/Spinner";
 import { useImageModels } from "@/features/image-models/hooks/use-image-models.hooks";
@@ -92,7 +92,14 @@ export function ImageModelSelect({
           </span>
         ) : (
           <>
-            <span className="truncate text-left flex-1 min-w-0">{selected?.label ?? value}</span>
+            <span className="flex items-center gap-1.5 min-w-0 flex-1 text-left">
+              {selected?.isImageToImage ? (
+                <span title="Image-to-image model" className="inline-flex shrink-0">
+                  <ImagePlus className="w-3.5 h-3.5 text-sky-400/90" strokeWidth={2} aria-hidden />
+                </span>
+              ) : null}
+              <span className="truncate">{selected?.label ?? value}</span>
+            </span>
             {selected != null && (
               <span
                 className="inline-flex items-center gap-0.5 shrink-0 text-amber-400/90 font-mono tabular-nums"
@@ -149,7 +156,16 @@ export function ImageModelSelect({
                       setOpen(false);
                     }}
                   >
-                    <span className="truncate text-slate-200 pr-2">{m.label}</span>
+                    <span className="flex items-center gap-1.5 min-w-0 flex-1 pr-2">
+                      {m.isImageToImage ? (
+                        <span title="Image-to-image" className="inline-flex shrink-0">
+                          <ImagePlus className="w-3.5 h-3.5 text-sky-400/90" strokeWidth={2} aria-hidden />
+                        </span>
+                      ) : (
+                        <span className="w-3.5 shrink-0" aria-hidden />
+                      )}
+                      <span className="truncate text-slate-200">{m.label}</span>
+                    </span>
                     <span className="inline-flex items-center gap-0.5 shrink-0 text-amber-400/85 font-mono tabular-nums text-[11px]">
                       <Coins className="w-3 h-3 opacity-90" strokeWidth={2} aria-hidden />
                       {formatTokens(m.tokens)}

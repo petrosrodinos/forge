@@ -1,13 +1,13 @@
 import { Storage, type Bucket } from "@google-cloud/storage";
-import { env } from "../../config/env";
+import { env } from "../../config/env/env-validation";
 
 const gcsConfigured = Boolean(env.GCS_PROJECT_ID && env.GCS_BUCKET);
 
 export const storage: Storage | null = gcsConfigured
   ? new Storage({
-      projectId: env.GCS_PROJECT_ID!,
-      keyFilename: env.GCS_KEY_FILE,
-    })
+    projectId: env.GCS_PROJECT_ID!,
+    keyFilename: env.GCS_KEY_FILE,
+  })
   : null;
 
 export const bucket: Bucket | null = storage && env.GCS_BUCKET

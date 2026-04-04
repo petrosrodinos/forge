@@ -34,12 +34,23 @@ interface FigureModalState {
 
 const CLOSED: FigureModalState | null = null;
 
-export function FigureList() {
+function figureThumbUrl(fig: Figure | null): string | null {
+  if (!fig) return null;
+  const thumb = fig.skins[0]?.variants[0]?.images[0];
+  return thumb?.gcsUrl ?? thumb?.sourceUrl ?? null;
+}
+
+interface FigureListProps {
+  /** Desktop collapsed rail: only active thumb + new figure (mobile drawer ignores via parent) */
+  collapsed?: boolean;
+}
+
+export function FigureList({ collapsed = false }: FigureListProps) {
   const { data: figures, isLoading } = useFigures();
   const createFigure = useCreateFigure();
   const updateFigure = useUpdateFigure();
   const deleteFigure = useDeleteFigure();
-  const { activeFigure, setActiveFigure, setActiveSkin } = useForgeStore();
+  const { activeFigure, setActiveFigure, setActiveSkin, setFigurePanelOpen } = useForgeStore();
   const [modal, setModal] = useState<FigureModalState | null>(CLOSED);
   const [pendingDelete, setPendingDelete] = useState<Figure | null>(null);
 
@@ -82,80 +93,124 @@ export function FigureList() {
     setPendingDelete(null);
   }
 
+  const compactThumbUrl = figureThumbUrl(activeFigure);
+
   return (
     <>
-      <div className="flex flex-col h-full">
-        <div className="flex items-center justify-between px-3 py-2 border-b border-border">
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-            Figures
-          </span>
-          <Button variant="ghost" size="sm" onClick={openCreate} className="p-1">
-            <Plus size={14} />
-          </Button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto py-1">
-          {isLoading && (
-            <div className="flex flex-col gap-0 py-1">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="px-3 py-2 flex items-center gap-2">
-                  <Skeleton className="w-8 h-8 rounded shrink-0" />
-                  <div className="flex flex-col gap-1.5 flex-1">
-                    <Skeleton className="h-3 w-3/4" />
-                    <Skeleton className="h-2.5 w-1/3" />
+      <div className="flex flex-col h-full min-h-0">
+        {collapsed ? (
+          <div className="flex flex-col flex-1 items-center py-3 px-1.5 gap-3 min-h-0">
+            {isLoading ? (
+              <Skeleton className="w-10 h-10 rounded-md shrink-0" />
+            ) : (
+              <button
+                type="button"
+                onClick={() => setFigurePanelOpen(true)}
+                className={cn(
+                  "w-10 h-10 rounded-md overflow-hidden border bg-surface shrink-0",
+                  "focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40",
+                  "hover:border-accent/50 border-border transition-colors",
+                  activeFigure && "ring-1 ring-accent/20",
+                )}
+                title="Expand figure list"
+                aria-label="Expand figure list"
+              >
+                {compactThumbUrl ? (
+                  <img src={compactThumbUrl} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-500 font-medium">
+                    {activeFigure?.name?.slice(0, 1).toUpperCase() ?? "—"}
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-          {figures?.map((fig) => {
-            const thumb = fig.skins[0]?.variants[0]?.images[0];
-            const thumbUrl = thumb?.gcsUrl ?? thumb?.sourceUrl ?? null;
-            return (
-            <div
-              key={fig.id}
-              className={cn(
-                "group flex items-center justify-between px-3 py-1.5 cursor-pointer hover:bg-white/5 transition-colors",
-                activeFigure?.id === fig.id && "bg-accent/10 text-accent-light",
-              )}
-              onClick={() => handleSelect(fig)}
+                )}
+              </button>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={openCreate}
+              className="p-1.5 text-slate-400 hover:text-accent-light shrink-0"
+              title="New figure"
+              aria-label="New figure"
             >
-              <div className="flex items-center gap-2 flex-1 min-w-0">
-                <div className="w-8 h-8 rounded shrink-0 overflow-hidden bg-surface border border-border">
-                  {thumbUrl
-                    ? <img src={thumbUrl} alt="" className="w-full h-full object-cover" />
-                    : <div className="w-full h-full" />
-                  }
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium truncate">{fig.name}</p>
-                  <p className="text-[10px] text-slate-500">{fig.type}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 ml-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="p-0.5"
-                  onClick={(e) => openEdit(e, fig)}
-                >
-                  <Pencil size={11} />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="p-0.5"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setPendingDelete(fig);
-                  }}
-                >
-                  <Trash2 size={11} />
-                </Button>
-              </div>
+              <Plus size={18} strokeWidth={2} />
+            </Button>
+          </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-between px-3 py-2 border-b border-border shrink-0">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                Figures
+              </span>
+              <Button variant="ghost" size="sm" onClick={openCreate} className="p-1" aria-label="New figure">
+                <Plus size={14} />
+              </Button>
             </div>
-          );})}
-        </div>
+
+            <div className="flex-1 overflow-y-auto py-1 min-h-0">
+              {isLoading && (
+                <div className="flex flex-col gap-0 py-1">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <div key={i} className="px-3 py-2 flex items-center gap-2">
+                      <Skeleton className="w-8 h-8 rounded shrink-0" />
+                      <div className="flex flex-col gap-1.5 flex-1">
+                        <Skeleton className="h-3 w-3/4" />
+                        <Skeleton className="h-2.5 w-1/3" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {figures?.map((fig) => {
+                const thumbUrl = figureThumbUrl(fig);
+                return (
+                  <div
+                    key={fig.id}
+                    className={cn(
+                      "group flex items-center justify-between px-3 py-1.5 cursor-pointer hover:bg-white/5 transition-colors",
+                      activeFigure?.id === fig.id && "bg-accent/10 text-accent-light",
+                    )}
+                    onClick={() => handleSelect(fig)}
+                  >
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <div className="w-8 h-8 rounded shrink-0 overflow-hidden bg-surface border border-border">
+                        {thumbUrl ? (
+                          <img src={thumbUrl} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium truncate">{fig.name}</p>
+                        <p className="text-[10px] text-slate-500">{fig.type}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 ml-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-0.5"
+                        onClick={(e) => openEdit(e, fig)}
+                      >
+                        <Pencil size={11} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-0.5"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPendingDelete(fig);
+                        }}
+                      >
+                        <Trash2 size={11} />
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Create / Edit Figure modal */}

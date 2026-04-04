@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Sparkles, X } from "lucide-react";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
+import { SingleImagePicker } from "@/components/SingleImagePicker";
 import { useGenerateAiPrompt, useUpdateVariant, useGenerateImage } from "@/features/skin-variants/hooks/use-skin-variants.hooks";
 import { useImageModels } from "@/features/image-models/hooks/use-image-models.hooks";
 import { ImageModelSelect } from "@/features/image-models/components/ImageModelSelect";
 import type { SkinVariant } from "@/interfaces";
+import { fileToDataUrl } from "@/utils/imageFiles";
 
 interface PromptEditorProps {
   variant: SkinVariant;
@@ -28,10 +30,16 @@ export function PromptEditor({
   const [prompt, setPrompt] = useState(variant.prompt ?? "");
   const [negPrompt, setNegPrompt] = useState(variant.negativePrompt ?? "");
   const [model, setModel] = useState(variant.imageModel ?? "");
+  const [sourceFile, setSourceFile] = useState<File | null>(null);
   const [aiOpen, setAiOpen] = useState(false);
   const [aiDescription, setAiDescription] = useState("");
 
   const { data: imageModels = [] } = useImageModels();
+  const selectedModelMeta = useMemo(
+    () => imageModels.find((m) => m.id === model),
+    [imageModels, model],
+  );
+  const needsSourceImage = Boolean(selectedModelMeta?.isImageToImage);
   const generateAiPrompt = useGenerateAiPrompt();
   const updateVariant = useUpdateVariant();
   const generateImage = useGenerateImage();
@@ -39,6 +47,14 @@ export function PromptEditor({
   useEffect(() => {
     setModel(variant.imageModel ?? "");
   }, [variant.id, variant.imageModel]);
+
+  useEffect(() => {
+    setSourceFile(null);
+  }, [variant.id]);
+
+  useEffect(() => {
+    if (!needsSourceImage) setSourceFile(null);
+  }, [needsSourceImage]);
 
   function handleAiGenerate() {
     if (!aiDescription.trim()) return;
@@ -78,9 +94,23 @@ export function PromptEditor({
     });
   }
 
-  function handleGenerateImage() {
+  async function handleGenerateImage() {
+    let sourceImageDataUrl: string | undefined;
+    if (needsSourceImage && sourceFile) {
+      sourceImageDataUrl = await fileToDataUrl(sourceFile);
+    }
     generateImage.mutate(
-      { figureId, skinId: variant.skinId, variantCode: variant.variant, dto: { prompt, negativePrompt: negPrompt, model } },
+      {
+        figureId,
+        skinId: variant.skinId,
+        variantCode: variant.variant,
+        dto: {
+          prompt,
+          negativePrompt: negPrompt,
+          model,
+          ...(sourceImageDataUrl ? { sourceImageDataUrl } : {}),
+        },
+      },
       { onSuccess: () => onImageGenerated?.() },
     );
   }
@@ -93,6 +123,15 @@ export function PromptEditor({
         </label>
         <ImageModelSelect id={`image-model-${variant.id}`} value={model} onChange={setModel} />
       </div>
+
+      {needsSourceImage ? (
+        <SingleImagePicker
+          id={`source-image-${variant.id}`}
+          value={sourceFile}
+          onChange={setSourceFile}
+          disabled={generateImage.isPending}
+        />
+      ) : null}
 
       <Textarea
         id={`prompt-${variant.id}`}
@@ -149,7 +188,16 @@ export function PromptEditor({
         <Button variant="secondary" size="sm" onClick={handleSave} disabled={updateVariant.isPending || !model.trim()}>
           {updateVariant.isPending ? <Spinner className="w-3 h-3" /> : "Save"}
         </Button>
-        <Button size="sm" onClick={handleGenerateImage} disabled={generateImage.isPending || !prompt.trim() || !model.trim()}>
+        <Button
+          size="sm"
+          onClick={() => void handleGenerateImage()}
+          disabled={
+            generateImage.isPending ||
+            !prompt.trim() ||
+            !model.trim() ||
+            (needsSourceImage && !sourceFile)
+          }
+        >
           {generateImage.isPending ? <Spinner className="w-3 h-3" /> : "Generate Image"}
         </Button>
       </div>

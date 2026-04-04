@@ -3,7 +3,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import path from "path";
 import swaggerUi from "swagger-ui-express";
-import { env } from "./config/env";
+import { env } from "./config/env/env-validation";
 import { errorHandler } from "./middleware/errorHandler";
 import { requireAuth } from "./middleware/requireAuth";
 import { OPEN_API_DOCUMENT } from "./config/docs/openapi";

@@ -66,7 +66,7 @@ const imageModels = [
         tokens: null,
         price: null,
         is_image_to_image: true,
-        available: false
+        available: true
     },
     {
         id: "flux-2-max",
@@ -253,7 +253,7 @@ const imageModels = [
         tokens: null,
         price: null,
         is_image_to_image: true,
-        available: false
+        available: true
     },
     {
         id: "reve-edit-image",
@@ -264,7 +264,7 @@ const imageModels = [
         tokens: null,
         price: null,
         is_image_to_image: true,
-        available: false
+        available: true
     },
     {
         id: "reve-create-image",
@@ -286,7 +286,7 @@ const imageModels = [
         tokens: null,
         price: null,
         is_image_to_image: true,
-        available: false
+        available: true
     },
     {
         id: "flux-1-srpo-i2i",
@@ -297,7 +297,7 @@ const imageModels = [
         tokens: null,
         price: null,
         is_image_to_image: true,
-        available: false
+        available: true
     },
     {
         id: "flux-1-srpo-t2i",
@@ -352,7 +352,7 @@ const imageModels = [
         tokens: null,
         price: null,
         is_image_to_image: true,
-        available: false
+        available: true
     },
     {
         id: "seedream-4",
@@ -550,7 +550,7 @@ const imageModels = [
         tokens: null,
         price: null,
         is_image_to_image: false,
-        available: true
+        available: false
     },
     {
         id: "flux-1-dev-api",
@@ -561,7 +561,7 @@ const imageModels = [
         tokens: null,
         price: null,
         is_image_to_image: false,
-        available: true
+        available: false
     },
     {
         id: "flux-1-pro-api",

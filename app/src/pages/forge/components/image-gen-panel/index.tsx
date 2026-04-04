@@ -1,25 +1,52 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForgeStore } from "@/store/forgeStore";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
 import { Textarea } from "@/components/ui/Textarea";
+import { SingleImagePicker } from "@/components/SingleImagePicker";
 import { ImageModelSelect } from "@/features/image-models/components/ImageModelSelect";
+import { useImageModels } from "@/features/image-models/hooks/use-image-models.hooks";
 import { useGenerateImage } from "@/features/skin-variants/hooks/use-skin-variants.hooks";
+import { fileToDataUrl } from "@/utils/imageFiles";
 
 export function ImageGenPanel() {
   const { activeFigure, activeVariant } = useForgeStore();
   const [prompt, setPrompt] = useState("");
   const [model, setModel] = useState("");
+  const [sourceFile, setSourceFile] = useState<File | null>(null);
+
+  const { data: imageModels = [] } = useImageModels();
+  const selectedModelMeta = useMemo(
+    () => imageModels.find((m) => m.id === model),
+    [imageModels, model],
+  );
+  const needsSourceImage = Boolean(selectedModelMeta?.isImageToImage);
 
   const generateImage = useGenerateImage();
 
-  function handleGenerate() {
+  useEffect(() => {
+    setSourceFile(null);
+  }, [activeVariant?.id]);
+
+  useEffect(() => {
+    if (!needsSourceImage) setSourceFile(null);
+  }, [needsSourceImage]);
+
+  async function handleGenerate() {
     if (!activeVariant || !activeFigure) return;
+    let sourceImageDataUrl: string | undefined;
+    if (needsSourceImage && sourceFile) {
+      sourceImageDataUrl = await fileToDataUrl(sourceFile);
+    }
     generateImage.mutate({
       figureId: activeFigure.id,
       skinId: activeVariant.skinId,
       variantCode: activeVariant.variant,
-      dto: { prompt, model },
+      dto: {
+        prompt,
+        model,
+        ...(sourceImageDataUrl ? { sourceImageDataUrl } : {}),
+      },
     });
   }
 
@@ -38,6 +65,15 @@ export function ImageGenPanel() {
             <ImageModelSelect id="image-gen-model" value={model} onChange={setModel} />
           </div>
 
+          {needsSourceImage ? (
+            <SingleImagePicker
+              id="image-gen-source"
+              value={sourceFile}
+              onChange={setSourceFile}
+              disabled={generateImage.isPending}
+            />
+          ) : null}
+
           <Textarea
             label="Prompt"
             value={prompt}
@@ -46,7 +82,15 @@ export function ImageGenPanel() {
             placeholder="Describe the image to generate…"
           />
 
-          <Button onClick={handleGenerate} disabled={generateImage.isPending || !prompt.trim() || !model.trim()}>
+          <Button
+            onClick={() => void handleGenerate()}
+            disabled={
+              generateImage.isPending ||
+              !prompt.trim() ||
+              !model.trim() ||
+              (needsSourceImage && !sourceFile)
+            }
+          >
             {generateImage.isPending ? <Spinner className="w-3.5 h-3.5" /> : "Generate Image"}
           </Button>
 

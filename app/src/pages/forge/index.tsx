@@ -129,16 +129,18 @@ export default function ForgePage() {
         {/* Left sidebar — drawer on mobile, inline on desktop */}
         <aside
           className={cn(
-            "flex flex-col w-52 shrink-0 border-r border-border bg-panel overflow-hidden",
+            "flex flex-col shrink-0 border-r border-border bg-panel overflow-hidden",
+            "w-52",
             // Mobile: fixed drawer sliding in from the left
             "fixed top-0 bottom-0 left-0 z-40 transition-transform duration-200",
             figurePanelOpen ? "translate-x-0" : "-translate-x-full",
-            // Desktop: inline, no transform, collapses by width
-            "md:relative md:top-auto md:bottom-auto md:left-auto md:z-auto md:translate-x-0 md:transition-none",
-            !figurePanelOpen && "md:w-0 md:border-r-0",
+            // Desktop: inline rail — full list or narrow strip with thumb + add
+            "md:relative md:top-auto md:bottom-auto md:left-auto md:z-auto md:translate-x-0",
+            "md:transition-[width] md:duration-200 md:ease-out",
+            figurePanelOpen ? "md:w-52" : "md:w-[3.25rem]",
           )}
         >
-          <FigureList />
+          <FigureList collapsed={!figurePanelOpen} />
         </aside>
 
         <div className="flex-1 flex flex-col overflow-hidden min-w-0 relative">
