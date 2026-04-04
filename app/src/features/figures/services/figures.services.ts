@@ -1,6 +1,11 @@
 import { apiFetch, jsonInit } from "@/utils/apiClient";
 import type { Figure } from "@/interfaces";
-import type { CreateFigureDto, UpdateFigureDto } from "@/features/figures/interfaces/figure.interfaces";
+import type {
+  CreateFigureDto,
+  GenerateAiVariantDto,
+  GenerateAiVariantResponse,
+  UpdateFigureDto,
+} from "@/features/figures/interfaces/figure.interfaces";
 
 function rethrow(e: unknown): never {
   throw e instanceof Error ? e : new Error(String(e));
@@ -38,10 +43,7 @@ export async function deleteFigure(id: string): Promise<void> {
   }
 }
 
-export async function generateAiVariant(body: {
-  figureId: string;
-  prompt?: string;
-}): Promise<{ prompt: string }> {
+export async function generateAiVariant(body: GenerateAiVariantDto): Promise<GenerateAiVariantResponse> {
   try {
     return await apiFetch("/api/figures/ai-variant", { method: "POST", ...jsonInit(body) });
   } catch (e) {

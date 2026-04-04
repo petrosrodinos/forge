@@ -1,5 +1,12 @@
 import { apiFetch, jsonInit } from "@/utils/apiClient";
 import type { SkinVariant } from "@/interfaces";
+import type {
+  GenerateAiPromptDto,
+  GenerateAiPromptResponse,
+  GenerateSkinImageDto,
+  GenerateSkinImageResponse,
+  UpdateSkinVariantDto,
+} from "@/features/skin-variants/interfaces/skin-variants.interfaces";
 
 export async function createVariant(figureId: string, skinId: string): Promise<SkinVariant> {
   return apiFetch<SkinVariant>(`/api/figures/${figureId}/skins/${skinId}/variants`, {
@@ -12,7 +19,7 @@ export async function updateVariant(
   figureId: string,
   skinId: string,
   variantCode: string,
-  dto: { name?: string | null; prompt?: string; negativePrompt?: string; imageModel?: string },
+  dto: UpdateSkinVariantDto,
 ): Promise<SkinVariant> {
   return apiFetch<SkinVariant>(`/api/figures/${figureId}/skins/${skinId}/variants/${variantCode}`, {
     method: "PUT",
@@ -26,22 +33,7 @@ export async function deleteVariant(figureId: string, skinId: string, variantId:
   });
 }
 
-export type GenerateAiPromptContext = {
-  figureName?: string;
-  figureType?: string;
-  skinName?: string;
-  existingModel?: string | null;
-  existingPrompt?: string | null;
-  existingNegPrompt?: string | null;
-  otherVariantPrompt?: string | null;
-};
-
-export async function generateAiPrompt(dto: {
-  description: string;
-  variant: string;
-  availableModels: { id: string; label: string }[];
-  context?: GenerateAiPromptContext;
-}): Promise<{ prompt: string; negativePrompt?: string; model?: string }> {
+export async function generateAiPrompt(dto: GenerateAiPromptDto): Promise<GenerateAiPromptResponse> {
   return apiFetch("/api/figures/ai-variant", { method: "POST", ...jsonInit(dto) });
 }
 
@@ -49,8 +41,8 @@ export async function generateImage(
   figureId: string,
   skinId: string,
   variantCode: string,
-  dto: { prompt: string; negativePrompt?: string; model?: string },
-): Promise<{ imageUrl: string; skinImageId: string }> {
+  dto: GenerateSkinImageDto,
+): Promise<GenerateSkinImageResponse> {
   return apiFetch(`/api/figures/${figureId}/skins/${skinId}/variants/${variantCode}/generate-image`, {
     method: "POST",
     ...jsonInit(dto),

@@ -1,19 +1,6 @@
 import { useState } from "react";
 import { parseSSE } from "@/hooks/useSSE";
-
-export interface ChatMessage {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  toolCalls?: ToolCall[];
-}
-
-export interface ToolCall {
-  id: string;
-  name: string;
-  input: unknown;
-  result?: unknown;
-}
+import type { ChatMessage, ToolCall } from "@/features/chat/interfaces/chat.interfaces";
 
 export function useChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);

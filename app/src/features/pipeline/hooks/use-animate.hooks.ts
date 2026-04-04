@@ -1,9 +1,6 @@
 import { useState } from "react";
 import { parseSSE } from "@/hooks/useSSE";
-
-export interface AnimateResult {
-  animations: Array<{ animationKey: string; gcsGlbUrl: string; status: string }>;
-}
+import type { AnimateResult } from "@/features/pipeline/interfaces/pipeline.interfaces";
 
 export function useAnimate(onComplete: (r: AnimateResult) => void) {
   const [running, setRunning] = useState(false);

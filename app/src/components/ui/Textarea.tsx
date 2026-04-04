@@ -1,10 +1,11 @@
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, type FormEventHandler } from "react";
 import { cn } from "@/utils/cn";
 import type { TextareaHTMLAttributes } from "react";
 
-interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
+interface TextareaProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "onInput"> {
   label?: string;
   autoResize?: boolean;
+  onInput?: FormEventHandler<HTMLTextAreaElement>;
 }
 
 export function Textarea({ label, className, id, autoResize, onInput, ...props }: TextareaProps) {

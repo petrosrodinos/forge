@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/authStore";
 import { register } from "@/features/auth/services/auth.services";
+import type { RegisterDto } from "@/features/auth/interfaces/auth.interfaces";
 
 export function useAuth() {
   const user = useAuthStore((s) => s.user);
@@ -12,6 +13,6 @@ export function useAuth() {
 
 export function useRegister() {
   return useMutation({
-    mutationFn: (dto: { email: string; password: string; displayName?: string }) => register(dto),
+    mutationFn: (dto: RegisterDto) => register(dto),
   });
 }

@@ -1,11 +1,12 @@
 import { apiFetch, jsonInit } from "@/utils/apiClient";
 import type { Skin } from "@/interfaces";
+import type { CreateSkinDto } from "@/features/skins/interfaces/skins.interfaces";
 
-export async function createSkin(figureId: string, dto: { name: string }): Promise<Skin> {
+export async function createSkin(figureId: string, dto: CreateSkinDto): Promise<Skin> {
   return apiFetch<Skin>(`/api/figures/${figureId}/skins`, { method: "POST", ...jsonInit(dto) });
 }
 
-export async function updateSkin(figureId: string, skinId: string, dto: { name: string }): Promise<Skin> {
+export async function updateSkin(figureId: string, skinId: string, dto: CreateSkinDto): Promise<Skin> {
   return apiFetch<Skin>(`/api/figures/${figureId}/skins/${skinId}`, { method: "PUT", ...jsonInit(dto) });
 }
 

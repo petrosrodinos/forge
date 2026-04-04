@@ -5,14 +5,19 @@ import {
   deleteVariant,
   generateAiPrompt,
   generateImage,
-  type GenerateAiPromptContext,
 } from "@/features/skin-variants/services/skin-variants.services";
+import type {
+  CreateSkinVariantParams,
+  DeleteSkinVariantParams,
+  GenerateAiPromptDto,
+  GenerateSkinImageParams,
+  UpdateSkinVariantParams,
+} from "@/features/skin-variants/interfaces/skin-variants.interfaces";
 
 export function useCreateVariant() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ figureId, skinId }: { figureId: string; skinId: string }) =>
-      createVariant(figureId, skinId),
+    mutationFn: ({ figureId, skinId }: CreateSkinVariantParams) => createVariant(figureId, skinId),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["figures"] }),
   });
 }
@@ -20,17 +25,8 @@ export function useCreateVariant() {
 export function useUpdateVariant() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      figureId,
-      skinId,
-      variantCode,
-      dto,
-    }: {
-      figureId: string;
-      skinId: string;
-      variantCode: string;
-      dto: { name?: string | null; prompt?: string; negativePrompt?: string; imageModel?: string };
-    }) => updateVariant(figureId, skinId, variantCode, dto),
+    mutationFn: ({ figureId, skinId, variantCode, dto }: UpdateSkinVariantParams) =>
+      updateVariant(figureId, skinId, variantCode, dto),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["figures"] }),
   });
 }
@@ -38,7 +34,7 @@ export function useUpdateVariant() {
 export function useDeleteVariant() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ figureId, skinId, variantId }: { figureId: string; skinId: string; variantId: string }) =>
+    mutationFn: ({ figureId, skinId, variantId }: DeleteSkinVariantParams) =>
       deleteVariant(figureId, skinId, variantId),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["figures"] }),
   });
@@ -46,29 +42,15 @@ export function useDeleteVariant() {
 
 export function useGenerateAiPrompt() {
   return useMutation({
-    mutationFn: (dto: {
-      description: string;
-      variant: string;
-      availableModels: { id: string; label: string }[];
-      context?: GenerateAiPromptContext;
-    }) => generateAiPrompt(dto),
+    mutationFn: (dto: GenerateAiPromptDto) => generateAiPrompt(dto),
   });
 }
 
 export function useGenerateImage() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      figureId,
-      skinId,
-      variantCode,
-      dto,
-    }: {
-      figureId: string;
-      skinId: string;
-      variantCode: string;
-      dto: { prompt: string; negativePrompt?: string; model?: string };
-    }) => generateImage(figureId, skinId, variantCode, dto),
+    mutationFn: ({ figureId, skinId, variantCode, dto }: GenerateSkinImageParams) =>
+      generateImage(figureId, skinId, variantCode, dto),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["figures"] }),
   });
 }

@@ -80,7 +80,7 @@ export function ModelCard({ model }: ModelCardProps) {
         title="Delete 3D model?"
         description="This will permanently delete the model and all its animations."
         confirmLabel="Delete"
-        onConfirm={() => { setConfirmDelete(false); deleteModel.mutate(model.id); }}
+        onConfirm={() => { setConfirmDelete(false); deleteModel.mutate({ id: model.id }); }}
         onCancel={() => setConfirmDelete(false)}
         danger
       />

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import type { ToolCall } from "@/features/chat/hooks/use-chat.hooks";
+import type { ToolCall } from "@/features/chat/interfaces/chat.interfaces";
 
 interface ToolCallCardProps {
   toolCall: ToolCall;

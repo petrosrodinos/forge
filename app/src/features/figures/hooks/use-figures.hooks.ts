@@ -5,7 +5,7 @@ import {
   listFigures,
   updateFigure,
 } from "@/features/figures/services/figures.services";
-import type { CreateFigureDto, UpdateFigureDto } from "@/features/figures/interfaces/figure.interfaces";
+import type { CreateFigureDto, UpdateFigureParams } from "@/features/figures/interfaces/figure.interfaces";
 
 export function useFigures() {
   return useQuery({ queryKey: ["figures"], queryFn: listFigures });
@@ -22,8 +22,7 @@ export function useCreateFigure() {
 export function useUpdateFigure() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, dto }: { id: string; dto: UpdateFigureDto }) =>
-      updateFigure(id, dto),
+    mutationFn: ({ id, dto }: UpdateFigureParams) => updateFigure(id, dto),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["figures"] }),
   });
 }

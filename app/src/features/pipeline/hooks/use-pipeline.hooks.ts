@@ -1,17 +1,6 @@
 import { useState } from "react";
 import { parseSSE } from "@/hooks/useSSE";
-
-export interface PipelineStep {
-  step: string;
-  status: string;
-  [k: string]: unknown;
-}
-
-export interface PipelineResult {
-  model3dId: string;
-  gcsPbrModelUrl: string;
-  gcsModelUrl: string;
-}
+import type { PipelineResult } from "@/features/pipeline/interfaces/pipeline.interfaces";
 
 export function usePipeline(
   onComplete: (r: PipelineResult) => void,

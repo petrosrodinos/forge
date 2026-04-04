@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/Badge";
 import { ModelViewer } from "@/pages/forge/components/model-card/model-viewer";
-import type { PipelineStep, PipelineResult } from "@/features/pipeline/hooks/use-pipeline.hooks";
+import type { PipelineStep, PipelineResult } from "@/features/pipeline/interfaces/pipeline.interfaces";
 
 interface PipelineProgressProps {
   steps: PipelineStep[];
@@ -41,7 +41,7 @@ export function PipelineProgress({ steps, running, result, error }: PipelineProg
           {result.gcsPbrModelUrl && (
             <ModelViewer src={result.gcsPbrModelUrl} />
           )}
-          {result.animations.map((a) => (
+          {(result.animations ?? []).map((a) => (
             <div key={a.animationKey} className="flex items-center gap-2">
               <Badge status={a.status} />
               <span className="text-xs text-slate-400">{a.animationKey}</span>
