@@ -9,20 +9,21 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import type { Figure } from "@/interfaces";
 
+/** Forge figure kinds; batch script mirrors this list in `api/src/config/figure-types.ts` — keep both in sync. */
 const FIGURE_TYPES = [
-  { value: "humanoid",         label: "Humanoid" },
-  { value: "creature",         label: "Creature" },
-  { value: "npc",              label: "NPC" },
-  { value: "obstacle",         label: "Obstacle" },
-  { value: "weapon",           label: "Weapon" },
-  { value: "armor",            label: "Armor" },
-  { value: "vehicle",          label: "Vehicle" },
-  { value: "mount",            label: "Mount" },
-  { value: "building",         label: "Building" },
+  { value: "humanoid", label: "Humanoid" },
+  { value: "creature", label: "Creature" },
+  { value: "npc", label: "NPC" },
+  { value: "obstacle", label: "Obstacle" },
+  { value: "weapon", label: "Weapon" },
+  { value: "armor", label: "Armor" },
+  { value: "vehicle", label: "Vehicle" },
+  { value: "mount", label: "Mount" },
+  { value: "building", label: "Building" },
   { value: "environment_prop", label: "Environment Prop" },
-  { value: "item",             label: "Item / Collectible" },
-  { value: "projectile",       label: "Projectile" },
-  { value: "effect",           label: "Effect" },
+  { value: "item", label: "Item / Collectible" },
+  { value: "projectile", label: "Projectile" },
+  { value: "effect", label: "Effect" },
 ] as const;
 
 interface FigureModalState {

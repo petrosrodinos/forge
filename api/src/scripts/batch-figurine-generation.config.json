@@ -1,6 +1,8 @@
 {
-  "version": 1,
-  "description": "Reusable AimlAPI + Tripo settings and per-job prompts for collectible 3D game figurine / terrain batch generation.",
+  "version": 2,
+  "description": "Batch image + Tripo mesh per forge figure type. Re-runs append `generation N` folders and manifest entries. `run.concurrency` defaults low to avoid AimlAPI rate limits (error [2000] / Retry-After). figureTypes: null = all types (api/src/config/figure-types.ts mirrors app forge list).",
+  "figureTypes": null,
+  "generationsPerType": 3,
   "aiml": {
     "model": "flux-pro",
     "size": "1024x1024",
@@ -18,60 +20,16 @@
     }
   },
   "output": {
-    "imagesDir": "generated-figurine-images",
-    "glbDir": "generated-figurine-glb",
-    "manifestFile": "generated-figurine-batch-manifest.json"
+    "baseDir": "generated-by-figure-type",
+    "manifestFile": "generated-by-figure-type-manifest.json"
   },
-  "categories": [
-    {
-      "type": "figure",
-      "figures": [
-        {
-          "id": "cyber-striker",
-          "prompt": "A highly detailed collectible game figurine of a cyberpunk duelist agent, chibi-proportioned hero scale, full body, straight front view, facing the camera, symmetrical neutral stance, slim armored jacket with holographic cyan trim, compact SMG held at rest, confident expression, clean readable silhouette for real-time 3D, isolated on a pure white background, no shadows, studio product photography, PBR-friendly materials, 3D render",
-          "negativePrompt": "blurry, low quality, cropped, multiple characters, crowd, background scenery, ground plane, text, watermark, logo, side view, profile, back view, 3/4 view, dramatic perspective, motion blur, dark muddy lighting, shadow on background"
-        },
-        {
-          "id": "forest-warden",
-          "prompt": "A highly detailed collectible fantasy RPG figurine of a forest warden ranger, full body, straight front view, facing forward, symmetrical pose, layered leather and leaf-mail armor, carved wooden longbow, small spirit lantern at the belt, warm moss green and bark brown palette, readable silhouette for mobile game assets, isolated on a pure white background, no shadows, studio product shot, PBR-friendly, 3D render",
-          "negativePrompt": "blurry, low quality, cropped, multiple figures, animals as separate characters, busy forest background, text, watermark, side view, profile, turned away, fisheye, extreme perspective, shadow on background"
-        },
-        {
-          "id": "iron-bastion-knight",
-          "prompt": "A highly detailed collectible strategy-game figurine of a heavy bastion knight, full body, front view, symmetrical heroic stance, oversized tower shield and short warhammer, segmented plate armor with brass rivets, bold readable shapes for tabletop-style 3D, isolated on a pure white background, no shadows, product photography, PBR metal and paint, 3D render",
-          "negativePrompt": "blurry, low quality, cropped, multiple knights, battlefield, horses, banners with text, watermark, extreme low angle, dutch angle, back view, side-only view, shadow on background, muddy colors"
-        }
-      ],
-      "skin": {
-        "id": "prismatic-paladin-skin",
-        "prompt": "A highly detailed alternate-skin collectible figurine of a paladin champion, same genre as fantasy action figures, full body, straight front view, facing forward, symmetrical pose, translucent prismatic crystal plate armor with refractive gem core at the chest, slender greatsword held vertical in both hands, cool iridescent violet and ice-blue highlights, clean silhouette for rigged game mesh, isolated on a pure white background, no shadows, studio product photography, PBR-friendly, 3D render",
-        "negativePrompt": "blurry, low quality, cropped, duplicate character, split body, background scenery, pedestal with text, watermark, logo, side view only, back view, motion blur, heavy bloom obscuring detail, shadow on background"
-      }
-    },
-    {
-      "type": "obstacle",
-      "figures": [
-        {
-          "id": "modular-rubble-barricade",
-          "prompt": "A highly detailed modular terrain obstacle piece for a 3D tactics game, isometric three-quarter view from front, stacked concrete rubble barricade with exposed rebar and warning hazard stripes, chunky readable shapes, single cohesive prop, no characters, isolated on a pure white background, no shadows, miniature terrain product photography, PBR concrete and paint, 3D render",
-          "negativePrompt": "blurry, low quality, cropped, tiny unreadable clutter, human figures, vehicles, text labels, watermark, full cityscape, ground beyond the piece, dramatic environment, shadow on background"
-        },
-        {
-          "id": "ancient-shrine-pillar",
-          "prompt": "A highly detailed collectible terrain figurine of a ruined shrine pillar chunk, isometric view, carved rune bands (abstract geometric, no readable letters), cracked marble and gold inlay, moss-free clean variant, single prop suitable as cover object, isolated on a pure white background, no shadows, studio product shot, PBR stone and metal, 3D render",
-          "negativePrompt": "blurry, low quality, cropped, people, creatures, full temple interior, sky, watermark, illegible tiny text, shadow on background, multiple separate monuments far apart"
-        },
-        {
-          "id": "industrial-crate-stack",
-          "prompt": "A highly detailed stack of sealed industrial cargo crates as a single obstacle prop for sci-fi skirmish games, isometric view, metal crates with corner reinforcements and hazard color accents, clean game-ready silhouette, no characters, isolated on a pure white background, no shadows, product photography, PBR painted metal, 3D render",
-          "negativePrompt": "blurry, low quality, cropped, warehouse interior, forklifts, workers, readable shipping labels, barcode text, watermark, shadow on background, exploded floating parts"
-        }
-      ],
-      "skin": {
-        "id": "overgrown-barricade-skin",
-        "prompt": "A highly detailed alternate-skin terrain obstacle: the same type of idea as a rubble barricade but heavily overgrown, isometric three-quarter view, cracked concrete with thick vines, luminous mushrooms, and moss mats, still one compact modular prop, no characters, isolated on a pure white background, no shadows, terrain miniature photography, PBR organic and stone, 3D render",
-        "negativePrompt": "blurry, low quality, cropped, forest panorama, animals, tiny unreadable signage, watermark, multiple disconnected islands of terrain, shadow on background, floating debris without contact"
-      }
-    }
-  ]
+  "prompt": {
+    "techniqueBlock": null,
+    "negativePrompt": null
+  },
+  "run": {
+    "concurrency": 2,
+    "aimlMaxRetries": 8,
+    "aimlRetryDelayMs": 10000
+  }
 }
