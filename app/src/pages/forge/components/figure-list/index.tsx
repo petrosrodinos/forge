@@ -1,6 +1,6 @@
 import { forwardRef, useImperativeHandle, useState } from "react";
 import { createPortal } from "react-dom";
-import { Plus, Trash2, Pencil } from "lucide-react";
+import { ImageOff, Plus, Trash2, Pencil } from "lucide-react";
 import { useFigures, useCreateFigure, useUpdateFigure, useDeleteFigure } from "@/features/figures/hooks/use-figures.hooks";
 import { useForgeStore } from "@/store/forgeStore";
 import { cn } from "@/utils/cn";
@@ -132,8 +132,8 @@ export const FigureList = forwardRef<FigureListHandle, FigureListProps>(function
                 {compactThumbUrl ? (
                   <img src={compactThumbUrl} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-500 font-medium">
-                    {activeFigure?.name?.slice(0, 1).toUpperCase() ?? "—"}
+                  <div className="w-full h-full flex items-center justify-center bg-surface" aria-hidden>
+                    <ImageOff className="w-4 h-4 text-slate-600" strokeWidth={1.5} />
                   </div>
                 )}
               </button>
@@ -186,11 +186,11 @@ export const FigureList = forwardRef<FigureListHandle, FigureListProps>(function
                     onClick={() => handleSelect(fig)}
                   >
                     <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <div className="w-8 h-8 rounded shrink-0 overflow-hidden bg-surface border border-border">
+                      <div className="w-8 h-8 rounded shrink-0 overflow-hidden bg-surface border border-border flex items-center justify-center">
                         {thumbUrl ? (
                           <img src={thumbUrl} alt="" className="w-full h-full object-cover" />
                         ) : (
-                          <div className="w-full h-full" />
+                          <ImageOff className="w-4 h-4 text-slate-600 shrink-0" strokeWidth={1.5} aria-hidden />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">

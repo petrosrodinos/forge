@@ -35,6 +35,9 @@ export function PromptEditor({
   const [aiDescription, setAiDescription] = useState("");
 
   const { data: imageModels = [] } = useImageModels();
+  const firstModelId = imageModels[0]?.id;
+  const modelListKey = useMemo(() => imageModels.map((m) => m.id).join("|"), [imageModels]);
+
   const selectedModelMeta = useMemo(
     () => imageModels.find((m) => m.id === model),
     [imageModels, model],
@@ -44,9 +47,19 @@ export function PromptEditor({
   const updateVariant = useUpdateVariant();
   const generateImage = useGenerateImage();
 
+  /** Keep model in sync with variant + catalog without racing ImageModelSelect (parent effect must not clear after child sets default). */
   useEffect(() => {
-    setModel(variant.imageModel ?? "");
-  }, [variant.id, variant.imageModel]);
+    const saved = variant.imageModel?.trim() ?? "";
+    if (imageModels.length === 0) {
+      setModel(saved);
+      return;
+    }
+    if (saved && imageModels.some((m) => m.id === saved)) {
+      setModel(saved);
+      return;
+    }
+    setModel(firstModelId ?? "");
+  }, [variant.id, variant.imageModel, firstModelId, modelListKey]);
 
   useEffect(() => {
     setSourceFile(null);

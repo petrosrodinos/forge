@@ -1,5 +1,6 @@
-import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
+import axios, { type AxiosError, type InternalAxiosRequestConfig, isAxiosError } from "axios";
 import { API_BASE_URL } from "@/utils/constants";
+import { useInsufficientTokensModalStore } from "@/store/insufficientTokensModalStore";
 
 function authRedirectAllowedPath(pathname: string) {
   return (
@@ -20,6 +21,14 @@ let refreshPromise: Promise<void> | null = null;
 axiosInstance.interceptors.response.use(
   (r) => r,
   async (error: AxiosError) => {
+    if (isAxiosError(error) && error.response?.status === 402) {
+      const d = error.response.data as { required?: unknown; balance?: unknown };
+      if (typeof d?.required === "number" && typeof d?.balance === "number") {
+        useInsufficientTokensModalStore.getState().open(d.required, d.balance);
+      }
+      return Promise.reject(error);
+    }
+
     const cfg = error.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined;
     if (!cfg || error.response?.status !== 401) {
       return Promise.reject(error);

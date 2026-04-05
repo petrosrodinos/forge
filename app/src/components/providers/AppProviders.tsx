@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 import { useAuthStore } from "@/store/authStore";
+import { InsufficientTokensModalHost } from "@/components/providers/InsufficientTokensModalHost";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,6 +23,7 @@ export function AppProviders({ children }: PropsWithChildren) {
     <QueryClientProvider client={queryClient}>
       <AuthBootstrap>
         {children}
+        <InsufficientTokensModalHost />
         <Toaster
           theme="dark"
           position="bottom-right"

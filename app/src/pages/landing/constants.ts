@@ -38,3 +38,5 @@ export const LANDING_FOOTER_TAGLINE = "Dark-mode native. Token-aware billing whe
 export const LANDING_SIGN_IN_PROMPT = "Already building?";
 
 export const LANDING_SIGN_IN_LINK = "Sign in";
+
+export const LANDING_NAV_DASHBOARD = "Dashboard";

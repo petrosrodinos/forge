@@ -35,12 +35,39 @@ function LandingRoute() {
   return <LandingPage />;
 }
 
+function GuestOnly({ children }: PropsWithChildren) {
+  const { user, loading } = useAuth();
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-surface">
+        <Spinner className="w-6 h-6" />
+      </div>
+    );
+  }
+  if (user) return <Navigate to="/forge" replace />;
+  return <>{children}</>;
+}
+
 export function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<LandingRoute />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
+      <Route
+        path="/login"
+        element={
+          <GuestOnly>
+            <LoginPage />
+          </GuestOnly>
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <GuestOnly>
+            <RegisterPage />
+          </GuestOnly>
+        }
+      />
       <Route path="/pricing" element={<Shell />}>
         <Route index element={<PricingPage />} />
       </Route>

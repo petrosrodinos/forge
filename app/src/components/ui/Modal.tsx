@@ -8,9 +8,11 @@ interface ModalProps {
   title?: string;
   children: React.ReactNode;
   panelClassName?: string;
+  /** Inner scroll area; default centers content (e.g. image previews). */
+  contentClassName?: string;
 }
 
-export function Modal({ open, onClose, title, children, panelClassName }: ModalProps) {
+export function Modal({ open, onClose, title, children, panelClassName, contentClassName }: ModalProps) {
   if (!open) return null;
 
   return createPortal(
@@ -45,7 +47,12 @@ export function Modal({ open, onClose, title, children, panelClassName }: ModalP
             <X size={16} />
           </button>
         </div>
-        <div className="p-4 overflow-auto min-h-0 flex-1 flex items-center justify-center">
+        <div
+          className={cn(
+            "p-4 overflow-auto min-h-0 flex-1 flex justify-center",
+            contentClassName ?? "items-center",
+          )}
+        >
           {children}
         </div>
       </div>
