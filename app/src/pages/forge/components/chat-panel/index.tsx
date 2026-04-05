@@ -1,9 +1,10 @@
 import { useRef, useState } from "react";
-import { Circle, Send } from "lucide-react";
+import { Circle, MessageSquare, Send } from "lucide-react";
 import { useChat } from "@/features/chat/hooks/use-chat.hooks";
 import { ToolCallCard } from "@/pages/forge/components/chat-panel/tool-call-card";
 import { Spinner } from "@/components/ui/Spinner";
 import { useForgeStore } from "@/store/forgeStore";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/utils/cn";
 
 export function ChatPanel() {
@@ -28,8 +29,17 @@ export function ChatPanel() {
   }
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+    <div className="flex h-full flex-col">
+      <header className="flex shrink-0 items-center gap-2 border-b border-border/80 bg-surface/40 px-4 py-3">
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/12 text-accent-light ring-1 ring-accent/20">
+          <MessageSquare className="h-4 w-4" strokeWidth={2} aria-hidden />
+        </span>
+        <div>
+          <p className="text-sm font-semibold tracking-tight text-slate-100">Assistant</p>
+          <p className="text-[0.65rem] text-slate-500">Figures, skins &amp; pipeline</p>
+        </div>
+      </header>
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-4">
         {messages.map((msg) => (
           <div
             key={msg.id}
@@ -40,10 +50,10 @@ export function ChatPanel() {
           >
             <div
               className={cn(
-                "max-w-[85%] rounded-lg px-3 py-2 text-sm msg-text",
+                "msg-text max-w-[90%] rounded-xl px-3.5 py-2.5 text-sm shadow-sm",
                 msg.role === "user"
-                  ? "bg-accent/20 text-slate-100"
-                  : "bg-panel text-slate-200 border border-border",
+                  ? "bg-accent/18 text-slate-100 ring-1 ring-accent/25"
+                  : "border border-border/80 bg-panel/90 text-slate-200 ring-1 ring-white/5",
               )}
             >
               {msg.content}
@@ -63,23 +73,26 @@ export function ChatPanel() {
         <div ref={bottomRef} />
       </div>
 
-      <div className="p-3 border-t border-border">
-        <div className="flex gap-2">
+      <div className="shrink-0 border-t border-border/80 bg-panel/60 p-3 ring-1 ring-white/5">
+        <div className="flex gap-2 rounded-xl border border-border/80 bg-surface/50 p-1.5 ring-1 ring-white/5">
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKey}
             placeholder="Ask about figures, skins, pipeline…"
             rows={1}
-            className="flex-1 bg-panel border border-border rounded px-3 py-2 text-sm text-slate-200 placeholder:text-slate-600 resize-none focus:outline-none focus:border-accent/50 min-h-[44px] max-h-[200px]"
+            className="min-h-11 max-h-48 flex-1 resize-none rounded-lg border-0 bg-transparent px-2 py-2 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-0"
           />
-          <button
+          <Button
+            type="button"
+            size="md"
+            className="shrink-0 self-end rounded-lg px-3"
             onClick={() => void handleSend()}
             disabled={streaming || !input.trim()}
-            className="self-end p-2.5 bg-accent rounded text-white disabled:opacity-40 hover:bg-purple-700 transition-colors"
+            aria-label="Send message"
           >
-            {streaming ? <Spinner className="w-4 h-4" /> : <Send size={16} />}
-          </button>
+            {streaming ? <Spinner className="h-4 w-4" /> : <Send size={16} aria-hidden />}
+          </Button>
         </div>
       </div>
     </div>

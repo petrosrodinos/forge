@@ -8,6 +8,7 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Modal } from "@/components/ui/Modal";
 import { OptionsMenu } from "@/components/ui/OptionsMenu";
 import { downloadUrlAsFile, fileExtensionFromUrl } from "@/utils/helpers";
+import { cn } from "@/utils/cn";
 import type { SkinImage } from "@/interfaces";
 import { usePricingCosts } from "@/features/pricing/hooks/use-pricing.hooks";
 import { PRICING_COST_KEYS } from "@/features/pricing/constants/pricing-cost-keys";
@@ -76,14 +77,22 @@ export function ImageCard({
 
   return (
     <>
-      <div className={`rounded-lg overflow-hidden border cursor-pointer transition-colors ${selected ? "border-accent" : "border-border hover:border-slate-500"}`} onClick={() => onSelect(image)}>
-        <div className="relative w-full aspect-square bg-surface">
+      <div
+        className={cn(
+          "cursor-pointer overflow-hidden rounded-xl border bg-panel/30 ring-1 ring-white/5 transition-all",
+          selected
+            ? "border-accent/50 ring-2 ring-accent/35 shadow-md shadow-accent/10"
+            : "border-border/80 hover:border-accent/25 hover:ring-accent/10",
+        )}
+        onClick={() => onSelect(image)}
+      >
+        <div className="relative aspect-square w-full bg-surface/80">
           {!imgLoaded && <Skeleton className="absolute inset-0 rounded-none" />}
           <img src={previewSrc} alt="" onLoad={() => setImgLoaded(true)} className={`w-full h-full object-cover transition-opacity duration-200 ${imgLoaded ? "opacity-100" : "opacity-0"}`} />
           <OptionsMenu className="absolute top-1.5 right-1.5 z-10" triggerVariant="secondary" triggerClassName="h-6 w-6 shadow-md bg-panel/95 backdrop-blur-sm border-border" menuLabel="Image options" items={imageMenuItems} />
         </div>
 
-        <div className="bg-panel px-2 pt-1.5 pb-2 flex flex-col gap-1">
+        <div className="flex flex-col gap-1 border-t border-border/60 bg-panel/90 px-2.5 pt-2 pb-2.5">
           <div className="flex items-center gap-2">
             {status !== "success" && <Badge status={status} />}
             <span className="text-[10px] text-slate-500 ml-auto">{image.models.length} models</span>

@@ -92,9 +92,14 @@ export function ModelCard({ model }: ModelCardProps) {
 
   return (
     <>
-      <div className="bg-surface border border-border rounded-lg overflow-hidden flex flex-col">
+      <div className="flex flex-col overflow-hidden rounded-xl border border-border/80 bg-surface/60 ring-1 ring-white/5">
         <div className="flex items-stretch gap-0">
-          <button type="button" className="flex-1 flex items-center gap-2 min-w-0 p-3 text-left hover:bg-white/[0.03] transition-colors" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+          <button
+            type="button"
+            className="flex min-w-0 flex-1 items-center gap-2 p-3 text-left transition-colors hover:bg-surface"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+          >
             <ChevronRight className={cn("shrink-0 text-slate-500 transition-transform duration-200", open && "rotate-90")} size={16} aria-hidden />
             <span className="text-xs text-slate-400 font-mono truncate">{model.id.slice(0, 8)}</span>
             <Badge status={rigging || animating ? "processing" : model.status} />
@@ -109,7 +114,7 @@ export function ModelCard({ model }: ModelCardProps) {
             {canShowViewer ? (
               <ModelViewer src={model.gcsPbrModelUrl!} />
             ) : (
-              <div className="flex flex-col items-center justify-center min-h-[200px] rounded-lg bg-panel border border-border px-4 py-6 gap-1">
+              <div className="flex min-h-52 flex-col items-center justify-center gap-2 rounded-lg border border-border/80 bg-panel/50 px-4 py-6 ring-1 ring-white/5">
                 <p className="text-xs text-slate-500 text-center">{isBusy ? "Model is still processing…" : model.error ? model.error : "No 3D preview available yet."}</p>
               </div>
             )}

@@ -46,74 +46,89 @@ export function SkinTabs({ skins, figureId, onAddSkin, onDeleteSkin }: SkinTabsP
 
   return (
     <>
-      <div className="flex items-center gap-0.5 px-3 border-b-2 border-border bg-panel shrink-0 overflow-x-auto">
-        {skins.map((skin) => (
-          <div
-            key={skin.id}
-            className={cn(
-              "group/tab flex items-center gap-0.5 border-b-2 -mb-0.5 transition-colors",
-              activeSkin?.id === skin.id
-                ? "border-accent text-slate-100"
-                : "border-transparent text-slate-400 hover:text-slate-200",
-            )}
-          >
-            <button
-              onClick={() => setActiveSkin(skin)}
-              className="text-sm font-medium px-3 py-3 whitespace-nowrap"
-            >
-              {skin.name ?? "Skin"}
-            </button>
-            <div className="flex items-center gap-0.5 pr-1.5 opacity-0 group-hover/tab:opacity-100 transition-opacity">
+      <div className="flex shrink-0 items-stretch border-b border-border bg-panel">
+        <div className="flex min-w-0 flex-1 items-end gap-0 overflow-x-auto">
+          {skins.map((skin) => (
+            <div key={skin.id} className="group/tab flex shrink-0 items-center">
               <button
-                onClick={(e) => openEdit(e, skin)}
-                className="text-slate-500 hover:text-slate-200 transition-colors p-0.5 rounded"
-                title="Rename skin"
+                type="button"
+                onClick={() => setActiveSkin(skin)}
+                className={cn(
+                  "-mb-px border-b-2 px-3 py-2.5 text-sm whitespace-nowrap transition-colors",
+                  activeSkin?.id === skin.id
+                    ? "border-accent-light text-slate-100"
+                    : "border-transparent text-slate-500 hover:text-slate-300",
+                )}
               >
-                <Pencil size={11} />
+                {skin.name ?? "Skin"}
               </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); setPendingDelete(skin); }}
-                className="text-slate-500 hover:text-red-400 transition-colors p-0.5 rounded"
-                title="Delete skin"
-              >
-                <X size={11} />
-              </button>
+              <div className="mb-px flex items-center gap-0 pr-0.5 opacity-40 transition-opacity hover:opacity-100 sm:opacity-0 sm:group-hover/tab:opacity-100">
+                <button
+                  type="button"
+                  onClick={(e) => openEdit(e, skin)}
+                  className="p-1 text-slate-600 hover:text-slate-300"
+                  title="Rename skin"
+                >
+                  <Pencil size={11} />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPendingDelete(skin);
+                  }}
+                  className="p-1 text-slate-600 hover:text-red-400"
+                  title="Delete skin"
+                >
+                  <X size={11} />
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
         <button
+          type="button"
           onClick={onAddSkin}
-          className="px-2 py-3 text-slate-500 hover:text-slate-300 transition-colors"
+          className="shrink-0 px-2.5 py-2 text-slate-500 hover:text-slate-300"
+          title="Add skin"
+          aria-label="Add skin"
         >
-          <Plus size={15} />
+          <Plus size={15} strokeWidth={2} />
         </button>
       </div>
 
       {editingSkin && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/60" onClick={() => setEditingSkin(null)} />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/65 backdrop-blur-sm" onClick={() => setEditingSkin(null)} aria-hidden />
           <form
             onSubmit={handleEditSubmit}
-            className="relative z-10 bg-panel border border-border rounded-lg p-5 w-72 flex flex-col gap-4 shadow-xl"
+            className="relative z-10 w-full max-w-sm overflow-hidden rounded-2xl border border-border bg-panel shadow-2xl shadow-black/40 ring-1 ring-white/5"
           >
-            <p className="text-sm font-semibold text-slate-100">Rename Skin</p>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs text-slate-400 font-medium">Name</label>
-              <input
-                autoFocus
-                value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-                placeholder="Skin name…"
-                className="w-full bg-surface border border-border rounded px-3 py-2.5 text-base text-slate-200 placeholder-slate-600 focus:outline-none focus:border-accent/50"
-              />
+            <div className="border-b border-border/80 bg-surface/40 px-5 py-4">
+              <p className="text-sm font-semibold tracking-tight text-slate-100">Rename skin</p>
             </div>
-            <div className="flex gap-2 justify-end">
-              <Button type="button" variant="ghost" size="sm" onClick={() => setEditingSkin(null)}>
-                Cancel
-              </Button>
-              <Button type="submit" size="sm" disabled={updateSkin.isPending || !editName.trim()}>
-                {updateSkin.isPending ? "Saving…" : "Save"}
-              </Button>
+            <div className="flex flex-col gap-4 px-5 py-5">
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="rename-skin" className="text-xs font-medium uppercase tracking-wider text-slate-500">
+                  Name
+                </label>
+                <input
+                  id="rename-skin"
+                  autoFocus
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  placeholder="Skin name…"
+                  className="w-full rounded-lg border border-border/80 bg-surface/60 px-3 py-2.5 text-sm text-slate-200 placeholder:text-slate-600 transition-colors focus:border-accent/50 focus:outline-none focus:ring-1 focus:ring-accent/20"
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="ghost" size="sm" onClick={() => setEditingSkin(null)}>
+                  Cancel
+                </Button>
+                <Button type="submit" size="sm" disabled={updateSkin.isPending || !editName.trim()}>
+                  {updateSkin.isPending ? "Saving…" : "Save"}
+                </Button>
+              </div>
             </div>
           </form>
         </div>

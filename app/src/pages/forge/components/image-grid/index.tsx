@@ -42,8 +42,8 @@ export function ImageGrid({
   );
 
   return (
-    <div className="relative group/carousel">
-      <div className="overflow-hidden" ref={emblaRef}>
+    <div className="group/carousel relative -mx-1 px-1">
+      <div className="overflow-hidden rounded-lg" ref={emblaRef}>
         <div className="flex gap-2">
           {sorted.map((img) => (
             <div key={img.id} className="flex-none w-[47%] max-w-52">
@@ -61,25 +61,29 @@ export function ImageGrid({
       </div>
 
       <button
+        type="button"
         onClick={() => emblaApi?.scrollPrev()}
         className={cn(
-          "absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10",
-          "w-6 h-6 rounded-full bg-panel border border-border flex items-center justify-center",
-          "text-slate-400 hover:text-slate-200 hover:bg-surface transition-all",
-          !canScrollPrev && "opacity-0 pointer-events-none",
+          "absolute left-0 top-1/2 z-10 flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full",
+          "border border-border/80 bg-panel/95 text-slate-400 shadow-md shadow-black/20 ring-1 ring-white/5 transition-all",
+          "hover:bg-surface hover:text-slate-200",
+          !canScrollPrev && "pointer-events-none opacity-0",
         )}
+        aria-label="Previous images"
       >
         <ChevronLeft size={12} />
       </button>
 
       <button
+        type="button"
         onClick={() => emblaApi?.scrollNext()}
         className={cn(
-          "absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10",
-          "w-6 h-6 rounded-full bg-panel border border-border flex items-center justify-center",
-          "text-slate-400 hover:text-slate-200 hover:bg-surface transition-all",
-          !canScrollNext && "opacity-0 pointer-events-none",
+          "absolute right-0 top-1/2 z-10 flex h-8 w-8 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full",
+          "border border-border/80 bg-panel/95 text-slate-400 shadow-md shadow-black/20 ring-1 ring-white/5 transition-all",
+          "hover:bg-surface hover:text-slate-200",
+          !canScrollNext && "pointer-events-none opacity-0",
         )}
+        aria-label="Next images"
       >
         <ChevronRight size={12} />
       </button>

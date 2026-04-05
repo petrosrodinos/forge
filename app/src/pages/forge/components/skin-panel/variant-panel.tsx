@@ -76,22 +76,22 @@ export function VariantPanel({ variant, figureId, figureType, figureName, skinNa
       : [];
 
   return (
-    <div className="flex flex-col gap-0 overflow-y-auto h-full">
-      <div className="flex flex-col gap-3 px-4 pt-4 pb-3 border-b border-border">
+    <div className="flex h-full flex-col gap-4 overflow-y-auto px-3 py-4 sm:px-4 sm:py-5">
+      <section className="rounded-xl border border-border/80 bg-panel/50 p-4 ring-1 ring-white/5 shadow-sm shadow-black/10">
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-slate-400 font-medium">Variant name</label>
+          <label className="text-xs font-medium uppercase tracking-wider text-slate-500">Variant name</label>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             onBlur={handleNameBlur}
             placeholder={`Variant ${variant.variant}`}
             disabled={updateVariant.isPending}
-            className="text-sm font-semibold bg-transparent border-b border-transparent hover:border-border focus:border-accent/50 focus:outline-none text-slate-200 placeholder-slate-500 py-0.5 transition-colors w-48"
+            className="w-full max-w-md border-b border-transparent bg-transparent py-1 text-sm font-semibold text-slate-100 placeholder:text-slate-600 transition-colors hover:border-border focus:border-accent/50 focus:outline-none"
           />
         </div>
-      </div>
+      </section>
 
-      <div className="px-4 py-4 border-b border-border">
+      <section className="rounded-xl border border-border/80 bg-panel/40 p-4 ring-1 ring-white/5">
         <PromptEditor
           variant={variant}
           figureId={figureId}
@@ -99,33 +99,36 @@ export function VariantPanel({ variant, figureId, figureType, figureName, skinNa
           figureName={figureName}
           skinName={skinName}
         />
-      </div>
+      </section>
 
-      <div className="flex flex-col gap-2 px-4 py-4 border-b border-border">
-        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Images</p>
-        <ImageUploader
-          onFile={handleUploadFile}
-          disabled={uploadSkinImage.isPending}
-        />
-        {variant.images.length > 0 ? (
-          <ImageGrid
-            images={variant.images}
-            activeImageId={activeImageId}
-            onRunPipeline={handleRunPipeline}
-            onDelete={handleDeleteImage}
-          />
-        ) : (
-          <p className="text-xs text-slate-500">Upload to add images to this variant.</p>
-        )}
-      </div>
+      <section className="rounded-xl border border-border/80 bg-panel/40 p-4 ring-1 ring-white/5">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Images</p>
+        <ImageUploader onFile={handleUploadFile} disabled={uploadSkinImage.isPending} />
+        <div className="mt-3">
+          {variant.images.length > 0 ? (
+            <ImageGrid
+              images={variant.images}
+              activeImageId={activeImageId}
+              onRunPipeline={handleRunPipeline}
+              onDelete={handleDeleteImage}
+            />
+          ) : (
+            <p className="rounded-lg border border-dashed border-border/80 bg-surface/30 px-3 py-6 text-center text-xs text-slate-500">
+              Upload or generate to add images to this variant.
+            </p>
+          )}
+        </div>
+      </section>
 
       {activeModels.length > 0 && (
-        <div className="flex flex-col gap-2 px-4 py-4">
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Models</p>
-          {activeModels.map((m) => (
-            <ModelCard key={m.id} model={m} />
-          ))}
-        </div>
+        <section className="rounded-xl border border-border/80 bg-panel/40 p-4 ring-1 ring-white/5">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">3D models</p>
+          <div className="flex flex-col gap-3">
+            {activeModels.map((m) => (
+              <ModelCard key={m.id} model={m} />
+            ))}
+          </div>
+        </section>
       )}
     </div>
   );

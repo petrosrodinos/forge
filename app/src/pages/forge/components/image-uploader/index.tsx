@@ -27,7 +27,7 @@ export function ImageUploader({ onFile, disabled = false }: ImageUploaderProps) 
   return (
     <div
       className={cn(
-        "border-2 border-dashed border-border rounded-lg p-6 flex flex-col items-center gap-2 transition-colors",
+        "flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-border/80 bg-surface/30 p-6 ring-1 ring-white/5 transition-colors",
         disabled
           ? "cursor-not-allowed opacity-50 pointer-events-none"
           : "cursor-pointer",

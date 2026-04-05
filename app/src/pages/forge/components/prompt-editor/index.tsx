@@ -173,7 +173,7 @@ export function PromptEditor({
       />
 
       {aiOpen && (
-        <div className="flex flex-col gap-2 p-3 rounded border border-accent/30 bg-accent/5">
+        <div className="flex flex-col gap-2 rounded-xl border border-accent/25 bg-accent/10 p-3 ring-1 ring-accent/15">
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs text-slate-300 font-medium">Describe what you want</span>
             <div className="flex items-center gap-2 shrink-0">
