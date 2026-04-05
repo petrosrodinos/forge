@@ -400,6 +400,23 @@ export const OPEN_API_DOCUMENT = {
         },
       },
     },
+    "/api/admin/users/{id}": {
+      delete: {
+        tags: ["Admin"],
+        summary: "Delete user and GCS assets (admin)",
+        description:
+          "Permanently removes the user and cascaded database records, and deletes all associated objects from the configured GCS bucket (skin images, meshes, animation GLBs).",
+        security: [{ cookieAuth: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: {
+          "204": { description: "User removed" },
+          "400": errorContent("Bad request (e.g. cannot delete self or template account)"),
+          "401": errorContent("Unauthorized"),
+          "403": errorContent("Forbidden"),
+          "404": errorContent("User not found"),
+        },
+      },
+    },
     "/api/auth/register": {
       post: {
         tags: ["Auth"],

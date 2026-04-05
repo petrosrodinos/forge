@@ -135,6 +135,7 @@ export function TopBar() {
   const isPricing = location.pathname === "/pricing";
   const { data: billingBalance } = useBalance({ enabled: !!user && !isPricing });
   const { chatPanelOpen, setChatPanelOpen, figurePanelOpen, setFigurePanelOpen } = useForgeStore();
+  const isDev = import.meta.env.DEV;
 
   const isForge = location.pathname === "/forge";
   /** Public pricing: no balance, billing, or account menu (logged-in users get a single app link). */
@@ -147,27 +148,27 @@ export function TopBar() {
   return (
     <header className="h-12 flex items-center gap-1.5 sm:gap-3 px-2 sm:px-4 border-b border-border bg-panel shrink-0 min-w-0">
       {isForge && (
-        <>
-          <button
-            type="button"
-            onClick={() => setFigurePanelOpen(!figurePanelOpen)}
-            className="md:hidden p-1.5 -ml-0.5 shrink-0 text-slate-400 hover:text-slate-200 transition-colors"
-            aria-label="Toggle figures panel"
-          >
-            <Menu size={16} />
-          </button>
-          <button
-            type="button"
-            onClick={() => setChatPanelOpen(!chatPanelOpen)}
-            className={cn(
-              "md:hidden p-1.5 shrink-0 transition-colors",
-              chatPanelOpen ? "text-accent-light" : "text-slate-400 hover:text-slate-200",
-            )}
-            aria-label={chatPanelOpen ? "Close chat" : "Open chat"}
-          >
-            <MessageSquare size={16} />
-          </button>
-        </>
+        <button
+          type="button"
+          onClick={() => setFigurePanelOpen(!figurePanelOpen)}
+          className="md:hidden p-1.5 -ml-0.5 shrink-0 text-slate-400 hover:text-slate-200 transition-colors"
+          aria-label="Toggle figures panel"
+        >
+          <Menu size={16} />
+        </button>
+      )}
+      {isDev && isForge && user && (
+        <button
+          type="button"
+          onClick={() => setChatPanelOpen(!chatPanelOpen)}
+          className={cn(
+            "md:hidden p-1.5 shrink-0 transition-colors",
+            chatPanelOpen ? "text-accent-light" : "text-slate-400 hover:text-slate-200",
+          )}
+          aria-label={chatPanelOpen ? "Close chat" : "Open chat"}
+        >
+          <MessageSquare size={16} aria-hidden />
+        </button>
       )}
       <Link
         to="/"

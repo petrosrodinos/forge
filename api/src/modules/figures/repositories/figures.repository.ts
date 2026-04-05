@@ -2,7 +2,8 @@ import { prisma } from "../../../integrations/db/client";
 import type { CreateFigureInput, UpdateFigureInput } from "../interfaces/figures.types";
 import { isObjectIdLike } from "../helpers/objectIdLike.helper";
 
-const FULL_INCLUDE = {
+/** Nested skins → variants → images → models → animations (for GCS key collection and full figure payloads). */
+export const figureWithAllAssetsInclude = {
   skins: {
     include: {
       variants: {
@@ -50,20 +51,20 @@ export async function getFigureById(userId: string, id: string) {
   if (isObjectIdLike(id)) {
     return prisma.figure.findFirst({
       where: { id, userId },
-      include: FULL_INCLUDE,
+      include: figureWithAllAssetsInclude,
     });
   }
 
   return prisma.figure.findFirst({
     where: { name: id, userId },
-    include: FULL_INCLUDE,
+    include: figureWithAllAssetsInclude,
   });
 }
 
 export async function createFigure(userId: string, input: CreateFigureInput) {
   return prisma.figure.create({
     data: { userId, name: input.name, type: input.type, metadata: input.metadata as never },
-    include: FULL_INCLUDE,
+    include: figureWithAllAssetsInclude,
   });
 }
 
@@ -94,7 +95,7 @@ export async function deleteFigure(userId: string, id: string) {
 
   const existing = await prisma.figure.findFirst({
     where: { name: id, userId },
-    include: FULL_INCLUDE,
+    include: figureWithAllAssetsInclude,
   });
   if (!existing) return null;
   await prisma.figure.delete({ where: { id: existing.id } });

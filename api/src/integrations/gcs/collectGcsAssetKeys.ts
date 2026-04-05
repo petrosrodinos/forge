@@ -57,3 +57,7 @@ export function collectGcsKeysFromFigure(figure: FigureWithSkins): string[] {
   }
   return keys;
 }
+
+export function collectGcsKeysFromFigures(figures: FigureWithSkins[]): string[] {
+  return figures.flatMap((f) => collectGcsKeysFromFigure(f));
+}

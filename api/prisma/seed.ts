@@ -1,163 +1,144 @@
 import "dotenv/config";
 import fs from "fs";
 import path from "path";
-import { MongoClient, ObjectId } from "mongodb";
+import bcrypt from "bcryptjs";
+import { PrismaClient } from "../src/generated/prisma/client";
 
-type VariantKey = "Light" | "Dark";
+const prisma = new PrismaClient();
 
-function now() {
-  return new Date();
+const SEED_USER_EMAIL = "";
+const SEED_USER_PASSWORD = "";
+const SEED_USER_ROLE = "ADMIN";
+
+function readFiguresJson(): any[] {
+  const figuresPath = path.resolve(__dirname, "../assets/figures/figures.json");
+  return JSON.parse(fs.readFileSync(figuresPath, "utf8"));
 }
 
-function maybe<T>(value: T | undefined): T | undefined {
-  return value === undefined ? undefined : value;
+async function ensureSeedUser() {
+  const existing = await prisma.user.findUnique({
+    where: { email: SEED_USER_EMAIL },
+  });
+  if (existing) return existing;
+
+  const passwordHash = await bcrypt.hash(SEED_USER_PASSWORD, 10);
+  return prisma.user.create({
+    data: {
+      email: SEED_USER_EMAIL,
+      passwordHash,
+      displayName: "Figures seed",
+      role: SEED_USER_ROLE,
+    },
+  });
 }
 
-async function seedVariant(
-  skinId: ObjectId,
-  variant: VariantKey,
-  vData: any,
-  cols: any,
+async function upsertSkinVariant(
+  skinId: string,
+  variant: string,
+  vData: unknown,
 ) {
-  const ip = vData?.imagePrompt;
+  const ip = (vData as { imagePrompt?: Record<string, unknown> } | null)
+    ?.imagePrompt;
   if (!ip) return;
 
-  const createdAt = now();
+  const prompt =
+    typeof ip.prompt === "string" ? ip.prompt : null;
+  const negativePrompt =
+    typeof ip.negativePrompt === "string" ? ip.negativePrompt : null;
+  const imageModel =
+    typeof ip.model === "string" ? ip.model : null;
 
-  // SkinVariant has unique([skinId, variant]); mirror the Prisma upsert behavior.
-  const skinVariantFilter = { skinId, variant };
-  const skinVariantInsert = {
-    _id: new ObjectId(),
-    skinId,
-    variant,
-    prompt: maybe(ip.prompt),
-    negativePrompt: maybe(ip.negativePrompt),
-    imageModel: maybe(ip.model),
-    createdAt,
-    updatedAt: createdAt,
-  };
-
-  await cols.skinVariants.updateOne(skinVariantFilter, { $setOnInsert: skinVariantInsert }, { upsert: true });
-  const sv = await cols.skinVariants.findOne(skinVariantFilter);
-  if (!sv?._id) throw new Error("Failed to resolve SkinVariant _id after upsert");
-
-  for (const imgObj of ip.images ?? []) {
-    const siDoc = {
-      _id: new ObjectId(),
-      variantId: sv._id,
-      sourceUrl: imgObj.url,
-      gcsUrl: null,
-      createdAt: now(),
-    };
-    await cols.skinImages.insertOne(siDoc);
-
-    for (const m of imgObj.models3d ?? []) {
-      const m3Doc = {
-        _id: new ObjectId(),
-        imageId: siDoc._id,
-        status: m.status ?? "failed",
-        error: m.error ?? null,
-        meshTaskId: m.meshTaskId ?? null,
-        prerigTaskId: m.prerigTaskId ?? null,
-        rigTaskId: m.rigTaskId ?? null,
-        pbrModelSourceUrl: m.pbrModelUrl ?? null,
-        modelSourceUrl: m.modelUrl ?? null,
-        createdAt: now(),
-        updatedAt: now(),
-      };
-      await cols.model3Ds.insertOne(m3Doc);
-
-      for (const anim of m.animations ?? []) {
-        const animDoc = {
-          _id: new ObjectId(),
-          model3dId: m3Doc._id,
-          animationKey: anim.animationKey,
-          retargetTaskId: anim.retargetTaskId ?? null,
-          glbSourceUrl: anim.glbUrl ?? null,
-          gcsGlbUrl: null,
-          gcsGlbKey: null,
-          status: anim.status ?? "success",
-          error: null,
-          createdAt: now(),
-          updatedAt: now(),
-        };
-        await cols.animations.insertOne(animDoc);
-      }
-    }
-  }
+  await prisma.skinVariant.upsert({
+    where: {
+      skinId_variant: { skinId, variant },
+    },
+    create: {
+      skinId,
+      variant,
+      prompt,
+      negativePrompt,
+      imageModel,
+    },
+    update: {
+      prompt,
+      negativePrompt,
+      imageModel,
+    },
+  });
 }
-
-/** Fixed sentinel ObjectId for template figures — must be 24-char hex */
-const SEED_USER_ID = new ObjectId("000000000000000000000000");
 
 async function main() {
-  const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl) throw new Error("Missing DATABASE_URL in env.");
+  const figures = readFiguresJson();
+  const user = await ensureSeedUser();
 
-  const figuresPath = path.resolve(__dirname, "../assets/figures/figures.json");
-  const figures: any[] = JSON.parse(fs.readFileSync(figuresPath, "utf8"));
+  for (const fig of figures) {
+    const name = fig.name as string;
+    const type = (fig.type as string) ?? "figure";
+    const metadata = fig.metadata ?? undefined;
 
-  const client = new MongoClient(databaseUrl);
-  await client.connect();
-  try {
-    const db = client.db();
-    const cols = {
-      figures: db.collection("Figure"),
-      skins: db.collection("Skin"),
-      skinVariants: db.collection("SkinVariant"),
-      skinImages: db.collection("SkinImage"),
-      model3Ds: db.collection("Model3D"),
-      animations: db.collection("Animation"),
-    };
-
-    for (const fig of figures) {
-      const figureId = new ObjectId();
-      await cols.figures.insertOne({
-        _id: figureId,
-        userId: SEED_USER_ID,
-        name: fig.name,
-        type: fig.type ?? "figure",
-        metadata: fig.metadata ?? undefined,
-        createdAt: now(),
-        updatedAt: now(),
+    let figure = await prisma.figure.findFirst({
+      where: { userId: user.id, name },
+    });
+    if (!figure) {
+      figure = await prisma.figure.create({
+        data: {
+          userId: user.id,
+          name,
+          type,
+          metadata,
+        },
       });
-
-      const baseSkinId = new ObjectId();
-      await cols.skins.insertOne({
-        _id: baseSkinId,
-        figureId,
-        name: null,
-        isBase: true,
-        createdAt: now(),
-        updatedAt: now(),
+    } else {
+      figure = await prisma.figure.update({
+        where: { id: figure.id },
+        data: { type, metadata },
       });
-
-      await seedVariant(baseSkinId, "A", fig.default?.variantA, cols);
-      await seedVariant(baseSkinId, "B", fig.default?.variantB, cols);
-
-      for (const sk of fig.skins ?? []) {
-        const skinId = new ObjectId();
-        await cols.skins.insertOne({
-          _id: skinId,
-          figureId,
-          name: sk.name,
-          isBase: false,
-          createdAt: now(),
-          updatedAt: now(),
-        });
-
-        await seedVariant(skinId, "A", sk.variantA, cols);
-        await seedVariant(skinId, "B", sk.variantB, cols);
-      }
     }
 
-    console.log("Seed complete (Mongo native).");
-  } finally {
-    await client.close();
+    let baseSkin = await prisma.skin.findFirst({
+      where: { figureId: figure.id, isBase: true },
+    });
+    if (!baseSkin) {
+      baseSkin = await prisma.skin.create({
+        data: {
+          figureId: figure.id,
+          name: null,
+          isBase: true,
+        },
+      });
+    }
+
+    await upsertSkinVariant(baseSkin.id, "A", fig.default?.variantA);
+    await upsertSkinVariant(baseSkin.id, "B", fig.default?.variantB);
+
+    for (const sk of fig.skins ?? []) {
+      const skinName = sk.name as string;
+      let skin = await prisma.skin.findFirst({
+        where: { figureId: figure.id, name: skinName, isBase: false },
+      });
+      if (!skin) {
+        skin = await prisma.skin.create({
+          data: {
+            figureId: figure.id,
+            name: skinName,
+            isBase: false,
+          },
+        });
+      }
+
+      await upsertSkinVariant(skin.id, "A", sk.variantA);
+      await upsertSkinVariant(skin.id, "B", sk.variantB);
+    }
   }
+
+  console.log("Seed complete (figures, skins, variants — prompts only).");
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exitCode = 1;
-});
+main()
+  .catch((err) => {
+    console.error(err);
+    process.exitCode = 1;
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

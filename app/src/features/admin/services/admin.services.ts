@@ -8,3 +8,7 @@ export function getAdminMetrics(): Promise<AdminMetricsDto> {
 export function getAdminUsers(): Promise<AdminUserRowDto[]> {
   return apiFetch<AdminUserRowDto[]>("/api/admin/users");
 }
+
+export function deleteAdminUser(userId: string): Promise<void> {
+  return apiFetch<void>(`/api/admin/users/${encodeURIComponent(userId)}`, { method: "DELETE" });
+}
