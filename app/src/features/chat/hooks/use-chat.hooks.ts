@@ -30,11 +30,20 @@ export function useChat() {
         body: JSON.stringify({ message: content, figureId }),
       });
 
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        const msg =
+          typeof (errBody as { error?: unknown }).error === "string"
+            ? (errBody as { error: string }).error
+            : `Chat failed (${res.status})`;
+        throw new Error(msg);
+      }
+
       for await (const evt of parseSSE(res.body!)) {
         const data = JSON.parse(evt.data) as Record<string, unknown>;
 
-        if (evt.event === "text-delta") {
-          assistantText += (data.delta as string) ?? "";
+        const appendText = (delta: string) => {
+          assistantText += delta;
           setMessages((prev) => {
             const next = [...prev];
             const idx = next.findIndex((m) => m.id === assistantId);
@@ -48,19 +57,38 @@ export function useChat() {
             else next.push(updated);
             return next;
           });
+        };
+
+        if (evt.event === "text") {
+          appendText((data.content as string) ?? "");
+        } else if (evt.event === "text-delta") {
+          appendText((data.delta as string) ?? "");
         }
 
-        if (evt.event === "tool-call") {
+        if (evt.event === "tool_call" || evt.event === "tool-call") {
+          const raw = data.arguments ?? data.input;
+          let input: unknown = raw;
+          if (typeof raw === "string") {
+            try {
+              input = JSON.parse(raw);
+            } catch {
+              input = raw;
+            }
+          }
           toolCalls.push({
             id: (data.id as string) ?? crypto.randomUUID(),
             name: data.name as string,
-            input: data.input,
+            input,
           });
         }
 
-        if (evt.event === "tool-result") {
+        if (evt.event === "tool_result" || evt.event === "tool-result") {
           const tc = toolCalls.find((t) => t.id === data.id);
           if (tc) tc.result = data.result;
+        }
+
+        if (evt.event === "error") {
+          throw new Error((data.message as string) ?? "Chat error");
         }
 
         if (evt.event === "done") break;

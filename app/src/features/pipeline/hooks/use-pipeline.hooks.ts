@@ -33,6 +33,15 @@ export function usePipeline(
         body: form,
       });
 
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        const msg =
+          typeof (errBody as { error?: unknown }).error === "string"
+            ? (errBody as { error: string }).error
+            : `Pipeline failed (${res.status})`;
+        throw new Error(msg);
+      }
+
       for await (const evt of parseSSE(res.body!)) {
         if (firstEvent) { firstEvent = false; onModelCreated?.(); }
         const data = JSON.parse(evt.data) as Record<string, unknown>;

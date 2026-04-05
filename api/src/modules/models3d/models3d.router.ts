@@ -15,10 +15,10 @@ router.post(
     next();
   },
   requireTokens("animationRetarget"),
-  async (req, res, next) => {
+  async (req, res) => {
     const animations = (req.body as { animations?: string[] }).animations ?? [];
     const model3dId = Array.isArray(req.params.model3dId) ? req.params.model3dId[0] : req.params.model3dId;
-    await streamAnimatePipeline(req, res, next, model3dId, animations);
+    await streamAnimatePipeline(req, res, model3dId, animations);
   },
 );
 

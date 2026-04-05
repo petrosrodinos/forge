@@ -18,6 +18,15 @@ export function useAnimate(onComplete: (r: AnimateResult) => void) {
         body: JSON.stringify({ model3dId, animations }),
       });
 
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        const msg =
+          typeof (errBody as { error?: unknown }).error === "string"
+            ? (errBody as { error: string }).error
+            : `Animation failed (${res.status})`;
+        throw new Error(msg);
+      }
+
       for await (const evt of parseSSE(res.body!)) {
         const data = JSON.parse(evt.data) as Record<string, unknown>;
         if (evt.event === "complete") {

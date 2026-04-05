@@ -16,6 +16,7 @@ import balanceRouter from "./modules/balance/balance.router";
 import tripoRouter from "./modules/tripo/tripo.router";
 import generateAndMeshRouter from "./modules/generate-and-mesh/generate-and-mesh.router";
 import billingRouter from "./modules/billing/billing.router";
+import pricingRouter from "./modules/pricing/pricing.router";
 
 import authRouter from "./modules/auth/auth.router";
 import figuresRouter from "./modules/figures/figures.router";
@@ -56,6 +57,7 @@ app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(OPEN_API_DOCUMENT));
 app.use("/api/auth", authRouter);
 
 app.use("/api/billing", billingRouter);
+app.use("/api/pricing", pricingRouter);
 
 // Legacy / non-DB routes
 app.use("/api/chat", chatRouter);

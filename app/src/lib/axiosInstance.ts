@@ -1,6 +1,10 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { API_BASE_URL } from "@/utils/constants";
 
+function authRedirectAllowedPath(pathname: string) {
+  return pathname === "/login" || pathname === "/register" || pathname === "/pricing";
+}
+
 export const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
@@ -21,7 +25,7 @@ axiosInstance.interceptors.response.use(
     }
     if (url.includes("/api/auth/refresh")) {
       const path = window.location.pathname;
-      if (path !== "/login" && path !== "/register") {
+      if (!authRedirectAllowedPath(path)) {
         window.location.href = "/login";
       }
       return Promise.reject(new Error("Session expired"));
@@ -41,7 +45,7 @@ axiosInstance.interceptors.response.use(
         return axiosInstance(cfg);
       } catch {
         const path = window.location.pathname;
-        if (path !== "/login" && path !== "/register") {
+        if (!authRedirectAllowedPath(path)) {
           window.location.href = "/login";
         }
         return Promise.reject(new Error("Session expired"));

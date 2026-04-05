@@ -9,6 +9,7 @@ import ForgePage from "@/pages/forge";
 import SettingsPage from "@/pages/settings";
 import SettingsAccountPage from "@/pages/settings/subpages/account";
 import SettingsBillingPage from "@/pages/settings/subpages/billing";
+import PricingPage from "@/pages/pricing";
 
 function RequireAuth({ children }: PropsWithChildren) {
   const { user, loading } = useAuth();
@@ -26,6 +27,9 @@ export function AppRoutes() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/pricing" element={<Shell />}>
+        <Route index element={<PricingPage />} />
+      </Route>
       <Route
         path="/"
         element={

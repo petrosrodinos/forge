@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { Spinner } from "@/components/ui/Spinner";
+import { Skeleton } from "@/components/ui/Skeleton";
 import {
   useBalance,
   useCheckout,
@@ -24,6 +24,78 @@ function formatUsageKind(kind: string) {
 }
 
 type ActivityTab = "purchases" | "usage";
+
+function BalanceSkeleton() {
+  return (
+    <div className="space-y-3" aria-hidden>
+      <Skeleton className="h-11 w-52 max-w-full rounded-md" />
+      <Skeleton className="h-3 w-40 rounded-md" />
+    </div>
+  );
+}
+
+function TokenPacksSkeleton() {
+  return (
+    <div className="grid gap-4 sm:grid-cols-3" aria-hidden>
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="rounded-xl border border-border bg-panel p-5 flex flex-col gap-3">
+          <Skeleton className="h-5 w-28 rounded-md" />
+          <Skeleton className="h-4 w-36 rounded-md" />
+          <Skeleton className="h-7 w-24 rounded-md" />
+          <Skeleton className="h-9 w-full mt-auto rounded-md" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function PurchaseHistoryTableSkeleton() {
+  return (
+    <div className="rounded-lg border border-border overflow-hidden" aria-hidden>
+      <div className="bg-surface px-4 py-3 flex flex-wrap gap-6">
+        <Skeleton className="h-3 w-14" />
+        <Skeleton className="h-3 w-14" />
+        <Skeleton className="h-3 w-16" />
+        <Skeleton className="h-3 w-12" />
+      </div>
+      <div className="divide-y divide-border">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <div key={i} className="px-4 py-3 flex flex-wrap gap-6 items-center bg-panel/50">
+            <Skeleton className="h-4 w-24 sm:flex-1 sm:max-w-[10rem]" />
+            <Skeleton className="h-4 w-10" />
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-4 w-36" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function TokenUsageTableSkeleton() {
+  return (
+    <div className="rounded-lg border border-border overflow-hidden" aria-hidden>
+      <div className="bg-surface px-4 py-3 flex flex-wrap gap-4">
+        <Skeleton className="h-3 w-10" />
+        <Skeleton className="h-3 w-12" />
+        <Skeleton className="h-3 w-16" />
+        <Skeleton className="h-3 w-12" />
+        <Skeleton className="h-3 w-10" />
+      </div>
+      <div className="divide-y divide-border">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <div key={i} className="px-4 py-3 flex flex-wrap gap-4 items-center bg-panel/50">
+            <Skeleton className="h-4 w-14" />
+            <Skeleton className="h-4 flex-1 min-w-[6rem] max-w-[12rem]" />
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-4 w-8" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function SettingsBillingPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -76,7 +148,7 @@ export default function SettingsBillingPage() {
       <section className="rounded-xl border border-border bg-panel p-6">
         <h2 className="text-sm font-medium text-slate-300 mb-4">Balance</h2>
         {balanceQuery.isLoading ? (
-          <Spinner className="w-6 h-6 text-accent-light" />
+          <BalanceSkeleton />
         ) : (
           <div className="space-y-1">
             <p className="text-4xl font-mono font-semibold tabular-nums text-accent-light">
@@ -91,7 +163,7 @@ export default function SettingsBillingPage() {
       <section>
         <h2 className="text-sm font-medium text-slate-300 mb-4">Token packs</h2>
         {packsQuery.isLoading ? (
-          <Spinner className="w-6 h-6 text-accent-light" />
+          <TokenPacksSkeleton />
         ) : (
           <div className="grid gap-4 sm:grid-cols-3">
             {(packsQuery.data ?? []).map((pack) => {
@@ -156,7 +228,7 @@ export default function SettingsBillingPage() {
         {activityTab === "purchases" && (
           <>
             {historyQuery.isLoading ? (
-              <Spinner className="w-6 h-6 text-accent-light" />
+              <PurchaseHistoryTableSkeleton />
             ) : (historyQuery.data?.length ?? 0) === 0 ? (
               <p className="text-sm text-slate-500 rounded-lg border border-dashed border-border px-4 py-8 text-center">
                 No purchases yet.
@@ -191,7 +263,7 @@ export default function SettingsBillingPage() {
         {activityTab === "usage" && (
           <>
             {usageQuery.isLoading ? (
-              <Spinner className="w-6 h-6 text-accent-light" />
+              <TokenUsageTableSkeleton />
             ) : (usageQuery.data?.length ?? 0) === 0 ? (
               <p className="text-sm text-slate-500 rounded-lg border border-dashed border-border px-4 py-8 text-center">
                 No token usage recorded yet.

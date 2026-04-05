@@ -88,7 +88,13 @@ router.post("/mesh", upload.single("image"), async (req, res, next) => {
         sseWrite(res, event, data);
       },
     });
-  } catch (e) { next(e); } finally { res.end(); }
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error("[pipeline/mesh]", msg);
+    sseWrite(res, PIPELINE_CONFIG.PIPELINE_SSE_EVENTS.ERROR, { message: msg });
+  } finally {
+    res.end();
+  }
 });
 
 // POST /api/pipeline/animate
@@ -104,9 +110,9 @@ router.post(
     next();
   },
   requireTokens("animationRetarget"),
-  async (req, res, next) => {
+  async (req, res) => {
     const { model3dId, animations } = req.body as { model3dId: string; animations: string[] };
-    await streamAnimatePipeline(req, res, next, model3dId, animations);
+    await streamAnimatePipeline(req, res, model3dId, animations);
   },
 );
 

@@ -1,4 +1,4 @@
-import type { Request, Response, NextFunction } from "express";
+import type { Request, Response } from "express";
 import { prisma } from "../../integrations/db/client";
 import { sseHeaders, sseWrite } from "../../lib/sse";
 import { runAnimations } from "./animate.service";
@@ -7,7 +7,6 @@ import { PIPELINE_CONFIG } from "./config/pipeline.config";
 export async function streamAnimatePipeline(
   req: Request,
   res: Response,
-  next: NextFunction,
   model3dId: string,
   animations: string[],
 ) {
@@ -51,7 +50,9 @@ export async function streamAnimatePipeline(
       },
     });
   } catch (e) {
-    next(e);
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error("[pipeline/animate]", msg);
+    sseWrite(res, PIPELINE_CONFIG.PIPELINE_SSE_EVENTS.ERROR, { message: msg });
   } finally {
     res.end();
   }
