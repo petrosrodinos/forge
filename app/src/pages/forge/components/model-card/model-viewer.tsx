@@ -77,7 +77,7 @@ export function ModelViewer({ src, animationName, className }: ModelViewerProps)
   return (
     <div className={cn("flex flex-col overflow-hidden rounded-lg", className)}>
       <model-viewer
-        ref={viewerRef as React.RefObject<HTMLElement>}
+        ref={viewerRef}
         src={src}
         auto-rotate=""
         camera-controls=""
