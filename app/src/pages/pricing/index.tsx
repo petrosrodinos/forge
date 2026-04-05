@@ -60,7 +60,7 @@ export default function PricingPage() {
 
   if (isPending) {
     return (
-      <div className="h-full overflow-y-auto min-h-0 bg-surface">
+      <div className="h-full min-h-0 min-w-0 overflow-y-auto overflow-x-hidden bg-surface">
         <CatalogSkeleton />
       </div>
     );
@@ -68,7 +68,7 @@ export default function PricingPage() {
 
   if (isError || !data) {
     return (
-      <div className="h-full overflow-y-auto min-h-0 flex flex-col items-center justify-center gap-4 px-6 bg-surface">
+      <div className="h-full min-h-0 min-w-0 overflow-y-auto overflow-x-hidden flex flex-col items-center justify-center gap-4 px-6 bg-surface">
         <p className="text-sm text-slate-400 text-center max-w-sm">{error instanceof Error ? error.message : "Could not load pricing."}</p>
         <Button type="button" variant="secondary" onClick={() => void refetch()}>
           Retry
@@ -80,7 +80,7 @@ export default function PricingPage() {
   const { rates, packs, trippoModels } = data;
 
   return (
-    <div className="h-full overflow-y-auto min-h-0 bg-surface relative">
+    <div className="h-full min-h-0 min-w-0 overflow-y-auto overflow-x-hidden bg-surface relative">
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-72 opacity-90"
         aria-hidden
@@ -96,7 +96,7 @@ export default function PricingPage() {
         }}
       />
 
-      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-10 pb-16 space-y-14">
+      <div className="relative max-w-6xl mx-auto min-w-0 px-4 sm:px-6 py-10 pb-16 space-y-14">
         <header className="space-y-4">
           <p className="text-[0.65rem] uppercase tracking-[0.35em] text-slate-500 font-medium">Wallet &amp; models</p>
           <h1 className="text-3xl sm:text-4xl font-bold text-slate-100 tracking-tight leading-tight" style={{ fontFamily: "Syne, system-ui, sans-serif" }}>
@@ -147,25 +147,33 @@ export default function PricingPage() {
           <h2 className="text-xl font-semibold text-slate-100" style={{ fontFamily: "Syne, system-ui, sans-serif" }}>
             Tripo / mesh steps
           </h2>
-          <div className="rounded-xl border border-border overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-surface/80 text-left text-xs uppercase tracking-wider text-slate-500">
-                  <th className="px-4 py-3 font-medium">Step</th>
-                  <th className="px-4 py-3 font-medium text-right w-28">Tokens</th>
-                  <th className="px-4 py-3 font-medium text-right w-32 hidden sm:table-cell">~EUR</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {trippoModels.map((m) => (
-                  <tr key={m.id} className="bg-panel/40 hover:bg-panel/70 transition-colors">
-                    <td className="px-4 py-3 text-slate-200 capitalize">{humanizeTrippoId(m.id)}</td>
-                    <td className="px-4 py-3 text-right font-mono tabular-nums text-accent-light">{m.tokens}</td>
-                    <td className="px-4 py-3 text-right font-mono tabular-nums text-slate-500 text-xs hidden sm:table-cell">{usd(m.priceUsd)}</td>
+          <div className="rounded-xl border border-border overflow-hidden -mx-1 min-w-0 sm:mx-0">
+            <div className="overflow-x-auto overscroll-x-contain touch-pan-x">
+              <table className="w-full min-w-max text-sm">
+                <thead>
+                  <tr className="bg-surface/80 text-left text-xs uppercase tracking-wider text-slate-500">
+                    <th className="px-3 py-3 font-medium sm:px-4 min-w-36">Step</th>
+                    <th className="px-3 py-3 font-medium text-right whitespace-nowrap sm:px-4">Tokens</th>
+                    <th className="px-3 py-3 font-medium text-right whitespace-nowrap sm:px-4 hidden sm:table-cell">~EUR</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {trippoModels.map((m) => (
+                    <tr key={m.id} className="bg-panel/40 hover:bg-panel/70 transition-colors">
+                      <td className="px-3 py-3 text-slate-200 capitalize break-words sm:px-4 max-w-xs sm:max-w-md">
+                        {humanizeTrippoId(m.id)}
+                      </td>
+                      <td className="px-3 py-3 text-right font-mono tabular-nums text-accent-light whitespace-nowrap sm:px-4">
+                        {m.tokens}
+                      </td>
+                      <td className="px-3 py-3 text-right font-mono tabular-nums text-slate-500 text-xs whitespace-nowrap sm:px-4 hidden sm:table-cell">
+                        {usd(m.priceUsd)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
 
@@ -196,30 +204,42 @@ export default function PricingPage() {
               grouped.map(({ provider, models }) => (
                 <div key={provider}>
                   <h3 className="text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-slate-500 mb-3 border-b border-border pb-2">{provider}</h3>
-                  <div className="rounded-xl border border-border overflow-hidden">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="bg-surface/80 text-left text-xs uppercase tracking-wider text-slate-500">
-                          <th className="px-3 py-2.5 font-medium">Model</th>
-                          <th className="px-3 py-2.5 font-medium w-24">Type</th>
-                          <th className="px-3 py-2.5 font-medium text-right w-24">Tokens</th>
-                          <th className="px-3 py-2.5 font-medium text-right w-28 hidden md:table-cell">~EUR</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-border">
-                        {models.map((m) => (
-                          <tr key={m.id} className="bg-panel/30 hover:bg-panel/60 transition-colors">
-                            <td className="px-3 py-2.5">
-                              <p className="text-slate-200 text-xs leading-snug">{m.name}</p>
-                              <p className="text-[0.65rem] font-mono text-slate-600 truncate max-w-[14rem] sm:max-w-xs">{m.id}</p>
-                            </td>
-                            <td className="px-3 py-2.5 text-xs text-slate-500">{m.imageToImage ? <span className="tag-cyan whitespace-nowrap">Image-to-image</span> : <span className="text-slate-600">Text-to-image</span>}</td>
-                            <td className="px-3 py-2.5 text-right font-mono tabular-nums text-accent-light text-xs">{m.tokens}</td>
-                            <td className="px-3 py-2.5 text-right font-mono tabular-nums text-slate-500 text-xs hidden md:table-cell">{usd(m.priceUsd)}</td>
+                  <div className="rounded-xl border border-border overflow-hidden -mx-1 min-w-0 sm:mx-0">
+                    <div className="overflow-x-auto overscroll-x-contain touch-pan-x">
+                      <table className="w-full min-w-max text-sm">
+                        <thead>
+                          <tr className="bg-surface/80 text-left text-xs uppercase tracking-wider text-slate-500">
+                            <th className="px-3 py-2.5 font-medium min-w-44 sm:min-w-56">Model</th>
+                            <th className="px-3 py-2.5 font-medium whitespace-nowrap">Type</th>
+                            <th className="px-3 py-2.5 font-medium text-right whitespace-nowrap">Tokens</th>
+                            <th className="px-3 py-2.5 font-medium text-right whitespace-nowrap hidden md:table-cell">~EUR</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                          {models.map((m) => (
+                            <tr key={m.id} className="bg-panel/30 hover:bg-panel/60 transition-colors">
+                              <td className="px-3 py-2.5 min-w-0 max-w-72 sm:max-w-md">
+                                <p className="text-slate-200 text-xs leading-snug break-words">{m.name}</p>
+                                <p className="text-[0.65rem] font-mono text-slate-600 break-all mt-0.5">{m.id}</p>
+                              </td>
+                              <td className="px-3 py-2.5 text-xs text-slate-500 align-top whitespace-nowrap">
+                                {m.imageToImage ? (
+                                  <span className="tag-cyan whitespace-nowrap">Image-to-image</span>
+                                ) : (
+                                  <span className="text-slate-600">Text-to-image</span>
+                                )}
+                              </td>
+                              <td className="px-3 py-2.5 text-right font-mono tabular-nums text-accent-light text-xs whitespace-nowrap align-top">
+                                {m.tokens}
+                              </td>
+                              <td className="px-3 py-2.5 text-right font-mono tabular-nums text-slate-500 text-xs whitespace-nowrap align-top hidden md:table-cell">
+                                {usd(m.priceUsd)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               ))

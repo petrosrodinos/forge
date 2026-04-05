@@ -44,7 +44,13 @@ export const LANDING_NAV_ANCHORS = [
   { href: "#features", label: "Features" },
   { href: "#use-cases", label: "Use cases" },
   { href: "#how-it-works", label: "How it works" },
+  { href: "#token-packs", label: "Token packs" },
 ] as const;
+
+export const LANDING_PACKS_TITLE = "Token packs";
+
+export const LANDING_PACKS_SUBTITLE =
+  "Pick a pack to start with — create an account and pay securely through Stripe.";
 
 export const LANDING_VISUAL_CAPTION = "Image → mesh → rig → animate";
 

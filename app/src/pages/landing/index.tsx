@@ -7,6 +7,7 @@ import { LandingHead } from "@/pages/landing/components/LandingHead";
 import { LandingUseCases } from "@/pages/landing/components/LandingUseCases";
 import { LandingHowItWorks } from "@/pages/landing/components/LandingHowItWorks";
 import { LandingMidCta } from "@/pages/landing/components/LandingMidCta";
+import { LandingTokenPacks } from "@/pages/landing/components/LandingTokenPacks";
 import { cn } from "@/utils/cn";
 import { LANDING_CTA_PRIMARY, LANDING_CTA_SECONDARY, LANDING_HERO_BADGE, LANDING_HERO_SUBTITLE, LANDING_HERO_TITLE, LANDING_SIGN_IN_LINK, LANDING_SIGN_IN_PROMPT } from "@/pages/landing/constants";
 
@@ -50,6 +51,7 @@ export default function LandingPage() {
         <LandingFeatureSections />
         <LandingUseCases />
         <LandingHowItWorks />
+        <LandingTokenPacks />
         <LandingMidCta />
       </main>
       <LandingFooter />

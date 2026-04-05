@@ -2,25 +2,34 @@ import { Coins, Loader2, Lock, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import type { TokenPackDto } from "@/features/billing/interfaces/billing.interfaces";
 import { cn } from "@/utils/cn";
-import { formatEur, formatPricePer1kTokens } from "../utils";
+import { formatEur, formatPricePer1kTokens } from "@/features/billing/utils/format";
 
 interface TokenPackCardProps {
   pack: TokenPackDto;
   /** Featured tier (e.g. second pack in the list). */
   showFeaturedBadge: boolean;
-  /** True while this pack’s checkout is redirecting (shows spinner). */
-  isCheckoutBusy: boolean;
-  /** True while any pack checkout is in flight (disables all cards). */
-  isCheckoutLocked: boolean;
-  onBuy: () => void;
+  /** True while this pack’s action is in progress (shows spinner). */
+  isActionBusy: boolean;
+  /** True while any pack action is in flight (disables all cards). */
+  isActionLocked: boolean;
+  onPrimaryAction: () => void;
+  /** Primary button label when not busy. */
+  primaryCtaLabel?: string;
+  /** Shown while `isActionBusy` is true. */
+  busyCtaLabel?: string;
+  /** Stripe footnote under the button. */
+  showStripeFooter?: boolean;
 }
 
 export function TokenPackCard({
   pack,
   showFeaturedBadge,
-  isCheckoutBusy,
-  isCheckoutLocked,
-  onBuy,
+  isActionBusy,
+  isActionLocked,
+  onPrimaryAction,
+  primaryCtaLabel = "Continue to checkout",
+  busyCtaLabel = "Redirecting…",
+  showStripeFooter = true,
 }: TokenPackCardProps) {
   const per1k = formatPricePer1kTokens(pack.price, pack.tokens);
 
@@ -54,7 +63,7 @@ export function TokenPackCard({
 
       <div className="relative flex flex-1 flex-col p-6 pt-7">
         <div
-          className="pointer-events-none absolute -right-8 top-12 h-32 w-32 rounded-full bg-accent/10 blur-2xl transition-opacity group-hover:opacity-100 opacity-70"
+          className="pointer-events-none absolute -right-8 top-12 h-32 w-32 rounded-full bg-accent/10 blur-2xl opacity-70 transition-opacity group-hover:opacity-100"
           aria-hidden
         />
 
@@ -96,21 +105,23 @@ export function TokenPackCard({
           </div>
         </div>
 
-        <Button className="relative mt-5 w-full" size="lg" disabled={isCheckoutLocked} onClick={onBuy}>
-          {isCheckoutBusy ? (
+        <Button className="relative mt-5 w-full" size="lg" disabled={isActionLocked} onClick={onPrimaryAction}>
+          {isActionBusy ? (
             <>
               <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
-              Redirecting…
+              {busyCtaLabel}
             </>
           ) : (
-            "Continue to checkout"
+            primaryCtaLabel
           )}
         </Button>
 
-        <p className="mt-4 flex items-center justify-center gap-1.5 text-center text-xs text-slate-600">
-          <Lock className="h-3 w-3 shrink-0 text-slate-500" aria-hidden />
-          Secure payment via Stripe
-        </p>
+        {showStripeFooter ? (
+          <p className="mt-4 flex items-center justify-center gap-1.5 text-center text-xs text-slate-600">
+            <Lock className="h-3 w-3 shrink-0 text-slate-500" aria-hidden />
+            Secure payment via Stripe
+          </p>
+        ) : null}
       </div>
     </article>
   );

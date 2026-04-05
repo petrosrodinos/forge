@@ -3,7 +3,8 @@ import type { LucideIcon } from "lucide-react";
 import { Receipt, Zap } from "lucide-react";
 import type { PurchaseRecordDto, TokenUsageRecordDto } from "@/features/billing/interfaces/billing.interfaces";
 import { cn } from "@/utils/cn";
-import { formatEur, formatUsageKind } from "../utils";
+import { formatEur } from "@/features/billing/utils/format";
+import { formatUsageKind } from "../utils";
 import { PurchaseHistoryTableSkeleton, TokenUsageTableSkeleton } from "./BillingSkeletons";
 import { BillingEmptyState } from "./BillingEmptyState";
 

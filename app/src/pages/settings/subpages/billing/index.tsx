@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/Button";
 import { useBalance, useCheckout, usePacks, usePurchaseHistory, useTokenUsage } from "@/features/billing/hooks/use-billing.hooks";
 import { useAuthStore } from "@/store/authStore";
 import { cn } from "@/utils/cn";
+import { TokenPacksGrid } from "@/features/billing/components/TokenPacksGrid";
 import { BillingActivity, type BillingActivityTab } from "./components/BillingActivity";
-import { BalanceSkeleton, TokenPacksSkeleton } from "./components/BillingSkeletons";
-import { TokenPackCard } from "./components/TokenPackCard";
+import { BalanceSkeleton } from "./components/BillingSkeletons";
 
 export default function SettingsBillingPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -111,22 +111,13 @@ export default function SettingsBillingPage() {
             </p>
           </div>
 
-          {packsQuery.isLoading ? (
-            <TokenPacksSkeleton />
-          ) : (
-            <div className="grid auto-rows-fr gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {packs.map((pack, index) => (
-                <TokenPackCard
-                  key={pack.id}
-                  pack={pack}
-                  showFeaturedBadge={packs.length >= 2 && index === 1}
-                  isCheckoutBusy={checkoutMutation.isPending && checkoutMutation.variables === pack.id}
-                  isCheckoutLocked={checkoutMutation.isPending}
-                  onBuy={() => checkoutMutation.mutate(pack.id)}
-                />
-              ))}
-            </div>
-          )}
+          <TokenPacksGrid
+            packs={packs}
+            isLoading={packsQuery.isLoading}
+            onPackAction={(packId) => checkoutMutation.mutate(packId)}
+            busyPackId={checkoutMutation.isPending ? checkoutMutation.variables : null}
+            isActionLocked={checkoutMutation.isPending}
+          />
         </section>
 
         <BillingActivity activityTab={activityTab} onTabChange={setActivityTab} historyQuery={historyQuery} usageQuery={usageQuery} packNameById={packNameById} />
