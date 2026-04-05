@@ -60,6 +60,7 @@ export const OPEN_API_DOCUMENT = {
     { name: "Pipeline" },
     { name: "Billing" },
     { name: "Pricing" },
+    { name: "Admin" },
     { name: "Health" },
   ],
   components: {
@@ -342,6 +343,54 @@ export const OPEN_API_DOCUMENT = {
         description:
           "Stable keys for UI. Fixed `tokens` match wallet debits; variable items point at `imageModels` in /api/pricing/catalog.",
         responses: { "200": jsonContent({ type: "object", additionalProperties: true }) },
+      },
+    },
+    "/api/admin/metrics": {
+      get: {
+        tags: ["Admin"],
+        summary: "Admin revenue metrics",
+        description:
+          "Net Stripe checkout volume after fees (`netPurchaseCents`) and cumulative usage ledger margin Σ(price − priceOriginal).",
+        security: [{ cookieAuth: [] }],
+        responses: {
+          "200": jsonContent({
+            type: "object",
+            properties: {
+              netPurchaseCents: { type: "number" },
+              tokenUsageMarginTotal: { type: "number" },
+            },
+            required: ["netPurchaseCents", "tokenUsageMarginTotal"],
+          }),
+          "401": errorContent("Unauthorized"),
+          "403": errorContent("Forbidden"),
+        },
+      },
+    },
+    "/api/admin/users": {
+      get: {
+        tags: ["Admin"],
+        summary: "List users (admin)",
+        security: [{ cookieAuth: [] }],
+        responses: {
+          "200": jsonContent({
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                id: { type: "string" },
+                email: { type: "string" },
+                displayName: { type: "string", nullable: true },
+                role: { type: "string" },
+                tokenBalance: { type: "number" },
+                createdAt: { type: "string", format: "date-time" },
+                updatedAt: { type: "string", format: "date-time" },
+              },
+              required: ["id", "email", "role", "tokenBalance", "createdAt", "updatedAt"],
+            },
+          }),
+          "401": errorContent("Unauthorized"),
+          "403": errorContent("Forbidden"),
+        },
       },
     },
     "/api/auth/register": {

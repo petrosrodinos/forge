@@ -46,6 +46,8 @@ model TokenPurchase {
   packId          String
   tokens          Int
   amountCents     Int
+  /// Stripe processing fee for the charge (from BalanceTransaction.fee), minor currency units. Not exposed to clients.
+  stripeFeeCents  Int?
   stripeSessionId String   @unique
   createdAt       DateTime @default(now())
 

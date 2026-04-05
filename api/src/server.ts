@@ -17,6 +17,7 @@ import tripoRouter from "./modules/tripo/tripo.router";
 import generateAndMeshRouter from "./modules/generate-and-mesh/generate-and-mesh.router";
 import billingRouter from "./modules/billing/billing.router";
 import pricingRouter from "./modules/pricing/pricing.router";
+import adminRouter from "./modules/admin/admin.router";
 
 import authRouter from "./modules/auth/auth.router";
 import figuresRouter from "./modules/figures/figures.router";
@@ -68,6 +69,7 @@ app.use("/api/auth", authRouter);
 
 app.use("/api/billing", billingRouter);
 app.use("/api/pricing", pricingRouter);
+app.use("/api/admin", adminRouter);
 
 // Legacy / non-DB routes
 app.use("/api/chat", chatRouter);

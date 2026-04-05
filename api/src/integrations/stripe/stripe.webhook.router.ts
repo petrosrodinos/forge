@@ -6,6 +6,26 @@ import { creditTokensFromWebhook } from "../../modules/billing/billing.service";
 
 const router = Router();
 
+/** Stripe’s fee on the charge (BalanceTransaction.fee), in minor units; null if unavailable. */
+async function stripeFeeCentsForCheckoutSession(sessionId: string): Promise<number | null> {
+  try {
+    const full = await stripe.checkout.sessions.retrieve(sessionId, {
+      expand: ["payment_intent.latest_charge.balance_transaction"],
+    });
+    const pi = full.payment_intent;
+    if (!pi || typeof pi === "string") return null;
+    const charge = pi.latest_charge;
+    if (!charge || typeof charge === "string") return null;
+    const bt = charge.balance_transaction;
+    if (!bt || typeof bt === "string") return null;
+    const fee = bt.fee;
+    return typeof fee === "number" && fee >= 0 ? fee : null;
+  } catch (err) {
+    console.warn("[stripe webhook] could not resolve balance transaction fee:", err);
+    return null;
+  }
+}
+
 router.post("/stripe/webhook", express.raw({ type: "application/json" }), async (req, res) => {
   const sig = req.headers["stripe-signature"];
   if (typeof sig !== "string") {
@@ -38,12 +58,14 @@ router.post("/stripe/webhook", express.raw({ type: "application/json" }), async 
     }
 
     try {
+      const stripeFeeCents = await stripeFeeCentsForCheckoutSession(session.id);
       await creditTokensFromWebhook(
         meta.userId,
         meta.packId,
         tokens,
         session.amount_total ?? 0,
         session.id,
+        stripeFeeCents,
       );
     } catch (err) {
       console.error("Webhook processing error:", err);

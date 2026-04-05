@@ -81,6 +81,7 @@ export async function creditTokensFromWebhook(
   tokens: number,
   amountCents: number,
   stripeSessionId: string,
+  stripeFeeCents: number | null,
 ) {
   const existing = await prisma.tokenPurchase.findUnique({ where: { stripeSessionId } });
   if (existing) return;
@@ -91,7 +92,7 @@ export async function creditTokensFromWebhook(
       data: { tokenBalance: { increment: tokens } },
     }),
     prisma.tokenPurchase.create({
-      data: { userId, packId, tokens, amountCents, stripeSessionId },
+      data: { userId, packId, tokens, amountCents, stripeSessionId, stripeFeeCents },
     }),
   ]);
 }
