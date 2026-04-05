@@ -3,6 +3,7 @@ import { PromptEditor } from "@/pages/forge/components/prompt-editor";
 import { ImageGrid } from "@/pages/forge/components/image-grid";
 import { ImageUploader } from "@/pages/forge/components/image-uploader";
 import { ModelCard } from "@/pages/forge/components/model-card";
+import { Spinner } from "@/components/ui/Spinner";
 import { useForgeStore } from "@/store/forgeStore";
 import { usePipeline } from "@/features/pipeline/hooks/use-pipeline.hooks";
 import { useUpdateVariant } from "@/features/skin-variants/hooks/use-skin-variants.hooks";
@@ -113,7 +114,21 @@ export function VariantPanel({ variant, figureId, figureType, figureName, skinNa
 
       <div className="flex flex-col gap-2 px-4 py-4 border-b border-border">
         <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Images</p>
-        <ImageUploader onFile={handleUploadFile} disabled={uploadSkinImage.isPending} />
+        {uploadSkinImage.isPending ? (
+          <div
+            className="flex items-center gap-2 rounded-lg border border-accent/20 bg-accent/10 px-3 py-2 text-xs text-accent-light/95"
+            role="status"
+            aria-live="polite"
+          >
+            <Spinner className="h-3.5 w-3.5" />
+            <span>Uploading image…</span>
+          </div>
+        ) : null}
+        <ImageUploader
+          onFile={handleUploadFile}
+          disabled={uploadSkinImage.isPending}
+          isUploading={uploadSkinImage.isPending}
+        />
         {variant.images.length > 0 ? (
           <ImageGrid
             images={variant.images}

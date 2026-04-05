@@ -3,6 +3,7 @@ import { PromptEditor } from "@/pages/forge/components/prompt-editor";
 import { ImageGrid } from "@/pages/forge/components/image-grid";
 import { ImageUploader } from "@/pages/forge/components/image-uploader";
 import { ModelCard } from "@/pages/forge/components/model-card";
+import { Spinner } from "@/components/ui/Spinner";
 import { useForgeStore } from "@/store/forgeStore";
 import { usePipeline } from "@/features/pipeline/hooks/use-pipeline.hooks";
 import { useUpdateVariant } from "@/features/skin-variants/hooks/use-skin-variants.hooks";
@@ -123,8 +124,22 @@ export function VariantPanel({ variant, figureId, figureType, figureName, skinNa
           <p className="text-xs text-slate-500 leading-relaxed">
             Your uploads and generated images for this variant. Click a card to select it, then use Run 3D to turn that picture into a mesh.
           </p>
+          {uploadSkinImage.isPending ? (
+            <div
+              className="flex items-center gap-2 rounded-lg border border-accent/20 bg-accent/10 px-3 py-2 text-xs text-accent-light/95"
+              role="status"
+              aria-live="polite"
+            >
+              <Spinner className="h-3.5 w-3.5" />
+              <span>Uploading image…</span>
+            </div>
+          ) : null}
         </div>
-        <ImageUploader onFile={handleUploadFile} disabled={uploadSkinImage.isPending} />
+        <ImageUploader
+          onFile={handleUploadFile}
+          disabled={uploadSkinImage.isPending}
+          isUploading={uploadSkinImage.isPending}
+        />
         <div className="mt-3">
           {variant.images.length > 0 ? (
             <ImageGrid
