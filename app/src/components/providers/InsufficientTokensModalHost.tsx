@@ -22,6 +22,7 @@ export function InsufficientTokensModalHost() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const isOpen = useInsufficientTokensModalStore((s) => s.isOpen);
+  const openSeq = useInsufficientTokensModalStore((s) => s.openSeq);
   const required = useInsufficientTokensModalStore((s) => s.required);
   const balance = useInsufficientTokensModalStore((s) => s.balance);
   const close = useInsufficientTokensModalStore((s) => s.close);
@@ -34,6 +35,7 @@ export function InsufficientTokensModalHost() {
 
   return (
     <Modal
+      key={openSeq}
       open={isOpen}
       onClose={close}
       title={MODAL_TITLE}

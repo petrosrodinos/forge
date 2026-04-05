@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { parseSSE } from "@/hooks/useSSE";
+import { notifyInsufficientTokensIf402 } from "@/store/insufficientTokensModalStore";
 import { API_BASE_URL } from "@/utils/constants";
 
 export interface RigCompletePayload {
@@ -24,6 +25,7 @@ export function useRig(onComplete: (r: RigCompletePayload) => void) {
 
       if (!res.ok) {
         const errBody = await res.json().catch(() => ({}));
+        notifyInsufficientTokensIf402(res.status, errBody);
         const msg =
           typeof (errBody as { error?: unknown }).error === "string"
             ? (errBody as { error: string }).error

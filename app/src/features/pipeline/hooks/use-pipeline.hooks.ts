@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { parseSSE } from "@/hooks/useSSE";
 import type { PipelineResult } from "@/features/pipeline/interfaces/pipeline.interfaces";
+import { notifyInsufficientTokensIf402 } from "@/store/insufficientTokensModalStore";
 import { API_BASE_URL } from "@/utils/constants";
 
 export function usePipeline(
@@ -35,6 +36,7 @@ export function usePipeline(
 
       if (!res.ok) {
         const errBody = await res.json().catch(() => ({}));
+        notifyInsufficientTokensIf402(res.status, errBody);
         const msg =
           typeof (errBody as { error?: unknown }).error === "string"
             ? (errBody as { error: string }).error
