@@ -49,11 +49,14 @@ export function makeHandlers(aiml: AimlApiService, tripo: TripoService): Record<
     aiml_listModels: async () => aiml.listModels(),
     aiml_responses: async (args) => aiml.responses(args as never),
     aiml_chatCompletion: async (args) => aiml.chatCompletion(args as never),
-    aiml_generateImage: async (args) => aiml.generateImage(args as never),
+    aiml_generateImage: async (args) => {
+      const { data, costsMetadata } = await aiml.generateImage(args as never);
+      return { ...data, costsMetadata };
+    },
     aiml_generateImageToFile: async (args) => {
       const outputPath = requiredString(args, "outputPath");
-      const response = await aiml.generateImage(args as never);
-      const first = response.data[0];
+      const { data: imagePayload } = await aiml.generateImage(args as never);
+      const first = imagePayload.data[0];
       if (!first) throw new Error("No image returned");
       if (first.b64_json) return { savedPath: await writeBufferToPath(Buffer.from(first.b64_json, "base64"), outputPath) };
       if (first.url) return { savedPath: await saveImageFromUrl(first.url, outputPath), sourceUrl: first.url };
@@ -83,7 +86,10 @@ export function makeHandlers(aiml: AimlApiService, tripo: TripoService): Record<
     aiml_getBalance: async () => aiml.getBalance(),
     aiml_listApiKeys: async () => aiml.listApiKeys(),
     aiml_getCurrentKey: async () => aiml.getCurrentKey(),
-    tripo_createTask: async (args) => tripo.createTask(args as never),
+    tripo_createTask: async (args) => {
+      const { createTaskResponse, costsMetadata } = await tripo.createTask(args as never);
+      return { task: createTaskResponse, costsMetadata };
+    },
     tripo_getTask: async (args) => tripo.getTask(String(args.taskId)),
     tripo_pollTask: async (args) => tripo.pollTask(String(args.taskId), { intervalMs: typeof args.intervalMs === "number" ? args.intervalMs : undefined, timeoutMs: typeof args.timeoutMs === "number" ? args.timeoutMs : undefined }),
     tripo_getBalance: async () => tripo.getBalance(),

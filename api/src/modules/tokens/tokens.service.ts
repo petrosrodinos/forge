@@ -19,6 +19,58 @@ import {
 } from "../../config/models/token-operations";
 import { env } from "../../config/env/env-validation";
 
+function mergeJsonMetadata(
+  prev: Prisma.JsonValue | null | undefined,
+  patch: Prisma.InputJsonValue,
+): Prisma.InputJsonValue {
+  if (
+    prev != null &&
+    typeof prev === "object" &&
+    !Array.isArray(prev) &&
+    patch != null &&
+    typeof patch === "object" &&
+    !Array.isArray(patch)
+  ) {
+    const p = prev as Record<string, unknown>;
+    const q = patch as Record<string, unknown>;
+    const out: Record<string, unknown> = { ...p };
+    for (const [k, v] of Object.entries(q)) {
+      const existing = out[k];
+      if (
+        existing != null &&
+        typeof existing === "object" &&
+        !Array.isArray(existing) &&
+        v != null &&
+        typeof v === "object" &&
+        !Array.isArray(v)
+      ) {
+        out[k] = mergeJsonMetadata(existing as Prisma.JsonValue, v as Prisma.InputJsonValue);
+      } else {
+        out[k] = v;
+      }
+    }
+    return out as Prisma.InputJsonValue;
+  }
+  return patch;
+}
+
+/** Merge extra fields into an existing usage row (e.g. provider response after debit). */
+export async function mergeTokenUsageMetadataByIdempotencyKey(
+  idempotencyKey: string,
+  patch: Prisma.InputJsonValue,
+): Promise<void> {
+  const key = idempotencyKey.trim();
+  if (!key) return;
+  await prisma.$transaction(async (tx) => {
+    const row = await tx.tokenUsage.findUnique({ where: { idempotencyKey: key }, select: { metadata: true } });
+    if (!row) return;
+    await tx.tokenUsage.update({
+      where: { idempotencyKey: key },
+      data: { metadata: mergeJsonMetadata(row.metadata, patch) },
+    });
+  });
+}
+
 export class InsufficientTokensError extends Error {
   readonly statusCode = 402;
   readonly required: number;
@@ -30,6 +82,13 @@ export class InsufficientTokensError extends Error {
     this.required = required;
     this.balance = balance;
   }
+}
+
+export async function assertUserHasTokenBalance(userId: string, cost: number): Promise<void> {
+  if (cost <= 0) return;
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { tokenBalance: true } });
+  const bal = user?.tokenBalance ?? 0;
+  if (bal < cost) throw new InsufficientTokensError(cost, bal);
 }
 
 function trippoNumericPriceOriginal(m: (typeof TrippoModels)[number]): number {
@@ -106,7 +165,32 @@ async function debitWithUsageTx(
   });
 }
 
-export async function debitForOperation(userId: string, operation: TokenOperation, idempotencyKey?: string | null) {
+export function getDebitTokensForImageModel(modelId: string): number {
+  const m = ImageModels.find((x) => x.id === modelId);
+  if (!m) {
+    const err = new Error(`Unknown image model: ${modelId}`);
+    (err as Error & { status?: number }).status = 400;
+    throw err;
+  }
+  return Math.ceil(m.tokens);
+}
+
+export function getDebitTokensForTrippoModelId(trippoModelId: string): number {
+  const m = TrippoModels.find((x) => x.id === trippoModelId);
+  if (!m) {
+    const err = new Error(`Unknown Tripo model: ${trippoModelId}`);
+    (err as Error & { status?: number }).status = 400;
+    throw err;
+  }
+  return trippoWalletDebitFromRow(m);
+}
+
+export async function debitForOperation(
+  userId: string,
+  operation: TokenOperation,
+  idempotencyKey?: string | null,
+  metadata?: Prisma.InputJsonValue | null,
+) {
   const cost = getTokenOperationDebit(operation);
   if (cost <= 0) return;
 
@@ -169,6 +253,7 @@ export async function debitForOperation(userId: string, operation: TokenOperatio
       price,
       markupFactor: MARKUP_FACTOR,
       idempotencyKey,
+      metadata: metadata ?? undefined,
     }),
   );
 }
@@ -177,6 +262,7 @@ export async function debitForImageModel(
   userId: string,
   modelId: string,
   idempotencyKey?: string | null,
+  metadata?: Prisma.InputJsonValue | null,
 ) {
   const m = ImageModels.find((x) => x.id === modelId);
   if (!m) {
@@ -199,6 +285,7 @@ export async function debitForImageModel(
       price: m.price,
       markupFactor: MARKUP_FACTOR,
       idempotencyKey,
+      metadata: metadata ?? undefined,
     }),
   );
 }
@@ -208,6 +295,7 @@ export async function debitForTrippoModelId(
   trippoModelId: string,
   operation: string,
   idempotencyKey?: string | null,
+  metadata?: Prisma.InputJsonValue | null,
 ) {
   const m = TrippoModels.find((x) => x.id === trippoModelId);
   if (!m) {
@@ -231,6 +319,7 @@ export async function debitForTrippoModelId(
       price: m.price,
       markupFactor: MARKUP_FACTOR,
       idempotencyKey,
+      metadata: metadata ?? undefined,
     }),
   );
 }
@@ -239,6 +328,7 @@ export async function debitImageThenTrippoMesh(
   userId: string,
   imageModelId: string,
   idempotencyKey?: string | null,
+  metadata?: { image?: Prisma.InputJsonValue | null; trippo?: Prisma.InputJsonValue | null },
 ) {
   const img = ImageModels.find((x) => x.id === imageModelId);
   if (!img) {
@@ -275,6 +365,7 @@ export async function debitImageThenTrippoMesh(
       price: img.price,
       markupFactor: MARKUP_FACTOR,
       idempotencyKey: kImg,
+      metadata: metadata?.image ?? undefined,
     });
 
     await debitWithUsageTx(tx, {
@@ -288,6 +379,7 @@ export async function debitImageThenTrippoMesh(
       price: mesh.price,
       markupFactor: MARKUP_FACTOR,
       idempotencyKey: kMesh,
+      metadata: metadata?.trippo ?? undefined,
     });
   });
 }

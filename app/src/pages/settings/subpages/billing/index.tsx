@@ -80,6 +80,7 @@ function TokenUsageTableSkeleton() {
         <Skeleton className="h-3 w-12" />
         <Skeleton className="h-3 w-16" />
         <Skeleton className="h-3 w-12" />
+        <Skeleton className="h-3 w-16" />
         <Skeleton className="h-3 w-10" />
       </div>
       <div className="divide-y divide-border">
@@ -89,6 +90,7 @@ function TokenUsageTableSkeleton() {
             <Skeleton className="h-4 flex-1 min-w-[6rem] max-w-[12rem]" />
             <Skeleton className="h-4 w-20" />
             <Skeleton className="h-4 w-8" />
+            <Skeleton className="h-4 w-10" />
             <Skeleton className="h-4 w-32" />
           </div>
         ))}
@@ -277,6 +279,7 @@ export default function SettingsBillingPage() {
                       <th className="px-4 py-3 font-medium">Model</th>
                       <th className="px-4 py-3 font-medium">Operation</th>
                       <th className="px-4 py-3 font-medium">Tokens</th>
+                      <th className="px-4 py-3 font-medium">Costs meta</th>
                       <th className="px-4 py-3 font-medium">Date</th>
                     </tr>
                   </thead>
@@ -289,6 +292,9 @@ export default function SettingsBillingPage() {
                         </td>
                         <td className="px-4 py-3 text-slate-400 text-xs">{row.operation ?? "—"}</td>
                         <td className="px-4 py-3 font-mono tabular-nums text-slate-300">{row.tokens}</td>
+                        <td className="px-4 py-3 text-slate-500 text-xs max-w-[14rem] truncate" title={row.metadata ? JSON.stringify(row.metadata) : undefined}>
+                          {row.metadata ? "Yes" : "—"}
+                        </td>
                         <td className="px-4 py-3 text-slate-400 whitespace-nowrap">
                           {new Date(row.createdAt).toLocaleString()}
                         </td>

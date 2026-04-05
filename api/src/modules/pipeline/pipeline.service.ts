@@ -46,14 +46,15 @@ export async function runPipeline(opts: RunPipelineOpts) {
 
     // ── 2. Mesh generation ───────────────────────────────────────────────
     emitProgress({ step: PIPELINE_CONFIG.PIPELINE_STEPS.MESH, status: PIPELINE_CONFIG.PIPELINE_STATUSES.RUNNING });
-    const meshTask = await tripo.createTask({
+    const { createTaskResponse: meshTask, costsMetadata: meshCostsMetadata } = await tripo.createTask({
       type: TRIPO_CONFIG.TRIPO_TASK_TYPES.IMAGE_TO_MODEL,
       file: { type: mimeType === "image/jpeg" ? "jpeg" : "png", file_token: fileToken },
       model_version: modelVersion as never,
       texture: true,
       pbr: true,
     } as never);
-    const meshTaskId = (meshTask.data as any).task_id as string;
+    const meshTaskId = (meshTask.data as { task_id?: string }).task_id as string;
+    await opts.onMeshTaskCostsMetadata?.(meshCostsMetadata);
 
     await model3dSvc.updateModel3DProcessing(model.id, { meshTaskId });
     emitProgress({ step: PIPELINE_CONFIG.PIPELINE_STEPS.MESH, status: PIPELINE_CONFIG.PIPELINE_STATUSES.QUEUED, data: { taskId: meshTaskId } });

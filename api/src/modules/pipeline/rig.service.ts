@@ -4,6 +4,7 @@ import { createPrerigCheck, createRig } from "../tripo/tripo.service";
 import * as model3dRepo from "../models3d/repositories/models3d.repository";
 import { PIPELINE_CONFIG } from "./config/pipeline.config";
 import type { PipelineProgressEmitter, PipelineSseEventEmitter } from "./interfaces/pipeline.types";
+import { mergeTokenUsageMetadataByIdempotencyKey } from "../tokens/tokens.service";
 
 export async function runRigPipeline(opts: {
   model3dId: string;
@@ -32,7 +33,10 @@ export async function runRigPipeline(opts: {
   const meshTaskId = model.meshTaskId;
 
   emitProgress({ step: PIPELINE_CONFIG.PIPELINE_STEPS.PRERIG, status: PIPELINE_CONFIG.PIPELINE_STATUSES.RUNNING });
-  const { prerigTaskId } = await createPrerigCheck(meshTaskId);
+  const { prerigTaskId, costsMetadata: prerigCosts } = await createPrerigCheck(meshTaskId);
+  await mergeTokenUsageMetadataByIdempotencyKey(`rig:${model3dId}`, {
+    providerCosts: { trippo: { prerigCreateTask: prerigCosts } },
+  });
   await model3dRepo.updateModel3DTaskIds(model3dId, { prerigTaskId });
   emitProgress({
     step: PIPELINE_CONFIG.PIPELINE_STEPS.PRERIG,
@@ -50,7 +54,10 @@ export async function runRigPipeline(opts: {
   emitProgress({ step: PIPELINE_CONFIG.PIPELINE_STEPS.PRERIG, status: PIPELINE_CONFIG.PIPELINE_STATUSES.SUCCESS });
 
   emitProgress({ step: PIPELINE_CONFIG.PIPELINE_STEPS.RIG, status: PIPELINE_CONFIG.PIPELINE_STATUSES.RUNNING });
-  const { rigTaskId } = await createRig(meshTaskId);
+  const { rigTaskId, costsMetadata: rigCosts } = await createRig(meshTaskId);
+  await mergeTokenUsageMetadataByIdempotencyKey(`rig:${model3dId}`, {
+    providerCosts: { trippo: { rigCreateTask: rigCosts } },
+  });
   emitProgress({
     step: PIPELINE_CONFIG.PIPELINE_STEPS.RIG,
     status: PIPELINE_CONFIG.PIPELINE_STATUSES.QUEUED,

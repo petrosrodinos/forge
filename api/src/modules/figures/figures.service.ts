@@ -19,7 +19,13 @@ import { applyNegativePrompt } from "./helpers/negativePrompt.helper";
 import { safeParseJsonObject } from "./helpers/safeJsonObjectParse.helper";
 import { FIGURES_CONFIG } from "./config/figures.config";
 import { IMAGES_CONFIG } from "../images/config/images.config";
-import { debitForImageModel, debitForOperation } from "../tokens/tokens.service";
+import { usageMetadataWithProviderCosts } from "../../lib/provider-costs-metadata";
+import {
+  assertUserHasTokenBalance,
+  debitForImageModel,
+  debitForOperation,
+  getDebitTokensForImageModel,
+} from "../tokens/tokens.service";
 import {
   AI_VARIANT_SYSTEM_PROMPT,
   buildAiVariantUserPrompt,
@@ -71,7 +77,7 @@ export async function generateAndSaveFigureImage(userId: string, input: Generate
     throw new Error("Skin not found for figure");
   }
 
-  await debitForImageModel(userId, model);
+  await assertUserHasTokenBalance(userId, getDebitTokensForImageModel(model));
 
   const variantRecord = await upsertSkinVariant({
     skinId: resolvedSkin.id,
@@ -82,7 +88,7 @@ export async function generateAndSaveFigureImage(userId: string, input: Generate
   });
 
   const finalPrompt = applyNegativePrompt(prompt, negativePrompt);
-  const generated = await getAiml().generateImage({
+  const { data: generated, costsMetadata } = await getAiml().generateImage({
     model,
     prompt: finalPrompt,
     size,
@@ -95,6 +101,13 @@ export async function generateAndSaveFigureImage(userId: string, input: Generate
     (first?.b64_json ? `data:image/png;base64,${first.b64_json}` : null);
 
   if (!imageUrl) throw new Error("No image in generation response");
+
+  await debitForImageModel(
+    userId,
+    model,
+    undefined,
+    usageMetadataWithProviderCosts(costsMetadata, "aimlapi"),
+  );
 
   const savedImage = await skinImageSvc.createSkinImage(
     variantRecord.id,

@@ -67,6 +67,7 @@ export async function getUsageHistory(userId: string, limit: number): Promise<Us
     operation: r.operation ?? null,
     tokens: r.tokens,
     createdAt: r.createdAt.toISOString(),
+    metadata: r.metadata ?? null,
   }));
 }
 

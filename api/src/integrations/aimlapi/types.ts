@@ -172,6 +172,8 @@ export interface ImageData {
 export interface ImageGenerationResponse {
   created: number;
   data: ImageData[];
+  /** Present on some AimlAPI / OpenAI-compatible image responses. */
+  usage?: UsageStats;
 }
 
 // ── Video generation ──────────────────────────────────────────────────────────

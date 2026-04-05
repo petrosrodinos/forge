@@ -1,8 +1,11 @@
 import { AxiosInstance } from "axios";
 import FormData from "form-data";
 import { Readable } from "stream";
+import type { AxiosResponse } from "axios";
 import { createAimlHttpClient } from "./client";
 import { requireEnv } from "../../config/env";
+import { buildAimlImageGenerationCostsMetadata } from "../../lib/provider-costs-metadata";
+import type { Prisma } from "../../generated/prisma/client";
 import {
   ApiKeyItem,
   BatchRequestItem,
@@ -70,9 +73,14 @@ export class AimlApiService {
 
   // ── Image generation ────────────────────────────────────────────────────────
 
-  async generateImage(body: ImageGenerationRequest | Record<string, unknown>): Promise<ImageGenerationResponse> {
-    const res = await this.http.post<ImageGenerationResponse>("/v1/images/generations", body);
-    return res.data;
+  async generateImage(
+    body: ImageGenerationRequest | Record<string, unknown>,
+  ): Promise<{ data: ImageGenerationResponse; costsMetadata: Prisma.InputJsonValue }> {
+    const res: AxiosResponse<ImageGenerationResponse> = await this.http.post(
+      "/v1/images/generations",
+      body,
+    );
+    return { data: res.data, costsMetadata: buildAimlImageGenerationCostsMetadata(res) };
   }
 
   // ── Video generation ────────────────────────────────────────────────────────

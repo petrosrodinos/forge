@@ -21,4 +21,6 @@ export interface UsageRecord {
   operation: string | null;
   tokens: number;
   createdAt: string;
+  /** Provider response snapshots (AimlAPI / Tripo) for cost reconciliation. */
+  metadata: unknown | null;
 }

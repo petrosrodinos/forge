@@ -11,7 +11,12 @@ import {
 import { getAiml } from "../../services";
 import * as skinImageSvc from "../skin-images/skin-images.service";
 import { IMAGES_CONFIG } from "../images/config/images.config";
-import { debitForImageModel } from "../tokens/tokens.service";
+import { usageMetadataWithProviderCosts } from "../../lib/provider-costs-metadata";
+import {
+  assertUserHasTokenBalance,
+  debitForImageModel,
+  getDebitTokensForImageModel,
+} from "../tokens/tokens.service";
 import { ImageModels } from "../../config/models/image-models";
 import { buildAimlImageGenerationsBody } from "../../integrations/aimlapi/buildImageGenerationsBody";
 
@@ -78,9 +83,9 @@ export async function generateImageForVariant(
 
   const finalPrompt = neg ? `${prompt}\n\nNegative prompt: ${neg}` : prompt;
 
-  await debitForImageModel(userId, model);
+  await assertUserHasTokenBalance(userId, getDebitTokensForImageModel(model));
 
-  const generated = await getAiml().generateImage(
+  const { data: generated, costsMetadata } = await getAiml().generateImage(
     sourceTrimmed
       ? buildAimlImageGenerationsBody({
           internalModelId: model,
@@ -97,6 +102,13 @@ export async function generateImageForVariant(
     (first?.b64_json ? `data:image/png;base64,${first.b64_json}` : null);
 
   if (!imageUrl) throw new Error("No image returned from generation");
+
+  await debitForImageModel(
+    userId,
+    model,
+    undefined,
+    usageMetadataWithProviderCosts(costsMetadata, "aimlapi"),
+  );
 
   const savedImage = await skinImageSvc.createSkinImage(v.id, figureId, imageUrl);
   return { imageUrl, skinImageId: savedImage.id };

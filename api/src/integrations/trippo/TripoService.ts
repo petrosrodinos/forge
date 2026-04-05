@@ -1,8 +1,11 @@
 import { AxiosInstance } from "axios";
 import FormData from "form-data";
 import { Readable } from "stream";
+import type { AxiosResponse } from "axios";
 import { createHttpClient } from "./client";
 import { requireEnv } from "../../config/env";
+import type { Prisma } from "../../generated/prisma/client";
+import { buildTrippoCostsMetadata } from "../../lib/provider-costs-metadata";
 import {
   CreateTaskRequest,
   CreateTaskResponse,
@@ -22,9 +25,12 @@ export class TripoService {
 
   // ── Tasks ────────────────────────────────────────────────────────────────
 
-  async createTask(body: CreateTaskRequest): Promise<CreateTaskResponse> {
-    const res = await this.http.post<CreateTaskResponse>("/task", body);
-    return res.data;
+  async createTask(body: CreateTaskRequest): Promise<{
+    createTaskResponse: CreateTaskResponse;
+    costsMetadata: Prisma.InputJsonValue;
+  }> {
+    const res: AxiosResponse<CreateTaskResponse> = await this.http.post("/task", body);
+    return { createTaskResponse: res.data, costsMetadata: buildTrippoCostsMetadata(res) };
   }
 
   async getTask(taskId: string): Promise<SuccessResponse<Task>> {

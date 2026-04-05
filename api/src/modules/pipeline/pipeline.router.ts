@@ -3,12 +3,19 @@ import multer from "multer";
 import { sseHeaders, sseWrite } from "../../lib/sse";
 import { runPipeline } from "./pipeline.service";
 import { runRigPipeline } from "./rig.service";
-import { streamAnimatePipeline } from "./animate-stream";
 import { TRIPO_CONFIG } from "../tripo/config/tripo.config";
 import { PIPELINE_CONFIG } from "./config/pipeline.config";
 import { prisma } from "../../integrations/db/client";
-import { debitForOperation, InsufficientTokensError } from "../tokens/tokens.service";
+import { usageMetadataWithProviderCosts } from "../../lib/provider-costs-metadata";
+import { getTokenOperationDebit } from "../../config/models/token-operations";
+import {
+  assertUserHasTokenBalance,
+  debitForOperation,
+  InsufficientTokensError,
+  mergeTokenUsageMetadataByIdempotencyKey,
+} from "../tokens/tokens.service";
 import { requireTokens } from "../../middleware/requireTokens";
+import { animateTokenUsageIdempotencyKey, streamAnimatePipeline } from "./animate-stream";
 
 const upload = multer({ storage: multer.memoryStorage() });
 const router = Router();
@@ -63,8 +70,19 @@ router.post("/mesh", upload.single("image"), async (req, res, next) => {
 
   const modelVersion = (req.body.modelVersion as string) ?? TRIPO_CONFIG.DEFAULT_TRIPO_MODEL_VERSION;
 
+  const pipelineIdem = `pipeline:${figureId}:${variantId}:${skinImageId ?? (req.file ? "upload" : "none")}`;
+
   try {
-    await debitForOperation(req.userId, "pipeline");
+    await assertUserHasTokenBalance(req.userId, getTokenOperationDebit("pipeline"));
+  } catch (e) {
+    if (e instanceof InsufficientTokensError) {
+      return res.status(402).json({ error: e.message, required: e.required, balance: e.balance });
+    }
+    return next(e);
+  }
+
+  try {
+    await debitForOperation(req.userId, "pipeline", pipelineIdem);
   } catch (e) {
     if (e instanceof InsufficientTokensError) {
       return res.status(402).json({ error: e.message, required: e.required, balance: e.balance });
@@ -87,6 +105,12 @@ router.post("/mesh", upload.single("image"), async (req, res, next) => {
       },
       emitEvent: (event, data) => {
         sseWrite(res, event, data);
+      },
+      onMeshTaskCostsMetadata: async (meta) => {
+        await mergeTokenUsageMetadataByIdempotencyKey(
+          pipelineIdem,
+          usageMetadataWithProviderCosts(meta, "trippo"),
+        );
       },
     });
   } catch (e) {
@@ -149,10 +173,17 @@ router.post(
     }
     next();
   },
-  requireTokens("animationRetarget"),
+  requireTokens("animationRetarget", (req) => {
+    const { model3dId, animations } = req.body as { model3dId?: string; animations?: string[] };
+    if (typeof model3dId !== "string" || !Array.isArray(animations) || animations.length === 0) {
+      return undefined;
+    }
+    return animateTokenUsageIdempotencyKey(model3dId, animations);
+  }),
   async (req, res) => {
     const { model3dId, animations } = req.body as { model3dId: string; animations: string[] };
-    await streamAnimatePipeline(req, res, model3dId, animations);
+    const idem = animateTokenUsageIdempotencyKey(model3dId, animations);
+    await streamAnimatePipeline(req, res, model3dId, animations, idem);
   },
 );
 

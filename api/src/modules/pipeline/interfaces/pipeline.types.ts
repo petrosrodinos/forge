@@ -1,3 +1,5 @@
+import type { Prisma } from "../../../generated/prisma/client";
+
 export type PipelineProgressEmitter = (payload: {
   step: string;
   status: string;
@@ -21,4 +23,7 @@ export interface RunPipelineOpts {
 
   emitProgress: PipelineProgressEmitter;
   emitEvent: PipelineSseEventEmitter;
+
+  /** Fires when Tripo accepts the mesh task (for token-usage provider metadata). */
+  onMeshTaskCostsMetadata?: (costsMetadata: Prisma.InputJsonValue) => void | Promise<void>;
 }

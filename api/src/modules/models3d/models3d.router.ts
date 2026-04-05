@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { requireTokens } from "../../middleware/requireTokens";
-import { streamAnimatePipeline } from "../pipeline/animate-stream";
+import { animateTokenUsageIdempotencyKey, streamAnimatePipeline } from "../pipeline/animate-stream";
 import * as models3dSvc from "./models3d.service";
 
 const router = Router({ mergeParams: true });
@@ -18,7 +18,8 @@ router.post(
   async (req, res) => {
     const animations = (req.body as { animations?: string[] }).animations ?? [];
     const model3dId = Array.isArray(req.params.model3dId) ? req.params.model3dId[0] : req.params.model3dId;
-    await streamAnimatePipeline(req, res, model3dId, animations);
+    const idem = animateTokenUsageIdempotencyKey(model3dId, animations);
+    await streamAnimatePipeline(req, res, model3dId, animations, idem);
   },
 );
 

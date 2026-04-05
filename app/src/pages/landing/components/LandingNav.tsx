@@ -2,14 +2,18 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/features/auth/hooks/use-auth.hooks";
 import { Spinner } from "@/components/ui/Spinner";
 import { cn } from "@/utils/cn";
-import { LANDING_BRAND, LANDING_NAV_DASHBOARD } from "@/pages/landing/constants";
+import {
+  LANDING_BRAND,
+  LANDING_NAV_ANCHORS,
+  LANDING_NAV_DASHBOARD,
+} from "@/pages/landing/constants";
 
 export function LandingNav() {
   const path = useLocation().pathname;
   const { user, loading } = useAuth();
 
   return (
-    <header className="relative z-10 border-b border-border/80 bg-panel/40 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-border/80 bg-panel/80 backdrop-blur-md supports-[backdrop-filter]:bg-panel/65">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
         <Link
           to="/"
@@ -17,7 +21,17 @@ export function LandingNav() {
         >
           {LANDING_BRAND}
         </Link>
-        <nav className="flex items-center gap-1 sm:gap-2" aria-label="Marketing">
+        <nav className="flex flex-wrap items-center justify-end gap-1 sm:gap-2" aria-label="Marketing">
+          {path === "/" &&
+            LANDING_NAV_ANCHORS.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="rounded-md px-2 py-1.5 text-xs text-slate-500 transition-colors hover:bg-white/5 hover:text-slate-200 sm:px-3"
+              >
+                {item.label}
+              </a>
+            ))}
           <Link
             to="/pricing"
             className="rounded-md px-3 py-1.5 text-xs text-slate-400 transition-colors hover:bg-white/5 hover:text-slate-200"

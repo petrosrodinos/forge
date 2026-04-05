@@ -1,7 +1,13 @@
 import type { Request, Response } from "express";
+import { usageMetadataWithProviderCosts } from "../../lib/provider-costs-metadata";
 import { generateImage, listImageModels } from "./images.service";
 import { IMAGES_CONFIG } from "./config/images.config";
-import { debitForImageModel, InsufficientTokensError } from "../tokens/tokens.service";
+import {
+  assertUserHasTokenBalance,
+  debitForImageModel,
+  getDebitTokensForImageModel,
+  InsufficientTokensError,
+} from "../tokens/tokens.service";
 
 export async function listImageModelsController(_req: Request, res: Response) {
   try {
@@ -21,7 +27,7 @@ export async function generateImageController(req: Request, res: Response) {
   const modelId = typeof model === "string" ? model : IMAGES_CONFIG.DEFAULT_AIML_IMAGE_MODEL;
 
   try {
-    await debitForImageModel(req.userId, modelId);
+    await assertUserHasTokenBalance(req.userId, getDebitTokensForImageModel(modelId));
   } catch (err) {
     if (err instanceof InsufficientTokensError) {
       res.status(402).json({ error: err.message, required: err.required, balance: err.balance });
@@ -37,14 +43,33 @@ export async function generateImageController(req: Request, res: Response) {
   }
 
   try {
-    const result = await generateImage({
+    const { data, costsMetadata } = await generateImage({
       prompt,
       model: typeof model === "string" ? model : undefined,
       size: typeof size === "string" ? size : undefined,
       n: typeof n === "number" ? n : undefined,
       steps: typeof steps === "number" ? steps : undefined,
     });
-    res.json(result);
+    try {
+      await debitForImageModel(
+        req.userId,
+        modelId,
+        undefined,
+        usageMetadataWithProviderCosts(costsMetadata, "aimlapi"),
+      );
+    } catch (err) {
+      if (err instanceof InsufficientTokensError) {
+        res.status(402).json({ error: err.message, required: err.required, balance: err.balance });
+        return;
+      }
+      const st = (err as Error & { status?: number }).status;
+      if (st === 400) {
+        res.status(400).json({ error: err instanceof Error ? err.message : String(err) });
+        return;
+      }
+      throw err;
+    }
+    res.json(data);
   } catch (err) {
     res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
   }

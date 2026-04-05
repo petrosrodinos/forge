@@ -7,6 +7,10 @@ import { SingleImagePicker } from "@/components/SingleImagePicker";
 import { useGenerateAiPrompt, useUpdateVariant, useGenerateImage } from "@/features/skin-variants/hooks/use-skin-variants.hooks";
 import { useImageModels } from "@/features/image-models/hooks/use-image-models.hooks";
 import { ImageModelSelect } from "@/features/image-models/components/ImageModelSelect";
+import { usePricingCosts } from "@/features/pricing/hooks/use-pricing.hooks";
+import { PRICING_COST_KEYS } from "@/features/pricing/constants/pricing-cost-keys";
+import { getFixedCostTokens } from "@/features/pricing/utils/pricing-costs.utils";
+import { TokenCostPill } from "@/features/pricing/components/TokenCostPill";
 import type { SkinVariant } from "@/interfaces";
 import { fileToDataUrl } from "@/utils/imageFiles";
 
@@ -46,6 +50,8 @@ export function PromptEditor({
   const generateAiPrompt = useGenerateAiPrompt();
   const updateVariant = useUpdateVariant();
   const generateImage = useGenerateImage();
+  const { data: pricingCosts } = usePricingCosts();
+  const aiPromptTokenCost = getFixedCostTokens(pricingCosts, PRICING_COST_KEYS.AGENT_CHAT);
 
   /** Keep model in sync with variant + catalog without racing ImageModelSelect (parent effect must not clear after child sets default). */
   useEffect(() => {
@@ -168,11 +174,14 @@ export function PromptEditor({
 
       {aiOpen && (
         <div className="flex flex-col gap-2 p-3 rounded border border-accent/30 bg-accent/5">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <span className="text-xs text-slate-300 font-medium">Describe what you want</span>
-            <button onClick={() => { setAiOpen(false); setAiDescription(""); }} className="text-slate-500 hover:text-slate-300 transition-colors">
-              <X size={12} />
-            </button>
+            <div className="flex items-center gap-2 shrink-0">
+              {aiPromptTokenCost != null ? <TokenCostPill tokens={aiPromptTokenCost} /> : null}
+              <button onClick={() => { setAiOpen(false); setAiDescription(""); }} className="text-slate-500 hover:text-slate-300 transition-colors">
+                <X size={12} />
+              </button>
+            </div>
           </div>
           <textarea
             autoFocus
@@ -183,7 +192,7 @@ export function PromptEditor({
             placeholder={`e.g. "armored warrior with golden trim"`}
             className="w-full bg-surface border border-border rounded px-2 py-1.5 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-accent/50 resize-y"
           />
-          <div className="flex gap-2 items-center">
+          <div className="flex flex-wrap gap-2 items-center">
             <Button size="sm" onClick={handleAiGenerate} disabled={generateAiPrompt.isPending || !aiDescription.trim()}>
               {generateAiPrompt.isPending ? <Spinner className="w-3 h-3" /> : <Sparkles size={12} />}
               {generateAiPrompt.isPending ? "Generating…" : "Generate"}
@@ -194,9 +203,10 @@ export function PromptEditor({
       )}
 
       <div className="flex gap-2 flex-wrap">
-        <Button variant="secondary" size="sm" onClick={() => setAiOpen((v) => !v)}>
+        <Button variant="secondary" size="sm" onClick={() => setAiOpen((v) => !v)} className="gap-1.5">
           <Sparkles size={12} />
           AI Prompt
+          {aiPromptTokenCost != null ? <TokenCostPill tokens={aiPromptTokenCost} /> : null}
         </Button>
         <Button variant="secondary" size="sm" onClick={handleSave} disabled={updateVariant.isPending || !model.trim()}>
           {updateVariant.isPending ? <Spinner className="w-3 h-3" /> : "Save"}

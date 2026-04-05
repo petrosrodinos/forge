@@ -1,3 +1,4 @@
+import type { Prisma } from "../../generated/prisma/client";
 import { getTripo } from "../../services";
 import * as animationSvc from "../animations/animations.service";
 import { PIPELINE_CONFIG } from "./config/pipeline.config";
@@ -10,10 +11,14 @@ interface RunAnimationsOpts {
   animations: string[];
   emitProgress: PipelineProgressEmitter;
   emitEvent: PipelineSseEventEmitter;
+  onRetargetTaskCostsMetadata?: (payload: {
+    animationKey: string;
+    costsMetadata: Prisma.InputJsonValue;
+  }) => void;
 }
 
 export async function runAnimations(opts: RunAnimationsOpts) {
-  const { model3dId, rigTaskId, animations, emitProgress, emitEvent } = opts;
+  const { model3dId, rigTaskId, animations, emitProgress, emitEvent, onRetargetTaskCostsMetadata } = opts;
   const tripo = getTripo();
 
   const results: Array<{ animationKey: string; gcsGlbUrl: string; status: string }> = [];
@@ -28,7 +33,7 @@ export async function runAnimations(opts: RunAnimationsOpts) {
     const animRecord = await animationSvc.createAnimation(model3dId, animationKey);
 
     try {
-      const animTask = await tripo.createTask({
+      const { createTaskResponse: animTask, costsMetadata } = await tripo.createTask({
         type: TRIPO_CONFIG.TRIPO_TASK_TYPES.ANIMATE_RETARGET,
         original_model_task_id: rigTaskId,
         animations: [animationKey] as never,
@@ -36,7 +41,8 @@ export async function runAnimations(opts: RunAnimationsOpts) {
         bake_animation: true,
         export_with_geometry: true,
       } as never);
-      const animTaskId = (animTask.data as any).task_id as string;
+      const animTaskId = (animTask.data as { task_id?: string }).task_id as string;
+      onRetargetTaskCostsMetadata?.({ animationKey, costsMetadata });
 
       const animResult = await tripo.pollTask(animTaskId, {
         intervalMs: PIPELINE_CONFIG.DEFAULT_POLL_INTERVAL_MS,

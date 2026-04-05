@@ -68,6 +68,7 @@ model TokenUsage {
   markupFactor    Float
   balanceAfter    Int?
   idempotencyKey  String?        @unique
+  /// Provider billing / usage snapshots (AimlAPI image generations, Tripo task create responses, etc.)
   metadata        Json?
   createdAt       DateTime       @default(now())
 

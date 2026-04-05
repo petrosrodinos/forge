@@ -20,4 +20,6 @@ export interface TokenUsageRecordDto {
   operation: string | null;
   tokens: number;
   createdAt: string;
+  /** Provider cost snapshots when available (`providerCosts.aimlapi` / `providerCosts.trippo`). */
+  metadata: unknown | null;
 }

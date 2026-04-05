@@ -17,7 +17,7 @@ export async function generateAndMesh(input: {
   meshModelVersion?: string;
   timeoutMs?: number;
 }) {
-  const imageResult = await getAiml().generateImage({
+  const { data: imageResult, costsMetadata: aimlCostsMetadata } = await getAiml().generateImage({
     model: input.model ?? IMAGES_CONFIG.DEFAULT_AIML_IMAGE_MODEL,
     prompt: input.prompt.trim(),
     size: input.size,
@@ -38,7 +38,7 @@ export async function generateAndMesh(input: {
   const upload = await getTripo().uploadFile(buffer, filename, mimeType);
   const fileToken = extractTripoUploadToken(upload);
 
-  const meshTask = await getTripo().createTask({
+  const { createTaskResponse: meshTask, costsMetadata: trippoCostsMetadata } = await getTripo().createTask({
     type: TRIPO_CONFIG.TRIPO_TASK_TYPES.IMAGE_TO_MODEL,
     file: { type: ext, file_token: fileToken },
     model_version: (input.meshModelVersion ?? input.modelVersion ?? TRIPO_CONFIG.DEFAULT_TRIPO_MODEL_VERSION) as ModelVersion,
@@ -46,7 +46,7 @@ export async function generateAndMesh(input: {
     pbr: true,
   } as never);
 
-  const meshTaskId = (meshTask.data as Record<string, unknown>).task_id as string;
+  const meshTaskId = meshTask.data.task_id;
   if (!meshTaskId) throw new Error("Tripo did not return mesh task_id");
 
   const task = await getTripo().pollTask(meshTaskId, {
@@ -62,6 +62,8 @@ export async function generateAndMesh(input: {
     meshTaskId,
     pbrModelUrl,
     modelUrl: modelUrl ?? null,
+    aimlCostsMetadata,
+    trippoCostsMetadata,
   };
 }
 

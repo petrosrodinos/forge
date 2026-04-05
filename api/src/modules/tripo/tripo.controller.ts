@@ -1,6 +1,7 @@
 import axios from "axios";
 import type { Request, Response } from "express";
 import type { ModelVersion } from "../../integrations/trippo/types";
+import { usageMetadataWithProviderCosts } from "../../lib/provider-costs-metadata";
 import {
   createPrerigCheck,
   createRetarget,
@@ -9,7 +10,12 @@ import {
   meshFromImageUrl,
   proxyModelByUrl,
 } from "./tripo.service";
-import { debitForTrippoModelId, InsufficientTokensError } from "../tokens/tokens.service";
+import {
+  assertUserHasTokenBalance,
+  debitForTrippoModelId,
+  getDebitTokensForTrippoModelId,
+  InsufficientTokensError,
+} from "../tokens/tokens.service";
 
 export async function proxyModelController(req: Request, res: Response) {
   try {
@@ -50,8 +56,16 @@ export async function meshFromImageUrlController(req: Request, res: Response) {
       res.status(400).json({ error: "imageUrl is required" });
       return;
     }
-    await debitForTrippoModelId(req.userId, "image_to_model", "trippoMesh");
-    res.json(await meshFromImageUrl(imageUrl, modelVersion));
+    await assertUserHasTokenBalance(req.userId, getDebitTokensForTrippoModelId("image_to_model"));
+    const { meshTaskId, modelVersion: mv, meshCostsMetadata } = await meshFromImageUrl(imageUrl, modelVersion);
+    await debitForTrippoModelId(
+      req.userId,
+      "image_to_model",
+      "trippoMesh",
+      undefined,
+      usageMetadataWithProviderCosts(meshCostsMetadata, "trippo"),
+    );
+    res.json({ meshTaskId, modelVersion: mv });
   } catch (err) {
     if (err instanceof InsufficientTokensError) {
       res.status(402).json({ error: err.message, required: err.required, balance: err.balance });
@@ -68,7 +82,8 @@ export async function prerigCheckController(req: Request, res: Response) {
       res.status(400).json({ error: "meshTaskId is required" });
       return;
     }
-    res.json(await createPrerigCheck(meshTaskId));
+    const { prerigTaskId } = await createPrerigCheck(meshTaskId);
+    res.json({ prerigTaskId });
   } catch (err) {
     res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
   }
@@ -81,8 +96,16 @@ export async function startRigController(req: Request, res: Response) {
       res.status(400).json({ error: "meshTaskId is required" });
       return;
     }
-    await debitForTrippoModelId(req.userId, "animate_rig", "rig");
-    res.json(await createRig(meshTaskId));
+    await assertUserHasTokenBalance(req.userId, getDebitTokensForTrippoModelId("animate_rig"));
+    const { rigTaskId, costsMetadata } = await createRig(meshTaskId);
+    await debitForTrippoModelId(
+      req.userId,
+      "animate_rig",
+      "rig",
+      undefined,
+      usageMetadataWithProviderCosts(costsMetadata, "trippo"),
+    );
+    res.json({ rigTaskId });
   } catch (err) {
     if (err instanceof InsufficientTokensError) {
       res.status(402).json({ error: err.message, required: err.required, balance: err.balance });
@@ -104,8 +127,16 @@ export async function startRetargetController(req: Request, res: Response) {
       res.status(400).json({ error: "animation is required" });
       return;
     }
-    await debitForTrippoModelId(req.userId, "animate_retarget", "animationRetarget");
-    res.json(await createRetarget(rigTaskId, animation));
+    await assertUserHasTokenBalance(req.userId, getDebitTokensForTrippoModelId("animate_retarget"));
+    const { retargetTaskId, costsMetadata } = await createRetarget(rigTaskId, animation);
+    await debitForTrippoModelId(
+      req.userId,
+      "animate_retarget",
+      "animationRetarget",
+      undefined,
+      usageMetadataWithProviderCosts(costsMetadata, "trippo"),
+    );
+    res.json({ retargetTaskId });
   } catch (err) {
     if (err instanceof InsufficientTokensError) {
       res.status(402).json({ error: err.message, required: err.required, balance: err.balance });

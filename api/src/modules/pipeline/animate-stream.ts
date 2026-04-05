@@ -1,14 +1,22 @@
 import type { Request, Response } from "express";
+import type { Prisma } from "../../generated/prisma/client";
 import { prisma } from "../../integrations/db/client";
 import { sseHeaders, sseWrite } from "../../lib/sse";
+import { mergeTokenUsageMetadataByIdempotencyKey } from "../tokens/tokens.service";
 import { runAnimations } from "./animate.service";
 import { PIPELINE_CONFIG } from "./config/pipeline.config";
+
+/** Must match `requireTokens("animationRetarget", …)` on the animate route. */
+export function animateTokenUsageIdempotencyKey(model3dId: string, animations: string[]) {
+  return `animate:${model3dId}:${[...animations].sort().join("\0")}`;
+}
 
 export async function streamAnimatePipeline(
   req: Request,
   res: Response,
   model3dId: string,
   animations: string[],
+  tokenUsageIdempotencyKey: string,
 ) {
   if (!Array.isArray(animations) || animations.length === 0) {
     res.status(400).json({ error: "animations array is required" });
@@ -37,6 +45,7 @@ export async function streamAnimatePipeline(
   }
 
   sseHeaders(res);
+  const retargetCosts: Array<{ animationKey: string; costsMetadata: Prisma.InputJsonValue }> = [];
   try {
     await runAnimations({
       model3dId,
@@ -48,7 +57,13 @@ export async function streamAnimatePipeline(
       emitEvent: (event, data) => {
         sseWrite(res, event, data);
       },
+      onRetargetTaskCostsMetadata: (payload) => retargetCosts.push(payload),
     });
+    if (retargetCosts.length > 0) {
+      await mergeTokenUsageMetadataByIdempotencyKey(tokenUsageIdempotencyKey, {
+        providerCosts: { trippo: { animateRetargetCreateTasks: retargetCosts } },
+      });
+    }
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     console.error("[pipeline/animate]", msg);

@@ -10,6 +10,12 @@ export function LandingFooter() {
           <p className="mt-1 max-w-md text-xs leading-relaxed text-slate-500">{LANDING_FOOTER_TAGLINE}</p>
         </div>
         <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs">
+          <a href="#features" className="text-slate-500 transition-colors hover:text-accent-light">
+            Features
+          </a>
+          <a href="#use-cases" className="text-slate-500 transition-colors hover:text-accent-light">
+            Use cases
+          </a>
           <Link to="/pricing" className="text-slate-500 transition-colors hover:text-accent-light">
             Pricing
           </Link>

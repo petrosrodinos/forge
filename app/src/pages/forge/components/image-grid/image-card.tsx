@@ -9,6 +9,10 @@ import { Modal } from "@/components/ui/Modal";
 import { OptionsMenu } from "@/components/ui/OptionsMenu";
 import { downloadUrlAsFile, fileExtensionFromUrl } from "@/utils/helpers";
 import type { SkinImage } from "@/interfaces";
+import { usePricingCosts } from "@/features/pricing/hooks/use-pricing.hooks";
+import { PRICING_COST_KEYS } from "@/features/pricing/constants/pricing-cost-keys";
+import { getFixedCostTokens } from "@/features/pricing/utils/pricing-costs.utils";
+import { TokenCostPill } from "@/features/pricing/components/TokenCostPill";
 
 function bestModelStatus(models: SkinImage["models"]): string {
   if (models.length === 0) return "none";
@@ -38,6 +42,8 @@ export function ImageCard({
 }: ImageCardProps) {
   const status = bestModelStatus(image.models);
   const isProcessing = status === "processing";
+  const { data: pricingCosts } = usePricingCosts();
+  const pipelineTokenCost = getFixedCostTokens(pricingCosts, PRICING_COST_KEYS.FORGE_PIPELINE_MESH_RIG);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [expandOpen, setExpandOpen] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
@@ -82,7 +88,8 @@ export function ImageCard({
             {status !== "success" && <Badge status={status} />}
             <span className="text-[10px] text-slate-500 ml-auto">{image.models.length} models</span>
           </div>
-          <div className="flex items-center justify-end">
+          <div className="flex items-center justify-end gap-2">
+            {pipelineTokenCost != null ? <TokenCostPill tokens={pipelineTokenCost} /> : null}
             <Button
               variant="secondary"
               size="sm"

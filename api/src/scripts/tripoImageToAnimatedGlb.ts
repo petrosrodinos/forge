@@ -93,7 +93,7 @@ async function main() {
     texture: true,
     pbr: true,
   });
-  const meshId = meshRes.data.task_id;
+  const meshId = meshRes.createTaskResponse.data.task_id;
   const meshTask = await tripo.pollTask(meshId, { intervalMs: 3000, timeoutMs: 900_000 });
   const meshUrl = modelUrl(meshTask);
   if (!meshUrl) throw new Error("Mesh task succeeded but no model URL in output");
@@ -102,7 +102,7 @@ async function main() {
     type: "animate_prerigcheck",
     original_model_task_id: meshId,
   });
-  const preTask = await tripo.pollTask(preRes.data.task_id, { intervalMs: 2000, timeoutMs: 300_000 });
+  const preTask = await tripo.pollTask(preRes.createTaskResponse.data.task_id, { intervalMs: 2000, timeoutMs: 300_000 });
   if (!preTask.output.riggable) throw new Error("Model is not riggable according to prerigcheck");
 
   let rigId = "";
@@ -116,7 +116,7 @@ async function main() {
     const rigBody = { ...plan.rig, original_model_task_id: meshId };
     try {
       const rigRes = await tripo.createTask(rigBody);
-      rigId = rigRes.data.task_id;
+      rigId = rigRes.createTaskResponse.data.task_id;
       await tripo.pollTask(rigId, { intervalMs: 3000, timeoutMs: 600_000 });
       animations = plan.animations;
       rigLabel = plan.label;
@@ -128,7 +128,7 @@ async function main() {
         bake_animation: true,
         export_with_geometry: true,
       });
-      retargetTaskId = retRes.data.task_id;
+      retargetTaskId = retRes.createTaskResponse.data.task_id;
       finalTask = await tripo.pollTask(retargetTaskId, { intervalMs: 3000, timeoutMs: 600_000 });
       break;
     } catch (e) {
@@ -147,7 +147,7 @@ async function main() {
     imagePath: storedImagePath,
     meshTaskId: meshId,
     meshModelUrl: meshUrl,
-    prerigTaskId: preRes.data.task_id,
+    prerigTaskId: preRes.createTaskResponse.data.task_id,
     rigPlan: rigLabel,
     rigTaskId: rigId,
     retargetTaskId,

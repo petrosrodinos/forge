@@ -330,6 +330,15 @@ export const OPEN_API_DOCUMENT = {
         responses: { "200": jsonContent({ type: "object", additionalProperties: true }) },
       },
     },
+    "/api/pricing/costs": {
+      get: {
+        tags: ["Pricing"],
+        summary: "Token costs by feature (fixed + variable references)",
+        description:
+          "Stable keys for UI. Fixed `tokens` match wallet debits; variable items point at `imageModels` in /api/pricing/catalog.",
+        responses: { "200": jsonContent({ type: "object", additionalProperties: true }) },
+      },
+    },
     "/api/auth/register": {
       post: {
         tags: ["Auth"],

@@ -15,6 +15,10 @@ import { useDeleteModel3d } from "@/features/models3d/hooks/use-models3d.hooks";
 import { downloadUrlAsFile, fileExtensionFromUrl } from "@/utils/helpers";
 import { cn } from "@/utils/cn";
 import type { Model3D } from "@/interfaces";
+import { usePricingCosts } from "@/features/pricing/hooks/use-pricing.hooks";
+import { PRICING_COST_KEYS } from "@/features/pricing/constants/pricing-cost-keys";
+import { getFixedCostTokens } from "@/features/pricing/utils/pricing-costs.utils";
+import { TokenCostPill } from "@/features/pricing/components/TokenCostPill";
 
 interface ModelCardProps {
   model: Model3D;
@@ -44,6 +48,10 @@ export function ModelCard({ model }: ModelCardProps) {
   } = useRig(() => {
     invalidateFigures();
   });
+
+  const { data: pricingCosts } = usePricingCosts();
+  const rigTokenCost = getFixedCostTokens(pricingCosts, PRICING_COST_KEYS.RIGGING);
+  const animateTokenCost = getFixedCostTokens(pricingCosts, PRICING_COST_KEYS.ANIMATION_RETARGET);
 
   const canAnimate = model.status === "success" && !!model.rigTaskId;
   const canRig = model.status === "success" && !!model.meshTaskId && !model.rigTaskId && !!model.gcsPbrModelUrl;
@@ -113,11 +121,12 @@ export function ModelCard({ model }: ModelCardProps) {
                 <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-slate-500">Rigging</p>
                 <p className="text-[0.65rem] text-slate-500 leading-relaxed">Mesh alone is a static model. Rigging adds a skeleton and checks the mesh can move, which is needed before it can apply animations.</p>
                 {rigError ? <p className="text-[0.65rem] text-red-400">{rigError}</p> : null}
-                <div className="flex justify-start">
+                <div className="flex justify-start items-center gap-2 flex-wrap">
                   <Button type="button" variant="secondary" size="sm" disabled={rigging} onClick={() => void runRig(model.id)} className="shrink-0 h-7 gap-1 px-2 py-0 text-[0.65rem] font-medium">
                     {rigging ? <Loader2 className="animate-spin shrink-0" size={12} aria-hidden /> : <Bone className="shrink-0" size={12} aria-hidden />}
                     {rigging ? "…" : "Rig"}
                   </Button>
+                  {rigTokenCost != null ? <TokenCostPill tokens={rigTokenCost} className="text-[0.65rem]" /> : null}
                 </div>
               </div>
             )}
@@ -127,11 +136,12 @@ export function ModelCard({ model }: ModelCardProps) {
                 <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-slate-500">Animate</p>
                 <AnimationPicker selected={selectedAnimations} onChange={setSelectedAnimations} />
                 {animateError ? <p className="text-[0.65rem] text-red-400">{animateError}</p> : null}
-                <div className="flex justify-start">
+                <div className="flex justify-start items-center gap-2 flex-wrap">
                   <Button type="button" variant="secondary" size="sm" disabled={animating || selectedAnimations.length === 0} onClick={() => void runAnimate(model.id, selectedAnimations)} className="h-7 gap-1 px-2 py-0 text-[0.65rem] font-medium">
                     {animating ? <Loader2 className="animate-spin shrink-0" size={12} aria-hidden /> : <Sparkles className="shrink-0" size={12} aria-hidden />}
                     {animating ? "…" : "Generate"}
                   </Button>
+                  {animateTokenCost != null ? <TokenCostPill tokens={animateTokenCost} className="text-[0.65rem]" /> : null}
                 </div>
               </div>
             )}

@@ -51,7 +51,7 @@ export async function meshFromImageUrl(imageUrl: string, modelVersion?: ModelVer
   const upload = await tripo.uploadFile(buffer, filename, mimeType);
   const fileToken = extractTripoUploadToken(upload);
 
-  const meshTask = await tripo.createTask({
+  const { createTaskResponse: meshTask, costsMetadata: meshCostsMetadata } = await tripo.createTask({
     type: TRIPO_CONFIG.TRIPO_TASK_TYPES.IMAGE_TO_MODEL,
     file: { type: ext, file_token: fileToken },
     model_version: modelVersion ?? TRIPO_CONFIG.DEFAULT_TRIPO_MODEL_VERSION,
@@ -61,32 +61,36 @@ export async function meshFromImageUrl(imageUrl: string, modelVersion?: ModelVer
 
   const meshTaskId = (meshTask.data as Record<string, unknown>).task_id as string;
   if (!meshTaskId) throw new Error("Tripo did not return mesh task_id");
-  return { meshTaskId, modelVersion: modelVersion ?? TRIPO_CONFIG.DEFAULT_TRIPO_MODEL_VERSION };
+  return {
+    meshTaskId,
+    modelVersion: modelVersion ?? TRIPO_CONFIG.DEFAULT_TRIPO_MODEL_VERSION,
+    meshCostsMetadata,
+  };
 }
 
 export async function createPrerigCheck(meshTaskId: string) {
-  const out = await getTripo().createTask({
+  const { createTaskResponse: out, costsMetadata } = await getTripo().createTask({
     type: TRIPO_CONFIG.TRIPO_TASK_TYPES.ANIMATE_PRERIGCHECK,
     original_model_task_id: meshTaskId.trim(),
   } as never);
   const prerigTaskId = (out.data as Record<string, unknown>).task_id as string;
   if (!prerigTaskId) throw new Error("Tripo did not return prerig task_id");
-  return { prerigTaskId };
+  return { prerigTaskId, costsMetadata };
 }
 
 export async function createRig(meshTaskId: string) {
-  const out = await getTripo().createTask({
+  const { createTaskResponse: out, costsMetadata } = await getTripo().createTask({
     type: TRIPO_CONFIG.TRIPO_TASK_TYPES.ANIMATE_RIG,
     original_model_task_id: meshTaskId.trim(),
     out_format: TRIPO_CONFIG.TRIPO_OUT_FORMAT_GLb,
   } as never);
   const rigTaskId = (out.data as Record<string, unknown>).task_id as string;
   if (!rigTaskId) throw new Error("Tripo did not return rig task_id");
-  return { rigTaskId };
+  return { rigTaskId, costsMetadata };
 }
 
 export async function createRetarget(rigTaskId: string, animation: string) {
-  const out = await getTripo().createTask({
+  const { createTaskResponse: out, costsMetadata } = await getTripo().createTask({
     type: TRIPO_CONFIG.TRIPO_TASK_TYPES.ANIMATE_RETARGET,
     original_model_task_id: rigTaskId.trim(),
     out_format: TRIPO_CONFIG.TRIPO_OUT_FORMAT_GLb,
@@ -96,6 +100,6 @@ export async function createRetarget(rigTaskId: string, animation: string) {
   } as never);
   const retargetTaskId = (out.data as Record<string, unknown>).task_id as string;
   if (!retargetTaskId) throw new Error("Tripo did not return retarget task_id");
-  return { retargetTaskId };
+  return { retargetTaskId, costsMetadata };
 }
 
