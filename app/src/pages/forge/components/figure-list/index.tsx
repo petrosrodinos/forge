@@ -1,6 +1,6 @@
 import { forwardRef, useImperativeHandle, useState } from "react";
 import { createPortal } from "react-dom";
-import { Box, ImageOff, Plus, Trash2, Pencil } from "lucide-react";
+import { Box, Download, ImageOff, Plus, Trash2, Pencil } from "lucide-react";
 import { useFigures, useCreateFigure, useUpdateFigure, useDeleteFigure } from "@/features/figures/hooks/use-figures.hooks";
 import { useForgeStore } from "@/store/forgeStore";
 import { cn } from "@/utils/cn";
@@ -48,10 +48,11 @@ export type FigureListHandle = {
 interface FigureListProps {
   /** Desktop collapsed rail: only active thumb + new figure (mobile drawer ignores via parent) */
   collapsed?: boolean;
+  onDownloadClick?: () => void;
 }
 
 export const FigureList = forwardRef<FigureListHandle, FigureListProps>(function FigureList(
-  { collapsed = false },
+  { collapsed = false, onDownloadClick },
   ref,
 ) {
   const { data: figures, isLoading } = useFigures();
@@ -148,6 +149,18 @@ export const FigureList = forwardRef<FigureListHandle, FigureListProps>(function
             >
               <Plus size={18} strokeWidth={2} />
             </Button>
+            {onDownloadClick && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onDownloadClick}
+                className="shrink-0 rounded-lg p-2 text-slate-400 ring-1 ring-transparent hover:bg-surface hover:text-accent-light hover:ring-border/60"
+                title="Download assets"
+                aria-label="Download assets"
+              >
+                <Download size={16} strokeWidth={2} />
+              </Button>
+            )}
           </div>
         ) : (
           <>
@@ -158,9 +171,16 @@ export const FigureList = forwardRef<FigureListHandle, FigureListProps>(function
                 </span>
                 Figures
               </span>
-              <Button variant="ghost" size="sm" onClick={openCreate} className="rounded-lg p-1.5" aria-label="New figure">
-                <Plus size={15} strokeWidth={2} />
-              </Button>
+              <div className="flex items-center gap-0.5">
+                {onDownloadClick && (
+                  <Button variant="ghost" size="sm" onClick={onDownloadClick} className="rounded-lg p-1.5" aria-label="Download assets" title="Download assets">
+                    <Download size={14} strokeWidth={2} />
+                  </Button>
+                )}
+                <Button variant="ghost" size="sm" onClick={openCreate} className="rounded-lg p-1.5" aria-label="New figure">
+                  <Plus size={15} strokeWidth={2} />
+                </Button>
+              </div>
             </div>
 
             <div className="min-h-0 flex-1 overflow-y-auto py-2 px-1.5">

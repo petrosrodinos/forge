@@ -1,0 +1,1187 @@
+[
+  {
+    "id": "69d26ccd036dddd2ba24bfe4",
+    "userId": "69d26b87036dddd2ba24bf82",
+    "name": "Tree",
+    "type": "obstacle",
+    "metadata": null,
+    "createdAt": "2026-04-05T14:08:13.680Z",
+    "updatedAt": "2026-04-05T14:08:13.680Z",
+    "skins": [
+      {
+        "id": "69d26cce036dddd2ba24bfe5",
+        "figureId": "69d26ccd036dddd2ba24bfe4",
+        "name": null,
+        "isBase": true,
+        "createdAt": "2026-04-05T14:08:14.570Z",
+        "updatedAt": "2026-04-05T14:08:14.570Z",
+        "variants": [
+          {
+            "id": "69d26ccf036dddd2ba24bfe6",
+            "skinId": "69d26cce036dddd2ba24bfe5",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed miniature fantasy tree terrain piece, full tree visible, straight front view, facing forward, symmetrical pose, a lush ancient oak with a warm golden-brown trunk, full canopy of bright warm green and amber leaves catching sunlight, warm golden-brown and leaf-green color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, figures, text, watermark, dark dead colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:08:15.118Z",
+            "updatedAt": "2026-04-05T14:08:15.118Z",
+            "images": [
+              {
+                "id": "69d2825f1d144100e7b204e5",
+                "variantId": "69d26ccf036dddd2ba24bfe6",
+                "sourceUrl": "https://dashscope-463f.oss-ap-southeast-1.aliyuncs.com/7d/4f/20260405/58616841/94f3e299-2ba2-40a0-937c-8f7363535c6b3876480080.png?Expires=1776009405&OSSAccessKeyId=LTAI5tRcsWJEymQaTsKbKqGf&Signature=G0KcEL6R2bJhgHgbQVVbGP2wfaA%3D",
+                "gcsUrl": "https://storage.googleapis.com/figures-assets/images/figures/69d26ccd036dddd2ba24bfe4/69d26ccf036dddd2ba24bfe6/69d2825f1d144100e7b204e5.png",
+                "gcsBucket": "figures-assets",
+                "gcsKey": "images/figures/69d26ccd036dddd2ba24bfe4/69d26ccf036dddd2ba24bfe6/69d2825f1d144100e7b204e5.png",
+                "createdAt": "2026-04-05T15:40:15.050Z",
+                "models": []
+              }
+            ]
+          },
+          {
+            "id": "69d26cd0036dddd2ba24bfe7",
+            "skinId": "69d26cce036dddd2ba24bfe5",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed miniature fantasy dead tree terrain piece, full tree visible, straight front view, facing forward, symmetrical pose, a gnarled leafless dead tree with a dark charcoal and ash-grey twisted trunk and bare skeletal branches, cold icy blue frost on the bark, cool charcoal and icy blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, figures, text, watermark, warm green lush colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:08:15.877Z",
+            "updatedAt": "2026-04-05T14:08:15.877Z",
+            "images": []
+          }
+        ]
+      },
+      {
+        "id": "69d26cd0036dddd2ba24bfe8",
+        "figureId": "69d26ccd036dddd2ba24bfe4",
+        "name": "Crystal Tree",
+        "isBase": false,
+        "createdAt": "2026-04-05T14:08:16.816Z",
+        "updatedAt": "2026-04-05T14:08:16.816Z",
+        "variants": [
+          {
+            "id": "69d26cd1036dddd2ba24bfe9",
+            "skinId": "69d26cd0036dddd2ba24bfe8",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed miniature fantasy crystal tree terrain piece, full tree visible, straight front view, facing forward, symmetrical pose, a magical tree with a translucent amber-gold crystalline trunk and branches, warm glowing golden-rose quartz leaf-shaped crystals catching the light, warm amber and rose-gold color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, figures, text, watermark, dark colors, organic wood texture, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:08:17.519Z",
+            "updatedAt": "2026-04-05T14:08:17.519Z",
+            "images": []
+          },
+          {
+            "id": "69d26cd2036dddd2ba24bfea",
+            "skinId": "69d26cd0036dddd2ba24bfe8",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed miniature fantasy crystal tree terrain piece, full tree visible, straight front view, facing forward, symmetrical pose, a magical tree with a translucent dark sapphire and obsidian crystalline trunk and branches, cold glowing icy blue crystal leaf-shapes, cool deep navy and icy blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, figures, text, watermark, warm colors, organic wood texture, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:08:18.267Z",
+            "updatedAt": "2026-04-05T14:08:18.267Z",
+            "images": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "69d26cc8036dddd2ba24bfdd",
+    "userId": "69d26b87036dddd2ba24bf82",
+    "name": "Canyon",
+    "type": "obstacle",
+    "metadata": null,
+    "createdAt": "2026-04-05T14:08:08.151Z",
+    "updatedAt": "2026-04-05T14:08:08.151Z",
+    "skins": [
+      {
+        "id": "69d26cc8036dddd2ba24bfde",
+        "figureId": "69d26cc8036dddd2ba24bfdd",
+        "name": null,
+        "isBase": true,
+        "createdAt": "2026-04-05T14:08:08.889Z",
+        "updatedAt": "2026-04-05T14:08:08.889Z",
+        "variants": [
+          {
+            "id": "69d26cc9036dddd2ba24bfdf",
+            "skinId": "69d26cc8036dddd2ba24bfde",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed miniature canyon terrain piece, isometric view, a dramatic narrow canyon with warm terracotta and amber sandstone walls, sunlit rock layers with orange and gold striations, a dry sandy floor, warm red-orange and amber color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, figures, text, watermark, dark colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:08:09.435Z",
+            "updatedAt": "2026-04-05T14:08:09.435Z",
+            "images": []
+          },
+          {
+            "id": "69d26cca036dddd2ba24bfe0",
+            "skinId": "69d26cc8036dddd2ba24bfde",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed miniature canyon terrain piece, isometric view, a dramatic narrow canyon with dark basalt and charcoal-grey stone walls, cold blue shadow pooling at the base, dark mineral veins of teal and silver, cool dark grey and slate blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, figures, text, watermark, warm orange colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:08:10.156Z",
+            "updatedAt": "2026-04-05T14:08:10.156Z",
+            "images": []
+          }
+        ]
+      },
+      {
+        "id": "69d26ccb036dddd2ba24bfe1",
+        "figureId": "69d26cc8036dddd2ba24bfdd",
+        "name": "Jungle Ravine",
+        "isBase": false,
+        "createdAt": "2026-04-05T14:08:11.267Z",
+        "updatedAt": "2026-04-05T14:08:11.267Z",
+        "variants": [
+          {
+            "id": "69d26ccc036dddd2ba24bfe2",
+            "skinId": "69d26ccb036dddd2ba24bfe1",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed miniature jungle ravine terrain piece, isometric view, a narrow ravine with warm golden-green mossy rock walls, lush tropical ferns and vines draping the sides, dappled sunlight through the canopy above, warm leaf-green and golden-brown color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, figures, text, watermark, dry desert colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:08:11.880Z",
+            "updatedAt": "2026-04-05T14:08:11.880Z",
+            "images": []
+          },
+          {
+            "id": "69d26ccc036dddd2ba24bfe3",
+            "skinId": "69d26ccb036dddd2ba24bfe1",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed miniature jungle ravine terrain piece, isometric view, a narrow ravine with dark wet stone walls covered in dark teal moss and thorny dark vines, eerie bioluminescent fungi glowing cold blue along the base, cool dark teal and deep charcoal color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, figures, text, watermark, warm bright colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:08:12.621Z",
+            "updatedAt": "2026-04-05T14:08:12.621Z",
+            "images": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "69d26cc2036dddd2ba24bfd6",
+    "userId": "69d26b87036dddd2ba24bf82",
+    "name": "Lake",
+    "type": "obstacle",
+    "metadata": null,
+    "createdAt": "2026-04-05T14:08:02.911Z",
+    "updatedAt": "2026-04-05T14:08:02.911Z",
+    "skins": [
+      {
+        "id": "69d26cc3036dddd2ba24bfd7",
+        "figureId": "69d26cc2036dddd2ba24bfd6",
+        "name": null,
+        "isBase": true,
+        "createdAt": "2026-04-05T14:08:03.681Z",
+        "updatedAt": "2026-04-05T14:08:03.681Z",
+        "variants": [
+          {
+            "id": "69d26cc4036dddd2ba24bfd8",
+            "skinId": "69d26cc3036dddd2ba24bfd7",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed miniature lake terrain piece, isometric view, a calm oval lake with clear turquoise-gold water, gentle sunlit ripples, warm sandy and grassy banks, warm aquamarine and golden sandy color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, figures, text, watermark, dark colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:08:04.240Z",
+            "updatedAt": "2026-04-05T14:08:04.240Z",
+            "images": []
+          },
+          {
+            "id": "69d26cc5036dddd2ba24bfd9",
+            "skinId": "69d26cc3036dddd2ba24bfd7",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed miniature lake terrain piece, isometric view, a still dark lake with deep navy blue water reflecting cold moonlight, dark volcanic rock shore, a moody cool atmosphere, cool deep navy and dark stone color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, figures, text, watermark, warm sunny colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:08:05.017Z",
+            "updatedAt": "2026-04-05T14:08:05.017Z",
+            "images": []
+          }
+        ]
+      },
+      {
+        "id": "69d26cc5036dddd2ba24bfda",
+        "figureId": "69d26cc2036dddd2ba24bfd6",
+        "name": "Frozen Lake",
+        "isBase": false,
+        "createdAt": "2026-04-05T14:08:05.938Z",
+        "updatedAt": "2026-04-05T14:08:05.938Z",
+        "variants": [
+          {
+            "id": "69d26cc6036dddd2ba24bfdb",
+            "skinId": "69d26cc5036dddd2ba24bfda",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed miniature frozen lake terrain piece, isometric view, a perfectly flat oval of thick clear ice with a warm golden sunlight glint across the surface, visible trapped air bubbles and golden-tinted frost patterns, snow-dusted banks, warm ivory and pale gold color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, figures, text, watermark, liquid water, dark colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:08:06.492Z",
+            "updatedAt": "2026-04-05T14:08:06.492Z",
+            "images": []
+          },
+          {
+            "id": "69d26cc7036dddd2ba24bfdc",
+            "skinId": "69d26cc5036dddd2ba24bfda",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed miniature frozen lake terrain piece, isometric view, a cracked dark ice sheet with an eerie cold blue glow from below the surface, dark frost fractures spreading across the ice, jagged icy shards at the edges, cool deep icy blue and dark charcoal color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, figures, text, watermark, liquid water, warm colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:08:07.231Z",
+            "updatedAt": "2026-04-05T14:08:07.231Z",
+            "images": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "69d26cbd036dddd2ba24bfcf",
+    "userId": "69d26b87036dddd2ba24bf82",
+    "name": "River",
+    "type": "obstacle",
+    "metadata": null,
+    "createdAt": "2026-04-05T14:07:57.666Z",
+    "updatedAt": "2026-04-05T14:07:57.666Z",
+    "skins": [
+      {
+        "id": "69d26cbe036dddd2ba24bfd0",
+        "figureId": "69d26cbd036dddd2ba24bfcf",
+        "name": null,
+        "isBase": true,
+        "createdAt": "2026-04-05T14:07:58.397Z",
+        "updatedAt": "2026-04-05T14:07:58.397Z",
+        "variants": [
+          {
+            "id": "69d26cbf036dddd2ba24bfd1",
+            "skinId": "69d26cbe036dddd2ba24bfd0",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed miniature river terrain tile, isometric view, a shallow flowing river with sparkling clear warm-tinted water, golden sandy banks, smooth river stones, sunlit rippling surface, warm amber and sandy cream color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, figures, text, watermark, dark murky water, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:07:58.947Z",
+            "updatedAt": "2026-04-05T14:07:58.947Z",
+            "images": []
+          },
+          {
+            "id": "69d26cbf036dddd2ba24bfd2",
+            "skinId": "69d26cbe036dddd2ba24bfd0",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed miniature river terrain tile, isometric view, a rushing river with deep cold dark blue water, dark slate-grey rocky banks, white foam rapids, cool midnight blue and slate color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, figures, text, watermark, warm sunny colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:07:59.686Z",
+            "updatedAt": "2026-04-05T14:07:59.686Z",
+            "images": []
+          }
+        ]
+      },
+      {
+        "id": "69d26cc0036dddd2ba24bfd3",
+        "figureId": "69d26cbd036dddd2ba24bfcf",
+        "name": "Lava Flow",
+        "isBase": false,
+        "createdAt": "2026-04-05T14:08:00.625Z",
+        "updatedAt": "2026-04-05T14:08:00.625Z",
+        "variants": [
+          {
+            "id": "69d26cc1036dddd2ba24bfd4",
+            "skinId": "69d26cc0036dddd2ba24bfd3",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed miniature lava flow terrain tile, isometric view, a river of flowing molten lava with bright orange and golden glowing liquid rock, dark basalt crust forming at the edges, heat shimmer effect, warm fiery orange and bright gold color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, figures, text, watermark, cold colors, water, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:08:01.180Z",
+            "updatedAt": "2026-04-05T14:08:01.180Z",
+            "images": []
+          },
+          {
+            "id": "69d26cc2036dddd2ba24bfd5",
+            "skinId": "69d26cc0036dddd2ba24bfd3",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed miniature lava flow terrain tile, isometric view, a river of dark slow-moving lava with deep crimson and obsidian-black cooling crust, eerie purple volcanic gas venting from cracks, cool dark crimson and void-black color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, figures, text, watermark, bright warm orange, water, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:08:01.979Z",
+            "updatedAt": "2026-04-05T14:08:01.979Z",
+            "images": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "69d26cb7036dddd2ba24bfc8",
+    "userId": "69d26b87036dddd2ba24bf82",
+    "name": "Cave",
+    "type": "obstacle",
+    "metadata": null,
+    "createdAt": "2026-04-05T14:07:51.950Z",
+    "updatedAt": "2026-04-05T14:07:51.950Z",
+    "skins": [
+      {
+        "id": "69d26cb8036dddd2ba24bfc9",
+        "figureId": "69d26cb7036dddd2ba24bfc8",
+        "name": null,
+        "isBase": true,
+        "createdAt": "2026-04-05T14:07:52.875Z",
+        "updatedAt": "2026-04-05T14:07:52.875Z",
+        "variants": [
+          {
+            "id": "69d26cb9036dddd2ba24bfca",
+            "skinId": "69d26cb8036dddd2ba24bfc9",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed miniature cave entrance terrain piece, isometric view, a rocky cave mouth hewn from warm sandstone and cream limestone, with a dark interior opening, sunlit golden rock surfaces with amber mineral veins, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, figures inside, text, watermark, dark overall tone, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:07:53.581Z",
+            "updatedAt": "2026-04-05T14:07:53.581Z",
+            "images": []
+          },
+          {
+            "id": "69d26cba036dddd2ba24bfcb",
+            "skinId": "69d26cb8036dddd2ba24bfc9",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed miniature cave entrance terrain piece, isometric view, a jagged cave mouth cut through dark obsidian and basalt rock, with a glowing icy blue interior, cool charcoal and slate-blue rock surfaces, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, figures inside, text, watermark, warm colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:07:54.325Z",
+            "updatedAt": "2026-04-05T14:07:54.325Z",
+            "images": []
+          }
+        ]
+      },
+      {
+        "id": "69d26cbb036dddd2ba24bfcc",
+        "figureId": "69d26cb7036dddd2ba24bfc8",
+        "name": "Crystal Cave",
+        "isBase": false,
+        "createdAt": "2026-04-05T14:07:55.267Z",
+        "updatedAt": "2026-04-05T14:07:55.267Z",
+        "variants": [
+          {
+            "id": "69d26cbc036dddd2ba24bfcd",
+            "skinId": "69d26cbb036dddd2ba24bfcc",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed miniature crystal cave entrance terrain piece, isometric view, a cave mouth framed by large warm amber and golden quartz crystal formations, glowing softly from within, warm golden-amber and rose quartz color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, figures inside, text, watermark, dark colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:07:55.837Z",
+            "updatedAt": "2026-04-05T14:07:55.837Z",
+            "images": []
+          },
+          {
+            "id": "69d26cbc036dddd2ba24bfce",
+            "skinId": "69d26cbb036dddd2ba24bfcc",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed miniature crystal cave entrance terrain piece, isometric view, a cave mouth framed by large dark teal and icy blue crystal formations, glowing with cold eerie light from within, cool icy blue and dark teal color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, figures inside, text, watermark, warm colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:07:56.605Z",
+            "updatedAt": "2026-04-05T14:07:56.605Z",
+            "images": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "69d26cb2036dddd2ba24bfc1",
+    "userId": "69d26b87036dddd2ba24bf82",
+    "name": "Necromancer",
+    "type": "figure",
+    "metadata": null,
+    "createdAt": "2026-04-05T14:07:46.315Z",
+    "updatedAt": "2026-04-05T14:11:37.270Z",
+    "skins": [
+      {
+        "id": "69d26cb3036dddd2ba24bfc2",
+        "figureId": "69d26cb2036dddd2ba24bfc1",
+        "name": null,
+        "isBase": true,
+        "createdAt": "2026-04-05T14:07:47.201Z",
+        "updatedAt": "2026-04-05T14:07:47.201Z",
+        "variants": [
+          {
+            "id": "69d26cb3036dddd2ba24bfc3",
+            "skinId": "69d26cb3036dddd2ba24bfc2",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed fantasy druid miniature figurine, full body, straight front view, facing forward, symmetrical pose, a hooded nature mage in earthy amber and warm brown robes adorned with leaves and antlers, holding a gnarled wooden staff with a glowing amber orb, warm amber and forest green color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark evil colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:07:47.774Z",
+            "updatedAt": "2026-04-05T14:07:47.774Z",
+            "images": []
+          },
+          {
+            "id": "69d26cb4036dddd2ba24bfc4",
+            "skinId": "69d26cb3036dddd2ba24bfc2",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed fantasy necromancer miniature figurine, full body, straight front view, facing forward, symmetrical pose, a gaunt hooded sorcerer in tattered dark charcoal and ashen grey robes, clutching a bone staff topped with a glowing sickly green skull, bones and chains hanging from the robe, cool dark grey and sickly green color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:07:48.537Z",
+            "updatedAt": "2026-04-05T14:07:48.537Z",
+            "images": []
+          }
+        ]
+      },
+      {
+        "id": "69d26cb5036dddd2ba24bfc5",
+        "figureId": "69d26cb2036dddd2ba24bfc1",
+        "name": "Lich",
+        "isBase": false,
+        "createdAt": "2026-04-05T14:07:49.490Z",
+        "updatedAt": "2026-04-05T14:07:49.490Z",
+        "variants": [
+          {
+            "id": "69d26cb6036dddd2ba24bfc6",
+            "skinId": "69d26cb5036dddd2ba24bfc5",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed fantasy lich miniature figurine, full body, straight front view, facing forward, symmetrical pose, an undead skeletal sorcerer in tattered golden and ivory phylactery robes, bony hands clutching an ornate golden staff, glowing amber soul-fire in the eye sockets, warm gold and ivory bone color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:07:50.044Z",
+            "updatedAt": "2026-04-05T14:07:50.044Z",
+            "images": []
+          },
+          {
+            "id": "69d26cb7036dddd2ba24bfc7",
+            "skinId": "69d26cb5036dddd2ba24bfc5",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed fantasy lich miniature figurine, full body, straight front view, facing forward, symmetrical pose, an undead skeletal sorcerer in tattered dark obsidian and void-black phylactery robes, bony hands clutching a dark iron staff crackling with purple necrotic energy, glowing cold blue soul-fire in the eye sockets, cool obsidian and cold violet color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:07:50.974Z",
+            "updatedAt": "2026-04-05T14:07:50.974Z",
+            "images": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "69d26cac036dddd2ba24bfba",
+    "userId": "69d26b87036dddd2ba24bf82",
+    "name": "Duchess",
+    "type": "figure",
+    "metadata": null,
+    "createdAt": "2026-04-05T14:07:40.535Z",
+    "updatedAt": "2026-04-05T14:07:40.535Z",
+    "skins": [
+      {
+        "id": "69d26cad036dddd2ba24bfbb",
+        "figureId": "69d26cac036dddd2ba24bfba",
+        "name": null,
+        "isBase": true,
+        "createdAt": "2026-04-05T14:07:41.320Z",
+        "updatedAt": "2026-04-05T14:07:41.320Z",
+        "variants": [
+          {
+            "id": "69d26cae036dddd2ba24bfbc",
+            "skinId": "69d26cad036dddd2ba24bfbb",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed fantasy duchess miniature figurine, full body, straight front view, facing forward, symmetrical pose, an elegant noblewoman in a flowing cream and gold gown with a tiara, holding a delicate rose, intricate lace detailing in ivory and amber, warm gold and cream color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:07:41.870Z",
+            "updatedAt": "2026-04-05T14:07:41.870Z",
+            "images": []
+          },
+          {
+            "id": "69d26cae036dddd2ba24bfbd",
+            "skinId": "69d26cad036dddd2ba24bfbb",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed fantasy duchess miniature figurine, full body, straight front view, facing forward, symmetrical pose, an imperious noblewoman in a flowing midnight blue and dark violet gown with a silver tiara, holding a black rose, intricate silver lace detailing on dark fabric, cool midnight blue and silver color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:07:42.627Z",
+            "updatedAt": "2026-04-05T14:07:42.627Z",
+            "images": []
+          }
+        ]
+      },
+      {
+        "id": "69d26caf036dddd2ba24bfbe",
+        "figureId": "69d26cac036dddd2ba24bfba",
+        "name": "Sorceress",
+        "isBase": false,
+        "createdAt": "2026-04-05T14:07:43.695Z",
+        "updatedAt": "2026-04-05T14:07:43.695Z",
+        "variants": [
+          {
+            "id": "69d26cb0036dddd2ba24bfbf",
+            "skinId": "69d26caf036dddd2ba24bfbe",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed fantasy sorceress duchess miniature figurine, full body, straight front view, facing forward, symmetrical pose, an elegant mage-noblewoman in flowing amber and gold arcane robes with glowing magical runes, a circlet of glowing amber gems, hands raised with warm fire magic swirling, warm amber and golden-orange color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:07:44.407Z",
+            "updatedAt": "2026-04-05T14:07:44.407Z",
+            "images": []
+          },
+          {
+            "id": "69d26cb1036dddd2ba24bfc0",
+            "skinId": "69d26caf036dddd2ba24bfbe",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed fantasy sorceress duchess miniature figurine, full body, straight front view, facing forward, symmetrical pose, a dark mage-noblewoman in flowing dark violet and black arcane robes with glowing cold blue magical runes, a circlet of dark sapphire gems, hands raised with frost magic swirling, cool dark violet and icy blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:07:45.296Z",
+            "updatedAt": "2026-04-05T14:07:45.296Z",
+            "images": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "69d26ca2036dddd2ba24bfb0",
+    "userId": "69d26b87036dddd2ba24bf82",
+    "name": "Monarch",
+    "type": "figure",
+    "metadata": null,
+    "createdAt": "2026-04-05T14:07:30.624Z",
+    "updatedAt": "2026-04-05T14:07:30.624Z",
+    "skins": [
+      {
+        "id": "69d26ca3036dddd2ba24bfb1",
+        "figureId": "69d26ca2036dddd2ba24bfb0",
+        "name": null,
+        "isBase": true,
+        "createdAt": "2026-04-05T14:07:31.486Z",
+        "updatedAt": "2026-04-05T14:07:31.486Z",
+        "variants": [
+          {
+            "id": "69d26ca4036dddd2ba24bfb2",
+            "skinId": "69d26ca3036dddd2ba24bfb1",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed fantasy monarch miniature figurine, full body, straight front view, facing forward, symmetrical pose, a regal king in ornate golden crown and flowing ivory royal robes trimmed with ermine, holding a golden scepter, warm gold and ivory color scheme with rich amber jewels, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:07:32.500Z",
+            "updatedAt": "2026-04-05T14:07:32.500Z",
+            "images": []
+          },
+          {
+            "id": "69d26ca5036dddd2ba24bfb3",
+            "skinId": "69d26ca3036dddd2ba24bfb1",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed fantasy monarch miniature figurine, full body, straight front view, facing forward, symmetrical pose, a commanding ruler in an obsidian crown and deep midnight blue royal robes trimmed with dark fur, holding a silver scepter topped with a sapphire, cool dark iron and deep blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:07:33.254Z",
+            "updatedAt": "2026-04-05T14:07:33.254Z",
+            "images": []
+          }
+        ]
+      },
+      {
+        "id": "69d26ca8036dddd2ba24bfb7",
+        "figureId": "69d26ca2036dddd2ba24bfb0",
+        "name": "",
+        "isBase": false,
+        "createdAt": "2026-04-05T14:07:36.435Z",
+        "updatedAt": "2026-04-05T14:07:36.435Z",
+        "variants": [
+          {
+            "id": "69d26ca9036dddd2ba24bfb8",
+            "skinId": "69d26ca8036dddd2ba24bfb7",
+            "variant": "A",
+            "name": null,
+            "prompt": "A regal cat emperor standing proudly, adorned with an ornate crown and royal garments in a warm palette of gold, bronze, and ivory. The attire features intricate details such as embroidery and jewels, exuding nobility and authority. The cat displays a confident expression and a majestic posture, with sleek, well-groomed fur enhancing its royal presence. Front view, facing forward, symmetrical pose, full body. 3d asset, 3d figure, board game asset, white background",
+            "negativePrompt": "side view, angled, 3/4 view, profile, turned, back view, cropped",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:07:36.995Z",
+            "updatedAt": "2026-04-05T14:07:38.814Z",
+            "images": []
+          },
+          {
+            "id": "69d26ca9036dddd2ba24bfb9",
+            "skinId": "69d26ca8036dddd2ba24bfb7",
+            "variant": "B",
+            "name": null,
+            "prompt": "",
+            "negativePrompt": null,
+            "imageModel": "flux-pro/v1.1-ultra",
+            "createdAt": "2026-04-05T14:07:37.799Z",
+            "updatedAt": "2026-04-05T14:07:39.571Z",
+            "images": []
+          }
+        ]
+      },
+      {
+        "id": "69d26ca6036dddd2ba24bfb4",
+        "figureId": "69d26ca2036dddd2ba24bfb0",
+        "name": "Egypt Emperor",
+        "isBase": false,
+        "createdAt": "2026-04-05T14:07:34.199Z",
+        "updatedAt": "2026-04-05T14:07:34.199Z",
+        "variants": [
+          {
+            "id": "69d26ca6036dddd2ba24bfb5",
+            "skinId": "69d26ca6036dddd2ba24bfb4",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed fantasy emperor miniature figurine, full body, straight front view, facing forward, symmetrical pose, an illustrious Egyptian emperor in ornate gold and bronze ceremonial armor with a laurel crown of gold, featuring intricate hieroglyphic engravings, a flowing cape with warm amber and cream hues, holding an intricately designed imperial scepter, warm gold and amber color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background, side view, angled, 3/4 view, profile, turned, back view, cropped",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:07:34.744Z",
+            "updatedAt": "2026-04-05T14:07:34.744Z",
+            "images": []
+          },
+          {
+            "id": "69d26ca7036dddd2ba24bfb6",
+            "skinId": "69d26ca6036dddd2ba24bfb4",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed fantasy emperor miniature figurine, full body, straight front view, facing forward, symmetrical pose, a fearsome emperor in dark obsidian ceremonial armor with a laurel crown of black iron, a flowing dark violet and silver cape, holding an ornate imperial sword crackling with dark energy, cool obsidian and dark violet color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:07:35.486Z",
+            "updatedAt": "2026-04-05T14:07:35.486Z",
+            "images": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "69d26c9d036dddd2ba24bfa9",
+    "userId": "69d26b87036dddd2ba24bf82",
+    "name": "Warlock",
+    "type": "figure",
+    "metadata": null,
+    "createdAt": "2026-04-05T14:07:25.070Z",
+    "updatedAt": "2026-04-05T14:11:30.600Z",
+    "skins": [
+      {
+        "id": "69d26c9d036dddd2ba24bfaa",
+        "figureId": "69d26c9d036dddd2ba24bfa9",
+        "name": null,
+        "isBase": true,
+        "createdAt": "2026-04-05T14:07:25.854Z",
+        "updatedAt": "2026-04-05T14:07:25.854Z",
+        "variants": [
+          {
+            "id": "69d26c9e036dddd2ba24bfab",
+            "skinId": "69d26c9d036dddd2ba24bfaa",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed fantasy warlock vizier miniature figurine, full body, straight front view, facing forward, symmetrical pose, a robed sorcerer advisor in flowing amber and gold robes, holding an ornate staff topped with a glowing amber crystal, intricate gold embroidery on cream fabric, warm gold and amber color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background",
+            "imageModel": "dall-e-3",
+            "createdAt": "2026-04-05T14:07:26.424Z",
+            "updatedAt": "2026-04-05T14:07:26.424Z",
+            "images": []
+          },
+          {
+            "id": "69d26c9f036dddd2ba24bfac",
+            "skinId": "69d26c9d036dddd2ba24bfaa",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed fantasy warlock vizier miniature figurine, full body, straight front view, facing forward, symmetrical pose, a robed sorcerer advisor in flowing deep violet and obsidian robes, holding an ornate staff topped with a glowing cold blue crystal, silver runic embroidery on dark fabric, cool dark purple and midnight blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:07:27.195Z",
+            "updatedAt": "2026-04-05T14:07:27.195Z",
+            "images": []
+          }
+        ]
+      },
+      {
+        "id": "69d26ca0036dddd2ba24bfad",
+        "figureId": "69d26c9d036dddd2ba24bfa9",
+        "name": "Shadow Mage",
+        "isBase": false,
+        "createdAt": "2026-04-05T14:07:28.286Z",
+        "updatedAt": "2026-04-05T14:07:28.286Z",
+        "variants": [
+          {
+            "id": "69d26ca1036dddd2ba24bfae",
+            "skinId": "69d26ca0036dddd2ba24bfad",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed fantasy shadow mage miniature figurine, full body, straight front view, facing forward, symmetrical pose, a cloaked spellcaster with a wide-brimmed hat, swirling warm orange shadow energy around the hands, amber arcane sigils glowing on the cloak, tattered edges of the robe reveal golden runes, warm amber and fiery orange color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:07:28.837Z",
+            "updatedAt": "2026-04-05T14:07:28.837Z",
+            "images": []
+          },
+          {
+            "id": "69d26ca1036dddd2ba24bfaf",
+            "skinId": "69d26ca0036dddd2ba24bfad",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed fantasy shadow mage miniature figurine, full body, straight front view, facing forward, symmetrical pose, a cloaked spellcaster with a wide-brimmed hat, swirling cold void-black shadow energy around the hands, icy blue arcane sigils glowing on the dark cloak, tattered edges of the robe reveal silver runes, cool void-black and icy blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:07:29.625Z",
+            "updatedAt": "2026-04-05T14:07:29.625Z",
+            "images": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "69d26c6e036dddd2ba24bfa2",
+    "userId": "69d26b87036dddd2ba24bf82",
+    "name": "Paladin",
+    "type": "figure",
+    "metadata": null,
+    "createdAt": "2026-04-05T14:06:38.113Z",
+    "updatedAt": "2026-04-05T14:06:38.113Z",
+    "skins": [
+      {
+        "id": "69d26c75036dddd2ba24bfa3",
+        "figureId": "69d26c6e036dddd2ba24bfa2",
+        "name": null,
+        "isBase": true,
+        "createdAt": "2026-04-05T14:06:45.239Z",
+        "updatedAt": "2026-04-05T14:06:45.239Z",
+        "variants": [
+          {
+            "id": "69d26c7c036dddd2ba24bfa4",
+            "skinId": "69d26c75036dddd2ba24bfa3",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed fantasy paladin miniature figurine, full body, straight front view, facing forward, symmetrical pose, a noble knight in full gleaming plate armor radiating a holy golden aura, holding a longsword and a heater shield emblazoned with a sunburst, warm gold and ivory color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:06:50.629Z",
+            "updatedAt": "2026-04-05T14:06:50.629Z",
+            "images": []
+          },
+          {
+            "id": "69d26c84036dddd2ba24bfa5",
+            "skinId": "69d26c75036dddd2ba24bfa3",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed fantasy paladin miniature figurine, full body, straight front view, facing forward, symmetrical pose, a dark knight in shadowed obsidian plate armor with a cold blue divine aura, holding a longsword and a heater shield emblazoned with a crescent moon, cool dark iron and midnight blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:06:58.243Z",
+            "updatedAt": "2026-04-05T14:06:58.243Z",
+            "images": []
+          }
+        ]
+      },
+      {
+        "id": "69d26c8b036dddd2ba24bfa6",
+        "figureId": "69d26c6e036dddd2ba24bfa2",
+        "name": "Crusader",
+        "isBase": false,
+        "createdAt": "2026-04-05T14:07:07.699Z",
+        "updatedAt": "2026-04-05T14:07:07.699Z",
+        "variants": [
+          {
+            "id": "69d26c93036dddd2ba24bfa7",
+            "skinId": "69d26c8b036dddd2ba24bfa6",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed fantasy crusader paladin miniature figurine, full body, straight front view, facing forward, symmetrical pose, a holy warrior in white surcoat with a golden cross over chainmail armor, great helm with a golden visor, holding a two-handed greatsword, warm white and gold color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:07:13.040Z",
+            "updatedAt": "2026-04-05T14:07:13.040Z",
+            "images": []
+          },
+          {
+            "id": "69d26c99036dddd2ba24bfa8",
+            "skinId": "69d26c8b036dddd2ba24bfa6",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed fantasy crusader paladin miniature figurine, full body, straight front view, facing forward, symmetrical pose, a fallen holy warrior in a dark charcoal surcoat with a tarnished silver cross over black chainmail, great helm with a cold blue visor, holding a two-handed greatsword with dark runes, cool dark charcoal and tarnished silver color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:07:19.443Z",
+            "updatedAt": "2026-04-05T14:07:19.443Z",
+            "images": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "69d26c3b036dddd2ba24bf9b",
+    "userId": "69d26b87036dddd2ba24bf82",
+    "name": "Bomber",
+    "type": "figure",
+    "metadata": null,
+    "createdAt": "2026-04-05T14:05:47.768Z",
+    "updatedAt": "2026-04-05T14:05:47.768Z",
+    "skins": [
+      {
+        "id": "69d26c42036dddd2ba24bf9c",
+        "figureId": "69d26c3b036dddd2ba24bf9b",
+        "name": null,
+        "isBase": true,
+        "createdAt": "2026-04-05T14:05:54.586Z",
+        "updatedAt": "2026-04-05T14:05:54.586Z",
+        "variants": [
+          {
+            "id": "69d26c49036dddd2ba24bf9d",
+            "skinId": "69d26c42036dddd2ba24bf9c",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed fantasy bomber soldier miniature figurine, full body, straight front view, facing forward, symmetrical pose, a stocky armored warrior carrying a round bomb with a lit fuse, wearing polished golden-bronze armor with amber trim, warm gold and ivory color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:05:59.673Z",
+            "updatedAt": "2026-04-05T14:05:59.673Z",
+            "images": []
+          },
+          {
+            "id": "69d26c50036dddd2ba24bf9e",
+            "skinId": "69d26c42036dddd2ba24bf9c",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed fantasy bomber soldier miniature figurine, full body, straight front view, facing forward, symmetrical pose, a stocky armored warrior carrying a round bomb with a lit fuse, wearing dark iron armor with slate blue and obsidian trim, cool dark iron and midnight blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:06:06.514Z",
+            "updatedAt": "2026-04-05T14:06:06.514Z",
+            "images": []
+          }
+        ]
+      },
+      {
+        "id": "69d26c57036dddd2ba24bf9f",
+        "figureId": "69d26c3b036dddd2ba24bf9b",
+        "name": "Alchemist",
+        "isBase": false,
+        "createdAt": "2026-04-05T14:06:15.661Z",
+        "updatedAt": "2026-04-05T14:06:15.661Z",
+        "variants": [
+          {
+            "id": "69d26c5e036dddd2ba24bfa0",
+            "skinId": "69d26c57036dddd2ba24bf9f",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed fantasy alchemist bomber miniature figurine, full body, straight front view, facing forward, symmetrical pose, a quirky robed figure in a leather apron over amber and gold robes, carrying a rack of glowing potion vials and a throwing flask, protective goggles pushed up on the forehead, warm amber and golden-brown color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:06:21.217Z",
+            "updatedAt": "2026-04-05T14:06:21.217Z",
+            "images": []
+          },
+          {
+            "id": "69d26c66036dddd2ba24bfa1",
+            "skinId": "69d26c57036dddd2ba24bf9f",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed fantasy alchemist bomber miniature figurine, full body, straight front view, facing forward, symmetrical pose, a gaunt robed figure in a dark leather apron over charcoal and dark violet robes, carrying a rack of glowing toxic green potion vials and a throwing flask, dark protective goggles, cool dark grey and toxic green color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:06:28.247Z",
+            "updatedAt": "2026-04-05T14:06:28.247Z",
+            "images": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "69d26c0a036dddd2ba24bf94",
+    "userId": "69d26b87036dddd2ba24bf82",
+    "name": "Chariot",
+    "type": "figure",
+    "metadata": null,
+    "createdAt": "2026-04-05T14:04:58.985Z",
+    "updatedAt": "2026-04-05T14:04:58.985Z",
+    "skins": [
+      {
+        "id": "69d26c11036dddd2ba24bf95",
+        "figureId": "69d26c0a036dddd2ba24bf94",
+        "name": null,
+        "isBase": true,
+        "createdAt": "2026-04-05T14:05:05.390Z",
+        "updatedAt": "2026-04-05T14:05:05.390Z",
+        "variants": [
+          {
+            "id": "69d26c19036dddd2ba24bf96",
+            "skinId": "69d26c11036dddd2ba24bf95",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed ancient war chariot miniature figurine, full body, straight front view, facing forward, symmetrical pose, two-wheeled chariot with a rearing white horse, gilded wood frame with gold and ivory detailing, charioteer in a bronze helmet, warm gold and cream color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple chariots, text, watermark, dark colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:05:11.178Z",
+            "updatedAt": "2026-04-05T14:05:11.178Z",
+            "images": []
+          },
+          {
+            "id": "69d26c1f036dddd2ba24bf97",
+            "skinId": "69d26c11036dddd2ba24bf95",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed ancient war chariot miniature figurine, full body, straight front view, facing forward, symmetrical pose, two-wheeled chariot with a rearing dark grey horse, ebony wood frame with dark iron and teal-black metal detailing, charioteer in an obsidian helmet, cool dark iron and midnight blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple chariots, text, watermark, warm colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:05:18.140Z",
+            "updatedAt": "2026-04-05T14:05:18.140Z",
+            "images": []
+          }
+        ]
+      },
+      {
+        "id": "69d26c27036dddd2ba24bf98",
+        "figureId": "69d26c0a036dddd2ba24bf94",
+        "name": "Egyptian",
+        "isBase": false,
+        "createdAt": "2026-04-05T14:05:27.206Z",
+        "updatedAt": "2026-04-05T14:05:27.206Z",
+        "variants": [
+          {
+            "id": "69d26c2d036dddd2ba24bf99",
+            "skinId": "69d26c27036dddd2ba24bf98",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed ancient Egyptian war chariot miniature figurine, full body, straight front view, facing forward, symmetrical pose, a lightweight two-wheeled chariot with a rearing golden-maned horse, ornate Egyptian hieroglyph carvings on the chassis, the charioteer wearing a white nemes headdress and golden chest plate, warm gold and turquoise color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple chariots, text, watermark, dark colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:05:31.856Z",
+            "updatedAt": "2026-04-05T14:05:31.856Z",
+            "images": []
+          },
+          {
+            "id": "69d26c35036dddd2ba24bf9a",
+            "skinId": "69d26c27036dddd2ba24bf98",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed ancient Egyptian war chariot miniature figurine, full body, straight front view, facing forward, symmetrical pose, a lightweight two-wheeled chariot with a rearing dark horse, obsidian and lapis lazuli carvings on the chassis, the charioteer wearing a dark ceremonial headdress and dark bronze chest plate, cool dark cobalt and obsidian color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple chariots, text, watermark, warm colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:05:39.157Z",
+            "updatedAt": "2026-04-05T14:05:39.157Z",
+            "images": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "69d26bd6036dddd2ba24bf8d",
+    "userId": "69d26b87036dddd2ba24bf82",
+    "name": "Ram-Tower",
+    "type": "figure",
+    "metadata": null,
+    "createdAt": "2026-04-05T14:04:06.579Z",
+    "updatedAt": "2026-04-05T14:04:06.579Z",
+    "skins": [
+      {
+        "id": "69d26bdf036dddd2ba24bf8e",
+        "figureId": "69d26bd6036dddd2ba24bf8d",
+        "name": null,
+        "isBase": true,
+        "createdAt": "2026-04-05T14:04:15.484Z",
+        "updatedAt": "2026-04-05T14:04:15.484Z",
+        "variants": [
+          {
+            "id": "69d26be6036dddd2ba24bf8f",
+            "skinId": "69d26bdf036dddd2ba24bf8e",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed siege ram-tower miniature figurine, full structure visible, straight front view, facing forward, symmetrical pose, a wooden rolling siege tower with a battering ram mounted at its base, reinforced with warm golden-brass fittings and light oak wood planks, pennants in cream and amber, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, soldiers, text, watermark, dark colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:04:20.944Z",
+            "updatedAt": "2026-04-05T14:04:20.944Z",
+            "images": []
+          },
+          {
+            "id": "69d26bef036dddd2ba24bf90",
+            "skinId": "69d26bdf036dddd2ba24bf8e",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed siege ram-tower miniature figurine, full structure visible, straight front view, facing forward, symmetrical pose, a rolling siege tower with a battering ram mounted at its base, reinforced with dark iron fittings and charcoal-black timber planks, pennants in dark teal and slate grey, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, soldiers, text, watermark, warm colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:04:30.240Z",
+            "updatedAt": "2026-04-05T14:04:30.240Z",
+            "images": []
+          }
+        ]
+      },
+      {
+        "id": "69d26bf7036dddd2ba24bf91",
+        "figureId": "69d26bd6036dddd2ba24bf8d",
+        "name": "Iron Fortress",
+        "isBase": false,
+        "createdAt": "2026-04-05T14:04:39.335Z",
+        "updatedAt": "2026-04-05T14:04:39.335Z",
+        "variants": [
+          {
+            "id": "69d26bfe036dddd2ba24bf92",
+            "skinId": "69d26bf7036dddd2ba24bf91",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed iron-clad siege ram-tower miniature figurine, full structure visible, straight front view, facing forward, symmetrical pose, a fully armored rolling siege tower plated in polished golden-brass sheets, a heavy reinforced ram with a lion-head tip, decorative rivets and warm bronze trim, warm gold and burnished brass color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, soldiers, text, watermark, dark colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:04:44.622Z",
+            "updatedAt": "2026-04-05T14:04:44.622Z",
+            "images": []
+          },
+          {
+            "id": "69d26c04036dddd2ba24bf93",
+            "skinId": "69d26bf7036dddd2ba24bf91",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed iron-clad siege ram-tower miniature figurine, full structure visible, straight front view, facing forward, symmetrical pose, a fully armored rolling siege tower plated in dark obsidian-black iron sheets, a heavy reinforced ram with a skull-head tip, cold blue glowing rune engravings, cool dark iron and midnight blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, soldiers, text, watermark, warm colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:04:50.855Z",
+            "updatedAt": "2026-04-05T14:04:50.855Z",
+            "images": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "69d26b90036dddd2ba24bf83",
+    "userId": "69d26b87036dddd2ba24bf82",
+    "name": "Hoplite",
+    "type": "figure",
+    "metadata": null,
+    "createdAt": "2026-04-05T14:02:56.008Z",
+    "updatedAt": "2026-04-05T14:02:56.008Z",
+    "skins": [
+      {
+        "id": "69d26b95036dddd2ba24bf84",
+        "figureId": "69d26b90036dddd2ba24bf83",
+        "name": null,
+        "isBase": true,
+        "createdAt": "2026-04-05T14:03:01.000Z",
+        "updatedAt": "2026-04-05T14:03:01.000Z",
+        "variants": [
+          {
+            "id": "69d26b9b036dddd2ba24bf85",
+            "skinId": "69d26b95036dddd2ba24bf84",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed ancient Greek hoplite warrior miniature figurine, full body, straight front view, facing forward, symmetrical pose, wearing a gleaming bronze Corinthian helmet and polished ivory-gold breastplate, holding a long spear and round hoplon shield decorated with a golden sun emblem, warm amber and gold color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, dark colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:03:05.945Z",
+            "updatedAt": "2026-04-05T14:03:05.945Z",
+            "images": []
+          },
+          {
+            "id": "69d26ba1036dddd2ba24bf86",
+            "skinId": "69d26b95036dddd2ba24bf84",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed ancient Greek hoplite warrior miniature figurine, full body, straight front view, facing forward, symmetrical pose, wearing a dark iron Corinthian helmet and obsidian-black breastplate with slate blue accents, holding a long spear and round hoplon shield decorated with a silver crescent emblem, cool dark iron and midnight blue color scheme, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:03:11.455Z",
+            "updatedAt": "2026-04-05T14:03:11.455Z",
+            "images": []
+          }
+        ]
+      },
+      {
+        "id": "69d26bbe036dddd2ba24bf8a",
+        "figureId": "69d26b90036dddd2ba24bf83",
+        "name": "Cat Hoplite",
+        "isBase": false,
+        "createdAt": "2026-04-05T14:03:42.877Z",
+        "updatedAt": "2026-04-05T14:03:42.877Z",
+        "variants": [
+          {
+            "id": "69d26bc6036dddd2ba24bf8b",
+            "skinId": "69d26bbe036dddd2ba24bf8a",
+            "variant": "A",
+            "name": null,
+            "prompt": "A highly detailed miniature figurine of a cat hoplite in a warm palette. The cat is dressed in a traditional hoplite armor with gold and bronze accents, holding a spear and shield. Its fur is a vivid amber red, with sunlit highlights. The armor includes intricate ivory and cream details, capturing the elegance and strength of a hoplite warrior. The cat's expression is fierce and determined, embodying the essence of a warrior. front view, facing forward, symmetrical pose, full body",
+            "negativePrompt": "side view, angled, 3/4 view, profile, turned, back view, cropped",
+            "imageModel": "flux-pro/v1.1-ultra",
+            "createdAt": "2026-04-05T14:03:49.375Z",
+            "updatedAt": "2026-04-05T14:03:49.375Z",
+            "images": []
+          },
+          {
+            "id": "69d26bcf036dddd2ba24bf8c",
+            "skinId": "69d26bbe036dddd2ba24bf8a",
+            "variant": "B",
+            "name": null,
+            "prompt": "",
+            "negativePrompt": null,
+            "imageModel": "flux-pro/v1.1-ultra",
+            "createdAt": "2026-04-05T14:03:57.534Z",
+            "updatedAt": "2026-04-05T14:03:57.534Z",
+            "images": []
+          }
+        ]
+      },
+      {
+        "id": "69d26ba8036dddd2ba24bf87",
+        "figureId": "69d26b90036dddd2ba24bf83",
+        "name": "Alien Spartan",
+        "isBase": false,
+        "createdAt": "2026-04-05T14:03:20.923Z",
+        "updatedAt": "2026-04-05T14:03:20.923Z",
+        "variants": [
+          {
+            "id": "69d26bb0036dddd2ba24bf88",
+            "skinId": "69d26ba8036dddd2ba24bf87",
+            "variant": "A",
+            "name": null,
+            "prompt": "A1 highly detailed alien Spartan hoplite miniature figurine, full body, front view, facing forward, symmetrical pose, wearing an open-faced bronze helmet with a red horsehair crest, featuring unique alien facial features like elongated eyes and textured skin, muscular torso in a crimson-trimmed linothorax, holding a short xiphos sword and round shield with a lambda symbol, warm red and burnished bronze color scheme with alien-inspired patterns, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, side view, angled, 3/4 view, profile, turned, back view, background scenery, multiple figures, text, watermark, dark colors, shadow on background",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:03:25.809Z",
+            "updatedAt": "2026-04-05T14:03:25.809Z",
+            "images": []
+          },
+          {
+            "id": "69d26bb6036dddd2ba24bf89",
+            "skinId": "69d26ba8036dddd2ba24bf87",
+            "variant": "B",
+            "name": null,
+            "prompt": "A highly detailed alien Spartan warrior miniature figurine, full body, front view, facing forward, symmetrical pose, wearing an open-faced dark iron helmet with an obsidian horsehair crest, featuring unique alien facial features like bioluminescent patterns and elongated facial structure, muscular torso in a slate-trimmed linothorax, holding a short xiphos sword and round shield with a silver lambda symbol, cool obsidian and cold slate color scheme with alien-inspired designs, isolated on a pure white background, no shadows, product photography style, 3D render",
+            "negativePrompt": "blurry, low quality, cropped, background scenery, multiple figures, text, watermark, warm colors, shadow on background, side view, angled, 3/4 view, profile, turned, back view, cropped",
+            "imageModel": "flux/schnell",
+            "createdAt": "2026-04-05T14:03:33.257Z",
+            "updatedAt": "2026-04-05T14:03:33.257Z",
+            "images": []
+          }
+        ]
+      }
+    ]
+  }
+]

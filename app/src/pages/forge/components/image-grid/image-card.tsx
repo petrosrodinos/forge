@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Download, Maximize2, Trash2 } from "lucide-react";
+import { Download, Maximize2, Play, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Spinner } from "@/components/ui/Spinner";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Modal } from "@/components/ui/Modal";
@@ -8,6 +10,10 @@ import { OptionsMenu } from "@/components/ui/OptionsMenu";
 import { downloadUrlAsFile, fileExtensionFromUrl } from "@/utils/helpers";
 import { cn } from "@/utils/cn";
 import type { SkinImage } from "@/interfaces";
+import { usePricingCosts } from "@/features/pricing/hooks/use-pricing.hooks";
+import { PRICING_COST_KEYS } from "@/features/pricing/constants/pricing-cost-keys";
+import { getFixedCostTokens } from "@/features/pricing/utils/pricing-costs.utils";
+import { TokenCostPill } from "@/features/pricing/components/TokenCostPill";
 
 function bestModelStatus(models: SkinImage["models"]): string {
   if (models.length === 0) return "none";
@@ -26,17 +32,42 @@ function rasterPreviewUrl(image: SkinImage): string | null {
   return null;
 }
 
+export function canGenerateMeshOnImage(image: SkinImage): boolean {
+  if (image.gcsUrl) return true;
+  const s = image.sourceUrl ?? "";
+  return /^https?:\/\//i.test(s) || s.startsWith("data:");
+}
+
 interface ImageCardProps {
   image: SkinImage;
   onSelect: (image: SkinImage) => void;
   onDelete: (image: SkinImage) => void;
+  onGenerate3d?: (image: SkinImage) => void;
+  meshPickOrder?: number | null;
+  onToggleMeshPick?: (image: SkinImage) => void;
+  meshPickBlocked?: boolean;
   selected?: boolean;
   /** True while this image’s delete request is in flight */
   deletePending?: boolean;
+  /** True while this image is generating mesh */
+  generatePending?: boolean;
 }
 
-export function ImageCard({ image, onSelect, onDelete, selected, deletePending = false }: ImageCardProps) {
+export function ImageCard({
+  image,
+  onSelect,
+  onDelete,
+  onGenerate3d,
+  meshPickOrder = null,
+  onToggleMeshPick,
+  meshPickBlocked = false,
+  selected,
+  deletePending = false,
+  generatePending = false,
+}: ImageCardProps) {
   const status = bestModelStatus(image.models);
+  const { data: pricingCosts } = usePricingCosts();
+  const meshTokenCost = getFixedCostTokens(pricingCosts, PRICING_COST_KEYS.TRIPPO_MESH_STANDALONE);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const deleteStartedRef = useRef(false);
 
@@ -53,6 +84,7 @@ export function ImageCard({ image, onSelect, onDelete, selected, deletePending =
   const [expandOpen, setExpandOpen] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
   const previewSrc = rasterPreviewUrl(image);
+  const canGenerate = canGenerateMeshOnImage(image);
 
   useEffect(() => {
     setImgLoaded(false);
@@ -96,6 +128,32 @@ export function ImageCard({ image, onSelect, onDelete, selected, deletePending =
         onClick={() => onSelect(image)}
       >
         <div className="relative aspect-square w-full bg-surface/80">
+          {onToggleMeshPick ? (
+            <label
+              title={meshPickBlocked ? "Maximum 4 images" : "Include in multiview mesh selection"}
+              className={cn(
+                "absolute left-1.5 top-1.5 z-20 flex h-7 min-w-7 items-center justify-center rounded-md border border-border/80 bg-panel/95 px-1 shadow-md ring-1 ring-white/10 backdrop-blur-sm",
+                meshPickBlocked ? "cursor-not-allowed opacity-50" : "cursor-pointer",
+              )}
+            >
+              <input
+                type="checkbox"
+                className="sr-only"
+                checked={meshPickOrder != null}
+                disabled={!canGenerate || meshPickBlocked}
+                onChange={() => onToggleMeshPick(image)}
+                onClick={(e) => e.stopPropagation()}
+              />
+              <span
+                className={cn(
+                  "flex h-5 min-w-5 items-center justify-center rounded text-[10px] font-semibold tabular-nums",
+                  meshPickOrder != null ? "bg-accent/90 text-white" : "border border-border/80 bg-surface/80 text-slate-500",
+                )}
+              >
+                {meshPickOrder != null ? meshPickOrder : ""}
+              </span>
+            </label>
+          ) : null}
           {previewSrc ? (
             <>
               {!imgLoaded && <Skeleton className="absolute inset-0 z-[1] rounded-none" />}
@@ -127,6 +185,26 @@ export function ImageCard({ image, onSelect, onDelete, selected, deletePending =
             {status !== "success" && <Badge status={status} />}
             <span className="text-[10px] text-slate-500 ml-auto">{image.models.length} models</span>
           </div>
+          {onGenerate3d ? (
+            <div className="flex items-center justify-end gap-2">
+              {meshTokenCost != null ? <TokenCostPill tokens={meshTokenCost} /> : null}
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                className="h-7 gap-1 px-2 text-[11px]"
+                disabled={!canGenerate || generatePending}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!canGenerate || generatePending) return;
+                  onGenerate3d(image);
+                }}
+              >
+                {generatePending ? <Spinner className="h-2.5 w-2.5" /> : <Play size={10} />}
+                {generatePending ? "Generating..." : "Generate 3D"}
+              </Button>
+            </div>
+          ) : null}
         </div>
       </div>
 

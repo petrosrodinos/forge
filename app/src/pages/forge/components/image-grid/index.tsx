@@ -9,11 +9,24 @@ import type { SkinImage } from "@/interfaces";
 interface ImageGridProps {
   images: SkinImage[];
   onDelete: (image: SkinImage) => void;
+  onGenerate3d?: (image: SkinImage) => void;
+  meshPickIds?: string[];
+  onToggleMeshPick?: (image: SkinImage) => void;
   /** When set, that image’s delete confirm shows loading */
   deletingImageId?: string | null;
+  /** When set, that image’s generate action shows loading */
+  generatingImageIds?: string[];
 }
 
-export function ImageGrid({ images, onDelete, deletingImageId = null }: ImageGridProps) {
+export function ImageGrid({
+  images,
+  onDelete,
+  onGenerate3d,
+  meshPickIds = [],
+  onToggleMeshPick,
+  deletingImageId = null,
+  generatingImageIds = [],
+}: ImageGridProps) {
   const { selectedImage, setSelectedImage } = useForgeStore();
   const [emblaRef, emblaApi] = useEmblaCarousel({ align: "start", dragFree: true });
   const [canScrollPrev, setCanScrollPrev] = useState(false);
@@ -46,8 +59,13 @@ export function ImageGrid({ images, onDelete, deletingImageId = null }: ImageGri
                 image={img}
                 onSelect={setSelectedImage}
                 onDelete={onDelete}
+                onGenerate3d={onGenerate3d}
+                meshPickOrder={meshPickIds.indexOf(img.id) >= 0 ? meshPickIds.indexOf(img.id) + 1 : null}
+                onToggleMeshPick={onToggleMeshPick}
+                meshPickBlocked={meshPickIds.length >= 4 && !meshPickIds.includes(img.id)}
                 selected={selectedImage?.id === img.id}
                 deletePending={deletingImageId === img.id}
+                generatePending={generatingImageIds.includes(img.id)}
               />
             </div>
           ))}

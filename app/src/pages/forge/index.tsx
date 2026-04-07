@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Box, ChevronLeft, ChevronRight, Layers, Plus } from "lucide-react";
+import { DownloadModal } from "@/pages/forge/components/download-modal";
 import { cn } from "@/utils/cn";
 import { useFigures } from "@/features/figures/hooks/use-figures.hooks";
 import { useCreateSkin, useDeleteSkin } from "@/features/skins/hooks/use-skins.hooks";
@@ -68,6 +69,7 @@ export default function ForgePage() {
   const figureListRef = useRef<FigureListHandle>(null);
   const [addSkinOpen, setAddSkinOpen] = useState(false);
   const [newSkinName, setNewSkinName] = useState("");
+  const [downloadModalOpen, setDownloadModalOpen] = useState(false);
 
   const createSkin = useCreateSkin();
   const deleteSkin = useDeleteSkin();
@@ -152,7 +154,7 @@ export default function ForgePage() {
             figurePanelOpen ? "md:w-52" : "md:w-[3.25rem]",
           )}
         >
-          <FigureList ref={figureListRef} collapsed={!figurePanelOpen} />
+          <FigureList ref={figureListRef} collapsed={!figurePanelOpen} onDownloadClick={() => setDownloadModalOpen(true)} />
         </aside>
 
         <div className="relative flex-1 flex flex-col overflow-hidden min-w-0 bg-surface/30">
@@ -263,6 +265,8 @@ export default function ForgePage() {
           <ChatPanel />
         </aside>
       </div>
+
+      {downloadModalOpen && <DownloadModal onClose={() => setDownloadModalOpen(false)} />}
 
       {addSkinOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">

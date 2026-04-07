@@ -15,6 +15,55 @@ function model3dIdParam(req: Request): string {
 }
 
 router.post(
+  "/from-image/:imageId",
+  requireTokens("trippoMesh", (req) => {
+    const imageId = req.params.imageId;
+    if (Array.isArray(imageId)) return imageId[0] ? `mesh:${imageId[0]}` : undefined;
+    return typeof imageId === "string" && imageId ? `mesh:${imageId}` : undefined;
+  }),
+  async (req, res) => {
+    try {
+      const imageId = req.params.imageId;
+      if (!imageId || Array.isArray(imageId)) {
+        res.status(400).json({ error: "imageId is required" });
+        return;
+      }
+      const model = await models3dSvc.createModel3DFromImage({ imageId, userId: req.userId });
+      res.status(201).json(model);
+    } catch (err) {
+      const status = (err as Error & { status?: number }).status ?? 500;
+      res.status(status).json({ error: err instanceof Error ? err.message : String(err) });
+    }
+  },
+);
+
+router.post(
+  "/from-images",
+  (req, res, next) => {
+    const imageIds = (req.body as { imageIds?: string[] }).imageIds;
+    if (!Array.isArray(imageIds) || imageIds.length < 2 || imageIds.length > 4 || imageIds.some((id) => typeof id !== "string" || !id)) {
+      return res.status(400).json({ error: "imageIds must be an array of 2 to 4 ids" });
+    }
+    next();
+  },
+  requireTokens("trippoMesh", (req) => {
+    const imageIds = (req.body as { imageIds?: string[] }).imageIds;
+    if (!Array.isArray(imageIds) || imageIds.length === 0) return undefined;
+    return `mesh-multiview:${[...imageIds].sort().join(",")}`;
+  }),
+  async (req, res) => {
+    try {
+      const imageIds = (req.body as { imageIds: string[] }).imageIds;
+      const model = await models3dSvc.createModel3DFromImages({ imageIds, userId: req.userId });
+      res.status(201).json(model);
+    } catch (err) {
+      const status = (err as Error & { status?: number }).status ?? 500;
+      res.status(status).json({ error: err instanceof Error ? err.message : String(err) });
+    }
+  },
+);
+
+router.post(
   "/:model3dId/rig",
   requireTokens("rig", (req) => {
     const id = model3dIdParam(req);
