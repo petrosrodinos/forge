@@ -10,7 +10,29 @@ import type { CreateFigureDto, UpdateFigureParams } from "@/features/figures/int
 import type { Figure } from "@/interfaces";
 
 export function useFigures() {
-  return useQuery({ queryKey: ["figures"], queryFn: listFigures });
+  return useQuery({
+    queryKey: ["figures"],
+    queryFn: listFigures,
+    refetchInterval: (query) => {
+      const figures = query.state.data as Figure[] | undefined;
+      if (!figures || figures.length === 0) return false;
+      const hasActiveJobs = figures.some((f) =>
+        f.skins.some((s) =>
+          s.variants.some((v) =>
+            v.images.some((img) =>
+              img.models.some(
+                (m) =>
+                  m.status === "pending" ||
+                  m.status === "processing" ||
+                  m.animations.some((a) => a.status === "pending" || a.status === "processing"),
+              ),
+            ),
+          ),
+        ),
+      );
+      return hasActiveJobs ? 2000 : false;
+    },
+  });
 }
 
 export function useCreateFigure() {

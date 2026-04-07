@@ -27,7 +27,9 @@ import skinImagesRouter from "./modules/skin-images/skin-images.router";
 import models3dRouter from "./modules/models3d/models3d.router";
 import animationsRouter from "./modules/animations/animations.router";
 import downloadRouter from "./modules/download/download.router";
+import jobsRouter from "./modules/jobs/jobs.router";
 import { prisma } from "./integrations/db/client";
+import { startWorkers } from "./queue/worker";
 
 const app = express();
 
@@ -95,12 +97,14 @@ app.use("/api/figures/:figureId/skins/:skinId/variants", requireAuth, variantsRo
 app.use("/api/figures/:figureId/skins/:skinId/variants/:variantId/images", requireAuth, skinImagesRouter);
 app.use("/api/models3d", requireAuth, models3dRouter);
 app.use("/api/models3d/:model3dId/animations", requireAuth, animationsRouter);
+app.use("/api/jobs", requireAuth, jobsRouter);
 app.use("/api/download", requireAuth, downloadRouter);
 
 app.use(errorHandler);
 
 prisma.$connect()
   .then(() => {
+    startWorkers();
     const server = app.listen(env.PORT, () => {
       console.log(`\n  ⬡  3D Figures — The Forge`);
       console.log(`     http://localhost:${env.PORT}\n`);

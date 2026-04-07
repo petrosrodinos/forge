@@ -24,6 +24,7 @@ const schema = z.object({
   STRIPE_PUBLISHABLE_KEY: z.string().min(1),
   APP_URL: z.string().url().default("http://localhost:5173"),
   CORS_ORIGINS: z.string().optional(),
+  REDIS_URL: z.string().default("redis://localhost:6379"),
 });
 
 const parsed = schema.safeParse(process.env);

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { parseSSE } from "@/hooks/useSSE";
 import { notifyInsufficientTokensIf402 } from "@/store/insufficientTokensModalStore";
 import { API_BASE_URL } from "@/utils/constants";
 
@@ -23,7 +24,14 @@ export function useModelMesh(onComplete: () => void) {
             : `Mesh generation failed (${res.status})`;
         throw new Error(msg);
       }
-      onComplete();
+      for await (const evt of parseSSE(res.body!)) {
+        const data = JSON.parse(evt.data) as Record<string, unknown>;
+        if (evt.event === "complete") {
+          onComplete();
+          break;
+        }
+        if (evt.event === "error") throw new Error((data as { message?: string }).message ?? "Mesh generation failed");
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Mesh generation failed");
     } finally {
@@ -50,7 +58,14 @@ export function useModelMesh(onComplete: () => void) {
             : `Mesh generation failed (${res.status})`;
         throw new Error(msg);
       }
-      onComplete();
+      for await (const evt of parseSSE(res.body!)) {
+        const data = JSON.parse(evt.data) as Record<string, unknown>;
+        if (evt.event === "complete") {
+          onComplete();
+          break;
+        }
+        if (evt.event === "error") throw new Error((data as { message?: string }).message ?? "Mesh generation failed");
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Mesh generation failed");
     } finally {
