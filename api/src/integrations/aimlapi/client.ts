@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError } from "axios";
-import { env } from "../../config/env/env-validation";
 import { AimlApiError } from "./types";
+import { AIML_CONFIG } from "./config/aiml.config";
 
 const BASE_URL = "https://api.aimlapi.com";
 
@@ -18,7 +18,7 @@ function buildAimlClientError(err: AxiosError<AimlApiError | string>): Error {
 
   if (err.code === "ECONNABORTED" || /timeout/i.test(err.message)) {
     message =
-      "The AI provider request timed out. Try again, or increase AIML_HTTP_TIMEOUT_MS if the model is slow.";
+      "The AI provider request timed out. Try again in a moment.";
     clientStatus = 503;
   } else if (httpStatus === 524 || httpStatus === 504) {
     message =
@@ -56,7 +56,7 @@ function buildAimlClientError(err: AxiosError<AimlApiError | string>): Error {
 export function createAimlHttpClient(apiKey: string): AxiosInstance {
   const client = axios.create({
     baseURL: BASE_URL,
-    timeout: env.AIML_HTTP_TIMEOUT_MS,
+    timeout: AIML_CONFIG.HTTP_TIMEOUT_MS,
     headers: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",

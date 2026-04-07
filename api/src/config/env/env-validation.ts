@@ -7,8 +7,6 @@ const schema = z.object({
   PORT: z.coerce.number().default(3000),
   DATABASE_URL: z.string().min(1).optional(),
   AIML_API_KEY: z.string().min(1),
-  /** Axios timeout for AIML HTTP calls (ms). Cloudflare may still return 524 if upstream exceeds ~100s. */
-  AIML_HTTP_TIMEOUT_MS: z.coerce.number().int().min(30_000).max(600_000).optional().default(180_000),
   TRIPO_API_KEY: z.string().min(1),
   AGENT_MODEL: z.string().default("gpt-4o-mini"),
   GCS_BUCKET: z.string().min(1).optional(),
