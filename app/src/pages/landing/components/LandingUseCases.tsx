@@ -19,7 +19,7 @@ export function LandingUseCases() {
           Built for indies, studios, and mod teams
         </h2>
         <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-400 sm:text-base">
-          From Unity and Unreal pipelines to mobile skins and jam deadlines—the same AI game asset generator
+          From Unity and Unreal projects to mobile skins and jam deadlines—the same AI game asset generator
           workflow scales from solo devs to distributed art teams.
         </p>
         <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">

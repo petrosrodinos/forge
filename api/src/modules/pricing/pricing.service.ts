@@ -10,18 +10,12 @@ import { TrippoModels } from "../../config/models/trippo-models";
 import { ImageModels } from "../../config/models/image-models";
 import { roundEur } from "../../lib/models-cost";
 
-type ListedTokenOperation = Exclude<TokenOperation, "pipeline">;
-
-const OPERATION_LABELS: Record<ListedTokenOperation, string> = {
+const OPERATION_LABELS: Record<TokenOperation, string> = {
   animationRetarget: "Animation retarget",
   chat: "Forge chat message",
   trippoMesh: "Mesh from image",
   rig: "Rigging",
 };
-
-function isListedOperation(id: TokenOperation): id is ListedTokenOperation {
-  return id !== "pipeline";
-}
 
 export function getPricingCatalog() {
   return {
@@ -30,7 +24,7 @@ export function getPricingCatalog() {
       chatDebitTokens: CHAT_DEBIT_TOKENS,
     },
     packs: TOKEN_PACKS.map(({ id, name, tokens, price }) => ({ id, name, tokens, price })),
-    operations: TOKEN_OPERATIONS.filter(isListedOperation).map((id) => ({
+    operations: TOKEN_OPERATIONS.map((id) => ({
       id,
       label: OPERATION_LABELS[id],
       tokens: getTokenOperationDebit(id),

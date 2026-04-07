@@ -245,7 +245,7 @@ export const FigureList = forwardRef<FigureListHandle, FigureListProps>(function
                 {modal.mode === "create" ? "New figure" : "Edit figure"}
               </p>
               <p className="mt-1 text-xs text-slate-500 leading-relaxed">
-                {modal.mode === "create" ? "Choose a name and asset type to start your pipeline." : "Update how this figure is labeled in the forge."}
+                {modal.mode === "create" ? "Choose a name and asset type to start your figure." : "Update how this figure is labeled in the forge."}
               </p>
             </div>
             <div className="flex flex-col gap-4 px-5 py-5">

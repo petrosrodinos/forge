@@ -1,6 +1,6 @@
 /** Keep `index.html` meta tags aligned with `LANDING_SEO` for crawlers that do not execute JS. */
 export const LANDING_SEO = {
-  title: "Forge | AI 3D Game Asset Generator — Characters, Rigs & Batch Pipelines",
+  title: "Forge | AI 3D Game Asset Generator — Characters, Rigs & Batch Workflows",
   description:
     "Generate AI 3D game assets, meshes, and character rigs in one workflow. AI character generator with prompt enhancement, auto rigging AI, preset animations, skins, variants, and batch creation for Unity, Unreal, and indie teams.",
   keywords: [
@@ -9,7 +9,7 @@ export const LANDING_SEO = {
     "auto rigging AI",
     "AI game asset generator",
     "generate 3D characters AI",
-    "Unity character pipeline",
+    "Unity 3D characters",
     "Unreal 3D assets",
     "indie game art",
     "NPC generation",
@@ -150,7 +150,7 @@ export const LANDING_FEATURE_SECTIONS = [
   },
   {
     id: "feature-3d",
-    title: "3D character pipeline",
+    title: "3D character workflow",
     subtitle: "Generate 3D characters AI teams can actually drop into a level and test.",
     items: [
       {
@@ -190,7 +190,7 @@ export const LANDING_FEATURE_SECTIONS = [
       {
         title: "Skins and variants",
         body: "Spin alternate materials, factions, and costume layers from a single base so monetization and mod workflows stay maintainable.",
-        keywords: "character variants, cosmetic pipelines, reskins",
+        keywords: "character variants, cosmetic layers, reskins",
       },
       {
         title: "Batch asset creation",

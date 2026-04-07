@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { usageMetadataWithProviderCosts } from "../../lib/provider-costs-metadata";
 import { generateAndMesh } from "./generate-and-mesh.service";
-import { PIPELINE_CONFIG } from "../pipeline/config/pipeline.config";
+import { TRIPO_JOB_CONFIG } from "../tripo/tripo-job.config";
 import { IMAGES_CONFIG } from "../images/config/images.config";
 import {
   assertUserHasTokenBalance,
@@ -21,7 +21,7 @@ export async function generateAndMeshController(req: Request, res: Response) {
       n = 1,
       modelVersion,
       meshModelVersion,
-      timeoutMs = PIPELINE_CONFIG.DEFAULT_POLL_TIMEOUT_MS,
+      timeoutMs = TRIPO_JOB_CONFIG.DEFAULT_POLL_TIMEOUT_MS,
       idempotencyKey,
     } = req.body as Record<string, unknown>;
 

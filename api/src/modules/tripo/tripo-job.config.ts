@@ -1,13 +1,14 @@
-export const PIPELINE_CONFIG = {
-  PIPELINE_DEFAULT_ANIMATIONS: ["preset:idle"],
+/** Shared SSE + polling defaults for Tripo-backed model jobs (rig, animate, generate-and-mesh). */
+export const TRIPO_JOB_CONFIG = {
+  TRIPO_DEFAULT_ANIMATIONS: ["preset:idle"],
 
-  PIPELINE_SSE_EVENTS: {
+  TRIPO_SSE_EVENTS: {
     PROGRESS: "progress",
     COMPLETE: "complete",
     ERROR: "error",
   } as const,
 
-  PIPELINE_STEPS: {
+  TRIPO_JOB_STEPS: {
     UPLOAD: "upload",
     MESH: "mesh",
     PRERIG: "prerig",
@@ -15,7 +16,7 @@ export const PIPELINE_CONFIG = {
     ANIMATE: "animate",
   } as const,
 
-  PIPELINE_STATUSES: {
+  TRIPO_JOB_STATUSES: {
     RUNNING: "running",
     SUCCESS: "success",
     QUEUED: "queued",
@@ -25,8 +26,4 @@ export const PIPELINE_CONFIG = {
   DEFAULT_POLL_INTERVAL_MS: 2000,
   MESH_POLL_TIMEOUT_MS: 900_000,
   DEFAULT_POLL_TIMEOUT_MS: 600_000,
-
-  /** Max source rasters: single-image uses 1; Tripo `multiview_to_model` allows 2–4 only. */
-  MAX_MESH_SOURCE_VIEWS: 4,
 } as const;
-

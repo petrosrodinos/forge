@@ -1,4 +1,4 @@
-import { getPipelineDebitTokens, getTokenOperationDebit } from "../../config/models/token-operations";
+import { getTokenOperationDebit } from "../../config/models/token-operations";
 
 /**
  * Stable keys for UI and clients. Add new rows here when new debited flows ship.
@@ -7,10 +7,6 @@ import { getPipelineDebitTokens, getTokenOperationDebit } from "../../config/mod
 export const PRICING_COST_KEYS = {
   AGENT_CHAT: "agent_chat",
   TRIPPO_MESH_STANDALONE: "trippo_mesh_standalone",
-  /** Mesh + rig pipeline, single source image (`image_to_model` + rig). */
-  PIPELINE_MESH: "pipeline_mesh",
-  /** Mesh + rig pipeline, multiview (`multiview_to_model` + rig). */
-  PIPELINE_MESH_MULTIVIEW: "pipeline_mesh_multiview",
   RIGGING: "rigging",
   ANIMATION_RETARGET: "animation_retarget",
   IMAGE_GENERATION: "image_generation",
@@ -65,20 +61,6 @@ export function buildPricingCosts(): PricingCostsDto {
         label: "Mesh from image (standalone API)",
         unit: "per_request",
         tokens: getTokenOperationDebit("trippoMesh"),
-      },
-      {
-        kind: "fixed",
-        key: PRICING_COST_KEYS.PIPELINE_MESH,
-        label: "Forge pipeline (1 image → mesh + rig)",
-        unit: "per_run",
-        tokens: getPipelineDebitTokens("image_to_model"),
-      },
-      {
-        kind: "fixed",
-        key: PRICING_COST_KEYS.PIPELINE_MESH_MULTIVIEW,
-        label: "Forge pipeline (multiview → mesh + rig)",
-        unit: "per_run",
-        tokens: getPipelineDebitTokens("multiview_to_model"),
       },
       {
         kind: "fixed",

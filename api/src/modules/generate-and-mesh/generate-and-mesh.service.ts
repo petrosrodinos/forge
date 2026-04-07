@@ -6,7 +6,7 @@ import { fetchImageAsBuffer } from "../../lib/image-fetch.util";
 
 import { IMAGES_CONFIG } from "../images/config/images.config";
 import { TRIPO_CONFIG } from "../tripo/config/tripo.config";
-import { PIPELINE_CONFIG } from "../pipeline/config/pipeline.config";
+import { TRIPO_JOB_CONFIG } from "../tripo/tripo-job.config";
 
 export async function generateAndMesh(input: {
   prompt: string;
@@ -50,8 +50,8 @@ export async function generateAndMesh(input: {
   if (!meshTaskId) throw new Error("Tripo did not return mesh task_id");
 
   const task = await getTripo().pollTask(meshTaskId, {
-    intervalMs: PIPELINE_CONFIG.DEFAULT_POLL_INTERVAL_MS,
-    timeoutMs: input.timeoutMs ?? PIPELINE_CONFIG.DEFAULT_POLL_TIMEOUT_MS,
+    intervalMs: TRIPO_JOB_CONFIG.DEFAULT_POLL_INTERVAL_MS,
+    timeoutMs: input.timeoutMs ?? TRIPO_JOB_CONFIG.DEFAULT_POLL_TIMEOUT_MS,
   });
 
   const pbrModelUrl = task.output?.pbr_model ?? null;

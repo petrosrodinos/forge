@@ -24,7 +24,7 @@ export function LandingFeatureSections() {
           id="landing-features-heading"
           className="font-sans text-2xl font-bold tracking-tight text-slate-50 sm:text-3xl"
         >
-          AI 3D game assets in four focused pipelines
+          AI 3D game assets in four focused areas
         </h2>
         <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-400 sm:text-base">
           Everything below maps to how realtime teams actually ship: ideation, geometry, rigs and motion, then

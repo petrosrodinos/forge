@@ -41,7 +41,7 @@ export const OPEN_API_DOCUMENT = {
     title: "3D Figures API",
     version: "1.0.0",
     description:
-      "API for auth, image/model generation, Tripo pipeline, and figure domain resources.",
+      "API for auth, image/model generation, Tripo mesh jobs, and figure domain resources.",
   },
   servers: [{ url: "/" }],
   tags: [
@@ -57,7 +57,6 @@ export const OPEN_API_DOCUMENT = {
     { name: "SkinImages" },
     { name: "Models3D" },
     { name: "Animations" },
-    { name: "Pipeline" },
     { name: "Billing" },
     { name: "Pricing" },
     { name: "Admin" },
@@ -1076,11 +1075,26 @@ export const OPEN_API_DOCUMENT = {
         responses: { "204": { description: "Deleted" }, "401": errorContent("Unauthorized") },
       },
     },
+    "/api/models3d/{model3dId}/rig": {
+      post: {
+        tags: ["Models3D"],
+        summary: "Rig a stored Model3D (SSE)",
+        description: "Pre-rig check and Tripo rigging; debits rig tokens. Requires a completed mesh.",
+        security: [{ cookieAuth: [] }],
+        parameters: [{ name: "model3dId", in: "path", required: true, schema: { type: "string" } }],
+        responses: {
+          "200": { description: "SSE stream (text/event-stream)" },
+          "400": errorContent("Validation error"),
+          "401": errorContent("Unauthorized"),
+          "402": insufficientTokensContent(),
+        },
+      },
+    },
     "/api/models3d/{model3dId}/animate": {
       post: {
         tags: ["Models3D"],
-        summary: "Animation retarget pipeline (SSE)",
-        description: "Same behavior as POST /api/pipeline/animate; debits tokens per animation retarget.",
+        summary: "Animation retarget (SSE)",
+        description: "Runs Tripo retarget per requested animation; debits animation retarget tokens.",
         security: [{ cookieAuth: [] }],
         parameters: [{ name: "model3dId", in: "path", required: true, schema: { type: "string" } }],
         requestBody: {
@@ -1121,99 +1135,6 @@ export const OPEN_API_DOCUMENT = {
           { name: "animationId", in: "path", required: true, schema: { type: "string" } },
         ],
         responses: { "204": { description: "Deleted" }, "401": errorContent("Unauthorized") },
-      },
-    },
-    "/api/pipeline/mesh": {
-      post: {
-        tags: ["Pipeline"],
-        summary: "Image → mesh pipeline (multipart or imageId + SSE)",
-        description:
-          "Provide **one** of: single `image` file; multiple `images` files (same field name repeated, max 4); `imageId` (one existing skin image); or `imageIds` (JSON array of 2–4 skin image ids) for Tripo multiview. Do not mix file uploads with imageId/imageIds. Multiview uses `multiview_to_model` and debits the multiview pipeline rate. Debits pipeline tokens (mesh + rig).",
-        security: [{ cookieAuth: [] }],
-        requestBody: {
-          required: true,
-          content: {
-            "multipart/form-data": {
-              schema: {
-                type: "object",
-                properties: {
-                  image: { type: "string", format: "binary", description: "Single PNG or JPEG (omit if using imageId / imageIds / images)" },
-                  images: {
-                    type: "array",
-                    items: { type: "string", format: "binary" },
-                    description: "Multiple PNG/JPEG parts for multiview (omit if using image / imageId / imageIds)",
-                  },
-                  imageId: { type: "string", description: "Single existing skin image id (omit if uploading or using imageIds)" },
-                  imageIds: {
-                    type: "string",
-                    description: 'JSON array of skin image ids, e.g. ["id1","id2"] for multiview (order matters)',
-                  },
-                  figureId: { type: "string" },
-                  variantId: { type: "string" },
-                  modelVersion: { type: "string", description: "Tripo model version (multiview uses standard versions only)" },
-                },
-                required: ["figureId", "variantId"],
-              },
-            },
-          },
-        },
-        responses: {
-          "200": { description: "SSE stream (text/event-stream)" },
-          "400": errorContent("Validation error"),
-          "401": errorContent("Unauthorized"),
-          "402": insufficientTokensContent(),
-          "404": errorContent("Not found"),
-          "502": errorContent("Upstream error"),
-        },
-      },
-    },
-    "/api/pipeline/rig": {
-      post: {
-        tags: ["Pipeline"],
-        summary: "Rig pipeline for a stored Model3D (SSE)",
-        security: [{ cookieAuth: [] }],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: { type: "object", properties: { model3dId: { type: "string" } }, required: ["model3dId"] },
-            },
-          },
-        },
-        responses: {
-          "200": { description: "SSE stream (text/event-stream)" },
-          "400": errorContent("Validation error"),
-          "401": errorContent("Unauthorized"),
-          "402": insufficientTokensContent(),
-        },
-      },
-    },
-    "/api/pipeline/animate": {
-      post: {
-        tags: ["Pipeline"],
-        summary: "Animation retarget pipeline (SSE)",
-        security: [{ cookieAuth: [] }],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  model3dId: { type: "string" },
-                  animations: { type: "array", items: { type: "string" }, minItems: 1 },
-                },
-                required: ["model3dId", "animations"],
-              },
-            },
-          },
-        },
-        responses: {
-          "200": { description: "SSE stream (text/event-stream)" },
-          "400": errorContent("Validation error"),
-          "401": errorContent("Unauthorized"),
-          "402": insufficientTokensContent(),
-        },
       },
     },
   },

@@ -13,7 +13,7 @@ router.get("/", async (req: Request<{ variantId: string }>, res: Response, next:
   } catch (err) { next(err); }
 });
 
-// POST multipart: image file; optional body imageId to replace that image’s raster (removes existing 3D). No mesh pipeline.
+// POST multipart: image file; optional body imageId to replace that image’s raster (removes existing 3D).
 router.post("/", upload.single("image"), async (
   req: Request<{ figureId: string; skinId: string; variantId: string }>,
   res: Response,

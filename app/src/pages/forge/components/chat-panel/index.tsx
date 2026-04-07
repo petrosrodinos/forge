@@ -36,7 +36,7 @@ export function ChatPanel() {
         </span>
         <div>
           <p className="text-sm font-semibold tracking-tight text-slate-100">Assistant</p>
-          <p className="text-[0.65rem] text-slate-500">Figures, skins &amp; pipeline</p>
+          <p className="text-[0.65rem] text-slate-500">Figures, skins &amp; 3D</p>
         </div>
       </header>
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-4">
@@ -79,7 +79,7 @@ export function ChatPanel() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKey}
-            placeholder="Ask about figures, skins, pipeline…"
+            placeholder="Ask about figures, skins, and 3D…"
             rows={1}
             className="min-h-11 max-h-48 flex-1 resize-none rounded-lg border-0 bg-transparent px-2 py-2 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-0"
           />

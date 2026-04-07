@@ -26,7 +26,6 @@ import variantsRouter from "./modules/skin-variants/skin-variants.router";
 import skinImagesRouter from "./modules/skin-images/skin-images.router";
 import models3dRouter from "./modules/models3d/models3d.router";
 import animationsRouter from "./modules/animations/animations.router";
-import pipelineRouter from "./modules/pipeline/pipeline.router";
 import { prisma } from "./integrations/db/client";
 
 const app = express();
@@ -95,7 +94,6 @@ app.use("/api/figures/:figureId/skins/:skinId/variants", requireAuth, variantsRo
 app.use("/api/figures/:figureId/skins/:skinId/variants/:variantId/images", requireAuth, skinImagesRouter);
 app.use("/api/models3d", requireAuth, models3dRouter);
 app.use("/api/models3d/:model3dId/animations", requireAuth, animationsRouter);
-app.use("/api/pipeline", requireAuth, pipelineRouter);
 
 app.use(errorHandler);
 

@@ -11,10 +11,8 @@ import {
   TOKENS_PER_EUR,
 } from "../../config/models/pricing";
 import {
-  getPipelineDebitTokens,
   getTokenOperationDebit,
   getTrippoRowOrThrow,
-  type DebitForOperationOptions,
   type TokenOperation,
   trippoWalletDebitFromRow,
 } from "../../config/models/token-operations";
@@ -245,12 +243,8 @@ export async function debitForOperation(
   operation: TokenOperation,
   idempotencyKey?: string | null,
   metadata?: Prisma.InputJsonValue | null,
-  opts?: DebitForOperationOptions,
 ) {
-  let cost = getTokenOperationDebit(operation);
-  if (operation === "pipeline" && opts?.pipelineMeshModelId) {
-    cost = getPipelineDebitTokens(opts.pipelineMeshModelId);
-  }
+  const cost = getTokenOperationDebit(operation);
   if (cost <= 0) return;
 
   let usageKind: (typeof TokenUsageKind)[keyof typeof TokenUsageKind] = TokenUsageKind.trippo;
@@ -265,16 +259,6 @@ export async function debitForOperation(
     tokensOriginal = CHAT_TOKENS_ORIGINAL;
     priceOriginal = CHAT_PRICE_ORIGINAL_USD;
     price = CHAT_PRICE_ORIGINAL_USD * MARKUP_FACTOR;
-  }
-
-  if (operation === "pipeline") {
-    const meshId = opts?.pipelineMeshModelId ?? "image_to_model";
-    const mesh = getTrippoRowOrThrow(meshId);
-    const rig = getTrippoRowOrThrow("animate_rig");
-    tokensOriginal = mesh.tokens_original + rig.tokens_original;
-    priceOriginal = trippoNumericPriceOriginal(mesh) + trippoNumericPriceOriginal(rig);
-    price = Number(mesh.price) + Number(rig.price);
-    modelId = meshId;
   }
 
   if (operation === "animationRetarget") {

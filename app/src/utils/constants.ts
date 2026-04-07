@@ -29,11 +29,3 @@ export const ANIMATION_PRESETS = [
 
 /** Matches api `IMAGES_CONFIG.DEFAULT_AIML_IMAGE_MODEL` when /api/models is unavailable */
 export const FALLBACK_IMAGE_MODEL_ID = "flux/schnell";
-
-export const PIPELINE_STEPS = [
-  { id: "upload", label: "Upload Image" },
-  { id: "mesh", label: "Generate Mesh" },
-  { id: "prerig", label: "Pre-rig Check" },
-  { id: "rig", label: "Rigging" },
-  { id: "animate", label: "Animation" },
-] as const;

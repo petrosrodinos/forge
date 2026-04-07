@@ -236,7 +236,7 @@ export default function ForgePage() {
                 <Box className="h-6 w-6 opacity-90" strokeWidth={1.25} aria-hidden />
               </div>
               <p className="text-sm text-slate-500 max-w-xs leading-relaxed">
-                Select a figure from the left panel to open skins and the pipeline.
+                Select a figure from the left panel to open skins and variants.
               </p>
             </div>
           )}

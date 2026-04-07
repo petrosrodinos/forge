@@ -4,14 +4,13 @@ import { prisma } from "../../integrations/db/client";
 import { sseHeaders, sseWrite } from "../../lib/sse";
 import { mergeTokenUsageMetadataByIdempotencyKey } from "../tokens/tokens.service";
 import { runAnimations } from "./animate.service";
-import { PIPELINE_CONFIG } from "./config/pipeline.config";
+import { TRIPO_JOB_CONFIG } from "../tripo/tripo-job.config";
 
-/** Must match `requireTokens("animationRetarget", …)` on the animate route. */
 export function animateTokenUsageIdempotencyKey(model3dId: string, animations: string[]) {
   return `animate:${model3dId}:${[...animations].sort().join("\0")}`;
 }
 
-export async function streamAnimatePipeline(
+export async function streamModel3dAnimations(
   req: Request,
   res: Response,
   model3dId: string,
@@ -52,7 +51,7 @@ export async function streamAnimatePipeline(
       rigTaskId: model.rigTaskId,
       animations,
       emitProgress: ({ step, status, data = {} }) => {
-        sseWrite(res, PIPELINE_CONFIG.PIPELINE_SSE_EVENTS.PROGRESS, { step, status, ...data });
+        sseWrite(res, TRIPO_JOB_CONFIG.TRIPO_SSE_EVENTS.PROGRESS, { step, status, ...data });
       },
       emitEvent: (event, data) => {
         sseWrite(res, event, data);
@@ -66,8 +65,8 @@ export async function streamAnimatePipeline(
     }
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    console.error("[pipeline/animate]", msg);
-    sseWrite(res, PIPELINE_CONFIG.PIPELINE_SSE_EVENTS.ERROR, { message: msg });
+    console.error("[models3d/animate]", msg);
+    sseWrite(res, TRIPO_JOB_CONFIG.TRIPO_SSE_EVENTS.ERROR, { message: msg });
   } finally {
     res.end();
   }

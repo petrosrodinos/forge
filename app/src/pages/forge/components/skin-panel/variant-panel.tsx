@@ -1,20 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { PromptEditor } from "@/pages/forge/components/prompt-editor";
 import { ImageGrid } from "@/pages/forge/components/image-grid";
-import { canRunPipelineOnImage } from "@/pages/forge/components/image-grid/image-card";
 import { ImageUploader } from "@/pages/forge/components/image-uploader";
 import { ModelCard } from "@/pages/forge/components/model-card";
-import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
-import { usePricingCosts } from "@/features/pricing/hooks/use-pricing.hooks";
-import { PRICING_COST_KEYS } from "@/features/pricing/constants/pricing-cost-keys";
-import { getFixedCostTokens } from "@/features/pricing/utils/pricing-costs.utils";
-import { TokenCostPill } from "@/features/pricing/components/TokenCostPill";
 import { useForgeStore } from "@/store/forgeStore";
-import { usePipeline } from "@/features/pipeline/hooks/use-pipeline.hooks";
 import { useUpdateVariant } from "@/features/skin-variants/hooks/use-skin-variants.hooks";
 import { useDeleteSkinImage, useUploadSkinImage } from "@/features/skin-images/hooks/use-skin-images.hooks";
-import { useQueryClient } from "@tanstack/react-query";
 import type { SkinVariant, SkinImage } from "@/interfaces";
 
 interface VariantPanelProps {
@@ -26,44 +18,12 @@ interface VariantPanelProps {
 }
 
 export function VariantPanel({ variant, figureId, figureType, figureName, skinName }: VariantPanelProps) {
-  const qc = useQueryClient();
-  const { selectedImage, setSelectedImage } = useForgeStore();
+  const { selectedImage } = useForgeStore();
   const [name, setName] = useState(variant.name ?? "");
-  const [activeImageId, setActiveImageId] = useState<string | null>(null);
-  const [meshPickIds, setMeshPickIds] = useState<string[]>([]);
-  const [meshRunIds, setMeshRunIds] = useState<string[] | null>(null);
-
-  const { data: pricingCosts } = usePricingCosts();
-  const multiviewPipelineCost = useMemo(
-    () => getFixedCostTokens(pricingCosts, PRICING_COST_KEYS.PIPELINE_MESH_MULTIVIEW),
-    [pricingCosts],
-  );
-  const singlePipelineCost = useMemo(
-    () => getFixedCostTokens(pricingCosts, PRICING_COST_KEYS.PIPELINE_MESH),
-    [pricingCosts],
-  );
-  const toolbarPipelineCost =
-    meshPickIds.length >= 2 ? multiviewPipelineCost : singlePipelineCost;
 
   const updateVariant = useUpdateVariant();
   const deleteSkinImage = useDeleteSkinImage();
   const uploadSkinImage = useUploadSkinImage();
-
-  const { run, running: pipelineRunning } = usePipeline(
-    () => {
-      setActiveImageId(null);
-      setMeshRunIds(null);
-      setMeshPickIds([]);
-      qc.invalidateQueries({ queryKey: ["figures"] });
-    },
-    () => {
-      setActiveImageId(null);
-      setMeshRunIds(null);
-    },
-    () => {
-      qc.invalidateQueries({ queryKey: ["figures"] });
-    },
-  );
 
   useEffect(() => {
     setName(variant.name ?? "");
@@ -79,44 +39,6 @@ export function VariantPanel({ variant, figureId, figureType, figureName, skinNa
       variantId: variant.id,
       dto: { name: trimmed || null },
     });
-  }
-
-  useEffect(() => {
-    const valid = new Set(variant.images.map((i) => i.id));
-    setMeshPickIds((prev) => prev.filter((id) => valid.has(id)));
-  }, [variant.images]);
-
-  const toggleMeshPick = useCallback((image: SkinImage) => {
-    setMeshPickIds((prev) => {
-      const i = prev.indexOf(image.id);
-      if (i >= 0) return prev.filter((id) => id !== image.id);
-      if (prev.length >= 4) return prev;
-      return [...prev, image.id];
-    });
-  }, []);
-
-  const meshToolbarAllowed =
-    meshPickIds.length > 0 &&
-    meshPickIds.length <= 4 &&
-    meshPickIds.every((id) => {
-      const img = variant.images.find((x) => x.id === id);
-      return img && canRunPipelineOnImage(img);
-    });
-
-  function handleRunPipeline(image: SkinImage) {
-    setMeshRunIds(null);
-    setSelectedImage(image);
-    setActiveImageId(image.id);
-    void run(variant.id, figureId, [image.id], null);
-  }
-
-  function handleRunMeshFromSelection() {
-    if (!meshToolbarAllowed || pipelineRunning) return;
-    const first = variant.images.find((i) => i.id === meshPickIds[0]);
-    if (first) setSelectedImage(first);
-    setActiveImageId(meshPickIds[0]);
-    setMeshRunIds([...meshPickIds]);
-    void run(variant.id, figureId, meshPickIds, null);
   }
 
   function handleUploadFile(file: File) {
@@ -139,9 +61,7 @@ export function VariantPanel({ variant, figureId, figureType, figureName, skinNa
   }
 
   const deletingImageId =
-    deleteSkinImage.isPending && deleteSkinImage.variables?.imageId
-      ? deleteSkinImage.variables.imageId
-      : null;
+    deleteSkinImage.isPending && deleteSkinImage.variables?.imageId ? deleteSkinImage.variables.imageId : null;
 
   const activeModels =
     selectedImage?.id && variant.images.find((i) => i.id === selectedImage.id)
@@ -168,7 +88,7 @@ export function VariantPanel({ variant, figureId, figureType, figureName, skinNa
         <div className="mb-3 space-y-1.5">
           <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Image generation</p>
           <p className="text-xs text-slate-500 leading-relaxed">
-            Describe the look you want and generate artwork for this variant. That image becomes the visual base when you build the 3D model below.
+            Describe the look you want and generate artwork for this variant.
           </p>
         </div>
         <PromptEditor
@@ -184,24 +104,8 @@ export function VariantPanel({ variant, figureId, figureType, figureName, skinNa
         <div className="mb-3 space-y-1.5">
           <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Images</p>
           <p className="text-xs text-slate-500 leading-relaxed">
-            Your uploads and generated images for this variant. Use the checkbox to pick views for one multiview mesh (2–4 images, order matters — Tripo limit). Run 3D on a card meshes that image alone; Build 3D from selection uses every checked view in one mesh.
+            Your uploads and generated images for this variant. Select a card to view its 3D models below.
           </p>
-          {variant.images.length > 0 ? (
-            <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
-              {toolbarPipelineCost != null ? <TokenCostPill tokens={toolbarPipelineCost} /> : null}
-              <Button
-                variant="secondary"
-                size="sm"
-                className="gap-1.5"
-                disabled={!meshToolbarAllowed || pipelineRunning}
-                onClick={handleRunMeshFromSelection}
-              >
-                {pipelineRunning && meshRunIds != null ? <Spinner className="h-3 w-3" /> : null}
-                Build 3D from selection
-                {meshPickIds.length > 0 ? ` (${meshPickIds.length})` : ""}
-              </Button>
-            </div>
-          ) : null}
           {uploadSkinImage.isPending ? (
             <div
               className="flex items-center gap-2 rounded-lg border border-accent/20 bg-accent/10 px-3 py-2 text-xs text-accent-light/95"
@@ -220,16 +124,7 @@ export function VariantPanel({ variant, figureId, figureType, figureName, skinNa
         />
         <div className="mt-3">
           {variant.images.length > 0 ? (
-            <ImageGrid
-              images={variant.images}
-              activeImageId={activeImageId}
-              onRunPipeline={handleRunPipeline}
-              onDelete={handleDeleteImage}
-              deletingImageId={deletingImageId}
-              meshPickIds={meshPickIds}
-              onToggleMeshPick={toggleMeshPick}
-              runningImageIds={meshRunIds}
-            />
+            <ImageGrid images={variant.images} onDelete={handleDeleteImage} deletingImageId={deletingImageId} />
           ) : (
             <p className="rounded-lg border border-dashed border-border/80 bg-surface/30 px-3 py-6 text-center text-xs text-slate-500">
               Upload or generate to add images to this variant.

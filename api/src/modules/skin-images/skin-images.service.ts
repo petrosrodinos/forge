@@ -10,7 +10,7 @@ import {
   updateSkinImageGcs,
 } from "./repositories/skin-images.repository";
 
-/** Create a skin image from an uploaded buffer only (no 3D pipeline). */
+/** Create a skin image from an uploaded buffer only (raster only; no mesh generation). */
 export async function createSkinImageFromUpload(
   variantId: string,
   figureId: string,

@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "3D Figures API",
-    "description": "API for auth, billing, image/model generation, Tripo pipeline, and figure domain resources.\n\n**Auth:** Log in with *Login* first; Postman stores the `access_token` cookie for `{{baseUrl}}` and sends it on later requests. Protected routes need that session (and enough token balance where noted).",
+    "description": "API for auth, billing, image/model generation, Tripo mesh jobs, and figure domain resources.\n\n**Auth:** Log in with *Login* first; Postman stores the `access_token` cookie for `{{baseUrl}}` and sends it on later requests. Protected routes need that session (and enough token balance where noted).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -757,6 +757,23 @@
           }
         },
         {
+          "name": "Rig model (SSE)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/models3d/:model3dId/rig",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "models3d", ":model3dId", "rig"],
+              "variable": [{ "key": "model3dId", "value": "model3d-id-here" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
           "name": "Animation retarget (SSE)",
           "request": {
             "method": "POST",
@@ -802,67 +819,6 @@
                 { "key": "model3dId", "value": "model3d-id-here" },
                 { "key": "animationId", "value": "animation-id-here" }
               ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Pipeline",
-      "item": [
-        {
-          "name": "Mesh pipeline (SSE) — upload image",
-          "request": {
-            "method": "POST",
-            "url": { "raw": "{{baseUrl}}/api/pipeline/mesh", "host": ["{{baseUrl}}"], "path": ["api", "pipeline", "mesh"] },
-            "body": {
-              "mode": "formdata",
-              "formdata": [
-                { "key": "image", "type": "file", "src": "" },
-                { "key": "figureId", "value": "figure-id-here", "type": "text" },
-                { "key": "variantId", "value": "variant-id-here", "type": "text" },
-                { "key": "modelVersion", "value": "v2.5-20250123", "type": "text" }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Mesh pipeline (SSE) — existing skin image",
-          "request": {
-            "method": "POST",
-            "url": { "raw": "{{baseUrl}}/api/pipeline/mesh", "host": ["{{baseUrl}}"], "path": ["api", "pipeline", "mesh"] },
-            "body": {
-              "mode": "formdata",
-              "formdata": [
-                { "key": "imageId", "value": "skin-image-id-here", "type": "text" },
-                { "key": "figureId", "value": "figure-id-here", "type": "text" },
-                { "key": "variantId", "value": "variant-id-here", "type": "text" },
-                { "key": "modelVersion", "value": "v2.5-20250123", "type": "text" }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Rig pipeline (SSE)",
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "url": { "raw": "{{baseUrl}}/api/pipeline/rig", "host": ["{{baseUrl}}"], "path": ["api", "pipeline", "rig"] },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"model3dId\": \"model3d-id-here\"\n}"
-            }
-          }
-        },
-        {
-          "name": "Animate / retarget pipeline (SSE)",
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "url": { "raw": "{{baseUrl}}/api/pipeline/animate", "host": ["{{baseUrl}}"], "path": ["api", "pipeline", "animate"] },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"model3dId\": \"model3d-id-here\",\n  \"animations\": [\"preset:walk\", \"preset:idle\"]\n}"
             }
           }
         }

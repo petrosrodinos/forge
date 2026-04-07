@@ -9,8 +9,8 @@ import { ModelViewerModal } from "@/pages/forge/components/model-card/model-view
 import { AnimationList } from "@/pages/forge/components/animation-list";
 import { AnimationPicker } from "@/pages/forge/components/animation-list/animation-picker";
 import { useQueryClient } from "@tanstack/react-query";
-import { useAnimate } from "@/features/pipeline/hooks/use-animate.hooks";
-import { useRig } from "@/features/pipeline/hooks/use-rig.hooks";
+import { useModelAnimate } from "@/features/models3d/hooks/use-model-animate.hooks";
+import { useModelRig } from "@/features/models3d/hooks/use-model-rig.hooks";
 import { useDeleteModel3d } from "@/features/models3d/hooks/use-models3d.hooks";
 import { downloadUrlAsFile, fileExtensionFromUrl } from "@/utils/helpers";
 import { cn } from "@/utils/cn";
@@ -38,14 +38,14 @@ export function ModelCard({ model }: ModelCardProps) {
     running: animating,
     error: animateError,
     run: runAnimate,
-  } = useAnimate(() => {
+  } = useModelAnimate(() => {
     invalidateFigures();
   });
   const {
     running: rigging,
     error: rigError,
     run: runRig,
-  } = useRig(() => {
+  } = useModelRig(() => {
     invalidateFigures();
   });
 

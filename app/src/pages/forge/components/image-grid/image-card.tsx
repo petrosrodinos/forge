@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Download, Maximize2, Play, Trash2 } from "lucide-react";
+import { Download, Maximize2, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { Spinner } from "@/components/ui/Spinner";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Modal } from "@/components/ui/Modal";
@@ -10,10 +8,6 @@ import { OptionsMenu } from "@/components/ui/OptionsMenu";
 import { downloadUrlAsFile, fileExtensionFromUrl } from "@/utils/helpers";
 import { cn } from "@/utils/cn";
 import type { SkinImage } from "@/interfaces";
-import { usePricingCosts } from "@/features/pricing/hooks/use-pricing.hooks";
-import { PRICING_COST_KEYS } from "@/features/pricing/constants/pricing-cost-keys";
-import { getFixedCostTokens } from "@/features/pricing/utils/pricing-costs.utils";
-import { TokenCostPill } from "@/features/pricing/components/TokenCostPill";
 
 function bestModelStatus(models: SkinImage["models"]): string {
   if (models.length === 0) return "none";
@@ -32,33 +26,17 @@ function rasterPreviewUrl(image: SkinImage): string | null {
   return null;
 }
 
-export function canRunPipelineOnImage(image: SkinImage): boolean {
-  if (image.gcsUrl) return true;
-  const s = image.sourceUrl ?? "";
-  return /^https?:\/\//i.test(s);
-}
-
 interface ImageCardProps {
   image: SkinImage;
-  isRunning: boolean;
-  onRunPipeline: (image: SkinImage) => void;
   onSelect: (image: SkinImage) => void;
   onDelete: (image: SkinImage) => void;
   selected?: boolean;
   /** True while this image’s delete request is in flight */
   deletePending?: boolean;
-  /** 1-based order in multiview selection, or null if not selected */
-  meshPickOrder?: number | null;
-  onToggleMeshPick?: (image: SkinImage) => void;
-  /** True when multiview slot cap reached and this image is not selected */
-  meshPickBlocked?: boolean;
 }
 
-export function ImageCard({ image, isRunning, onRunPipeline, onSelect, onDelete, selected, deletePending = false, meshPickOrder = null, onToggleMeshPick, meshPickBlocked = false }: ImageCardProps) {
+export function ImageCard({ image, onSelect, onDelete, selected, deletePending = false }: ImageCardProps) {
   const status = bestModelStatus(image.models);
-  const isProcessing = status === "processing";
-  const { data: pricingCosts } = usePricingCosts();
-  const pipelineTokenCost = getFixedCostTokens(pricingCosts, PRICING_COST_KEYS.TRIPPO_MESH_STANDALONE);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const deleteStartedRef = useRef(false);
 
@@ -75,7 +53,6 @@ export function ImageCard({ image, isRunning, onRunPipeline, onSelect, onDelete,
   const [expandOpen, setExpandOpen] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
   const previewSrc = rasterPreviewUrl(image);
-  const pipelineAllowed = canRunPipelineOnImage(image);
 
   useEffect(() => {
     setImgLoaded(false);
@@ -111,18 +88,24 @@ export function ImageCard({ image, isRunning, onRunPipeline, onSelect, onDelete,
 
   return (
     <>
-      <div className={cn("cursor-pointer overflow-hidden rounded-xl border bg-panel/30 ring-1 ring-white/5 transition-all", selected ? "border-accent/50 ring-2 ring-accent/35 shadow-md shadow-accent/10" : "border-border/80 hover:border-accent/25 hover:ring-accent/10")} onClick={() => onSelect(image)}>
+      <div
+        className={cn(
+          "cursor-pointer overflow-hidden rounded-xl border bg-panel/30 ring-1 ring-white/5 transition-all",
+          selected ? "border-accent/50 ring-2 ring-accent/35 shadow-md shadow-accent/10" : "border-border/80 hover:border-accent/25 hover:ring-accent/10",
+        )}
+        onClick={() => onSelect(image)}
+      >
         <div className="relative aspect-square w-full bg-surface/80">
-          {onToggleMeshPick ? (
-            <label title={meshPickBlocked ? "Maximum 4 views for multiview (Tripo)" : "Include in multiview mesh (order follows check order)"} className={cn("absolute left-1.5 top-1.5 z-20 flex h-7 min-w-7 items-center justify-center rounded-md border border-border/80 bg-panel/95 px-1 shadow-md ring-1 ring-white/10 backdrop-blur-sm", meshPickBlocked ? "cursor-not-allowed opacity-50" : "cursor-pointer")}>
-              <input type="checkbox" className="sr-only" checked={meshPickOrder != null} disabled={!pipelineAllowed || meshPickBlocked} onChange={() => onToggleMeshPick(image)} onClick={(e) => e.stopPropagation()} />
-              <span className={cn("flex h-5 min-w-5 items-center justify-center rounded text-[10px] font-semibold tabular-nums", meshPickOrder != null ? "bg-accent/90 text-white" : "border border-border/80 bg-surface/80 text-slate-500")}>{meshPickOrder != null ? meshPickOrder : ""}</span>
-            </label>
-          ) : null}
           {previewSrc ? (
             <>
               {!imgLoaded && <Skeleton className="absolute inset-0 z-[1] rounded-none" />}
-              <img src={previewSrc} alt="" onLoad={() => setImgLoaded(true)} onError={() => setImgLoaded(true)} className={`relative z-0 w-full h-full object-cover transition-opacity duration-200 ${imgLoaded ? "opacity-100" : "opacity-0"}`} />
+              <img
+                src={previewSrc}
+                alt=""
+                onLoad={() => setImgLoaded(true)}
+                onError={() => setImgLoaded(true)}
+                className={`relative z-0 w-full h-full object-cover transition-opacity duration-200 ${imgLoaded ? "opacity-100" : "opacity-0"}`}
+              />
             </>
           ) : (
             <div className="absolute inset-0 z-[1] flex flex-col items-center justify-center gap-1.5 px-3 text-center">
@@ -130,29 +113,19 @@ export function ImageCard({ image, isRunning, onRunPipeline, onSelect, onDelete,
               <p className="text-[10px] leading-snug text-slate-500">Upload did not finish or storage failed. Delete this card and try again.</p>
             </div>
           )}
-          <OptionsMenu className="absolute top-1.5 right-1.5 z-10" triggerVariant="secondary" triggerClassName="h-6 w-6 shadow-md bg-panel/95 backdrop-blur-sm border-border" menuLabel="Image options" items={imageMenuItems} />
+          <OptionsMenu
+            className="absolute top-1.5 right-1.5 z-10"
+            triggerVariant="secondary"
+            triggerClassName="h-6 w-6 shadow-md bg-panel/95 backdrop-blur-sm border-border"
+            menuLabel="Image options"
+            items={imageMenuItems}
+          />
         </div>
 
         <div className="flex flex-col gap-1 border-t border-border/60 bg-panel/90 px-2.5 pt-2 pb-2.5">
           <div className="flex items-center gap-2">
             {status !== "success" && <Badge status={status} />}
             <span className="text-[10px] text-slate-500 ml-auto">{image.models.length} models</span>
-          </div>
-          <div className="flex items-center justify-end gap-2">
-            {pipelineTokenCost != null ? <TokenCostPill tokens={pipelineTokenCost} /> : null}
-            <Button
-              variant="secondary"
-              size="sm"
-              className="px-2 py-1 gap-1"
-              disabled={isRunning || isProcessing || !pipelineAllowed}
-              onClick={(e) => {
-                e.stopPropagation();
-                onRunPipeline(image);
-              }}
-            >
-              {isRunning ? <Spinner className="w-2.5 h-2.5" /> : <Play size={10} />}
-              {isRunning ? "Running…" : "Run 3D"}
-            </Button>
           </div>
         </div>
       </div>
@@ -175,7 +148,11 @@ export function ImageCard({ image, isRunning, onRunPipeline, onSelect, onDelete,
       />
 
       <Modal open={expandOpen} onClose={() => setExpandOpen(false)} title="Image preview">
-        {previewSrc ? <img src={previewSrc} alt="" className="max-h-[min(85vh,900px)] w-full object-contain rounded-lg" /> : <p className="text-sm text-slate-500 py-8 text-center">No preview available.</p>}
+        {previewSrc ? (
+          <img src={previewSrc} alt="" className="max-h-[min(85vh,900px)] w-full object-contain rounded-lg" />
+        ) : (
+          <p className="text-sm text-slate-500 py-8 text-center">No preview available.</p>
+        )}
       </Modal>
     </>
   );

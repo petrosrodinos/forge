@@ -5,8 +5,8 @@ It can be used directly from the terminal or operated through an AI coding agent
 
 It includes:
 
-- A local web app (`The Forge`) for chat/pipeline flows
-- A CLI pipeline to convert an image into an animated `.glb`
+- A local web app (`The Forge`) for chat and asset workflows
+- A CLI tool to convert an image into an animated `.glb`
 - A unified agent CLI for running supported service actions
 
 ## Requirements
@@ -65,7 +65,7 @@ npm run agent -- commands
 npm run agent -- run tripo.getTask taskId="your-task-id"
 ```
 
-When using Cursor or Claude, you can ask the agent to run these same commands for you and guide the full pipeline end-to-end.
+When using Cursor or Claude, you can ask the agent to run these same commands for you and guide the workflow end-to-end.
 
 ## Useful scripts
 
@@ -73,7 +73,7 @@ When using Cursor or Claude, you can ask the agent to run these same commands fo
 - `npm run dev` - run `src/index.ts`
 - `npm run build` - compile TypeScript
 - `npm run agent` - run Agent CLI
-- `npm run tripo:image-to-animated-glb` - image -> animated GLB pipeline
+- `npm run tripo:image-to-animated-glb` - image → animated GLB
 
 # OpenAPI / Swagger
 

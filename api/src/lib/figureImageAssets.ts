@@ -12,7 +12,7 @@ export interface FigureImageAnimation {
   status: FigureImageAnimStatus;
   rigTaskId?: string;
   retargetTaskId?: string;
-  /** e.g. preset:idle — set when animation pipeline runs */
+  /** e.g. preset:idle — set when animation jobs complete */
   animationKey?: string;
   glbUrl?: string;
   error?: string;
