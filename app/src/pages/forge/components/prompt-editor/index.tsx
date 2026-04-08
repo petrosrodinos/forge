@@ -16,6 +16,7 @@ import { SketchToImageModal } from "@/pages/forge/components/sketch-to-image-mod
 import { useForgeStore } from "@/store/forgeStore";
 import {
   imageUrlToDataUrl,
+  isSelectableExistingImageUrl,
   SourceImageSelector,
   type ExistingImageOption,
   type SourceMode,
@@ -43,6 +44,7 @@ export function PromptEditor({
   const [model, setModel] = useState(variant.imageModel ?? "");
   const [sourceFile, setSourceFile] = useState<File | null>(null);
   const [sourceMode, setSourceMode] = useState<SourceMode>("upload");
+  const [sourceSelectionError, setSourceSelectionError] = useState<string | null>(null);
   const [skinFilter, setSkinFilter] = useState<string>("all");
   const [variantFilter, setVariantFilter] = useState<string>("all");
   const [selectedExistingImageId, setSelectedExistingImageId] = useState<string>("");
@@ -74,7 +76,7 @@ export function PromptEditor({
           skinName: skin.name ?? "Skin",
         })),
       ),
-    );
+    ).filter((img) => isSelectableExistingImageUrl(img.imageUrl));
   }, [activeFigure]);
   const existingImageOptions = useMemo(() => {
     return allExistingImages
@@ -134,6 +136,7 @@ export function PromptEditor({
     setSkinFilter("all");
     setVariantFilter("all");
     setSelectedExistingImageId("");
+    setSourceSelectionError(null);
   }, [variant.id]);
 
   useEffect(() => {
@@ -141,12 +144,17 @@ export function PromptEditor({
       setSourceFile(null);
       setSelectedExistingImageId("");
       setSourceMode("upload");
+      setSourceSelectionError(null);
     }
   }, [needsSourceImage]);
   useEffect(() => {
     setVariantFilter("all");
     setSelectedExistingImageId("");
+    setSourceSelectionError(null);
   }, [skinFilter]);
+  useEffect(() => {
+    setSourceSelectionError(null);
+  }, [sourceMode, selectedExistingImageId, sourceFile]);
 
   function handleAiGenerate() {
     if (!aiDescription.trim()) return;
@@ -186,14 +194,20 @@ export function PromptEditor({
   }
 
   async function handleGenerateImage() {
+    setSourceSelectionError(null);
     let sourceImageDataUrl: string | undefined;
-    if (needsSourceImage) {
-      if (sourceMode === "upload" && sourceFile) {
-        sourceImageDataUrl = await fileToDataUrl(sourceFile);
+    try {
+      if (needsSourceImage) {
+        if (sourceMode === "upload" && sourceFile) {
+          sourceImageDataUrl = await fileToDataUrl(sourceFile);
+        }
+        if (sourceMode === "existing" && selectedExistingImage) {
+          sourceImageDataUrl = await imageUrlToDataUrl(selectedExistingImage.imageUrl);
+        }
       }
-      if (sourceMode === "existing" && selectedExistingImage) {
-        sourceImageDataUrl = await imageUrlToDataUrl(selectedExistingImage.imageUrl);
-      }
+    } catch {
+      setSourceSelectionError("Selected source image cannot be read. Please pick a different image.");
+      return;
     }
     generateImage.mutate(
       {
@@ -221,24 +235,27 @@ export function PromptEditor({
       </div>
 
       {needsSourceImage ? (
-        <SourceImageSelector
-          pickerId={`source-image-${variant.id}`}
-          sourceMode={sourceMode}
-          onSourceModeChange={setSourceMode}
-          sourceFile={sourceFile}
-          onSourceFileChange={setSourceFile}
-          skinFilter={skinFilter}
-          onSkinFilterChange={setSkinFilter}
-          variantFilter={variantFilter}
-          onVariantFilterChange={setVariantFilter}
-          skinFilterOptions={skinFilterOptions}
-          variantFilterOptions={variantFilterOptions}
-          existingImageOptions={existingImageOptions}
-          selectedExistingImageId={selectedExistingImageId}
-          onSelectedExistingImageIdChange={setSelectedExistingImageId}
-          selectedExistingImage={selectedExistingImage}
-          disabled={generateImage.isPending}
-        />
+        <>
+          <SourceImageSelector
+            pickerId={`source-image-${variant.id}`}
+            sourceMode={sourceMode}
+            onSourceModeChange={setSourceMode}
+            sourceFile={sourceFile}
+            onSourceFileChange={setSourceFile}
+            skinFilter={skinFilter}
+            onSkinFilterChange={setSkinFilter}
+            variantFilter={variantFilter}
+            onVariantFilterChange={setVariantFilter}
+            skinFilterOptions={skinFilterOptions}
+            variantFilterOptions={variantFilterOptions}
+            existingImageOptions={existingImageOptions}
+            selectedExistingImageId={selectedExistingImageId}
+            onSelectedExistingImageIdChange={setSelectedExistingImageId}
+            selectedExistingImage={selectedExistingImage}
+            disabled={generateImage.isPending}
+          />
+          {sourceSelectionError ? <p className="text-xs text-red-400">{sourceSelectionError}</p> : null}
+        </>
       ) : null}
 
       <div className="flex flex-col gap-2">

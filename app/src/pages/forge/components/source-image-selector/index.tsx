@@ -13,6 +13,10 @@ export interface ExistingImageOption {
   skinName: string;
 }
 
+export function isSelectableExistingImageUrl(url: string): boolean {
+  return /^https?:\/\//i.test(url) || url.startsWith("data:");
+}
+
 interface SourceImageSelectorProps {
   pickerId: string;
   sourceMode: SourceMode;

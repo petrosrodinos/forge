@@ -9,6 +9,7 @@ import { useGenerateImage } from "@/features/skin-variants/hooks/use-skin-varian
 import { fileToDataUrl } from "@/utils/imageFiles";
 import {
   imageUrlToDataUrl,
+  isSelectableExistingImageUrl,
   SourceImageSelector,
   type ExistingImageOption,
   type SourceMode,
@@ -20,6 +21,7 @@ export function ImageGenPanel() {
   const [model, setModel] = useState("");
   const [sourceFile, setSourceFile] = useState<File | null>(null);
   const [sourceMode, setSourceMode] = useState<SourceMode>("upload");
+  const [sourceSelectionError, setSourceSelectionError] = useState<string | null>(null);
   const [skinFilter, setSkinFilter] = useState<string>("all");
   const [variantFilter, setVariantFilter] = useState<string>("all");
   const [selectedExistingImageId, setSelectedExistingImageId] = useState<string>("");
@@ -46,7 +48,7 @@ export function ImageGenPanel() {
           skinName: skin.name ?? "Skin",
         })),
       ),
-    );
+    ).filter((img) => isSelectableExistingImageUrl(img.imageUrl));
   }, [activeFigure]);
   const existingImageOptions = useMemo(() => {
     return allExistingImages
@@ -85,6 +87,7 @@ export function ImageGenPanel() {
     setSourceMode("upload");
     setSkinFilter("all");
     setVariantFilter("all");
+    setSourceSelectionError(null);
   }, [activeVariant?.id]);
 
   useEffect(() => {
@@ -92,23 +95,34 @@ export function ImageGenPanel() {
       setSourceFile(null);
       setSelectedExistingImageId("");
       setSourceMode("upload");
+      setSourceSelectionError(null);
     }
   }, [needsSourceImage]);
   useEffect(() => {
     setVariantFilter("all");
     setSelectedExistingImageId("");
+    setSourceSelectionError(null);
   }, [skinFilter]);
+  useEffect(() => {
+    setSourceSelectionError(null);
+  }, [sourceMode, selectedExistingImageId, sourceFile]);
 
   async function handleGenerate() {
     if (!activeVariant || !activeFigure) return;
+    setSourceSelectionError(null);
     let sourceImageDataUrl: string | undefined;
-    if (needsSourceImage) {
-      if (sourceMode === "upload" && sourceFile) {
-        sourceImageDataUrl = await fileToDataUrl(sourceFile);
+    try {
+      if (needsSourceImage) {
+        if (sourceMode === "upload" && sourceFile) {
+          sourceImageDataUrl = await fileToDataUrl(sourceFile);
+        }
+        if (sourceMode === "existing" && selectedExistingImage) {
+          sourceImageDataUrl = await imageUrlToDataUrl(selectedExistingImage.imageUrl);
+        }
       }
-      if (sourceMode === "existing" && selectedExistingImage) {
-        sourceImageDataUrl = await imageUrlToDataUrl(selectedExistingImage.imageUrl);
-      }
+    } catch {
+      setSourceSelectionError("Selected source image cannot be read. Please pick a different image.");
+      return;
     }
     generateImage.mutate({
       figureId: activeFigure.id,
@@ -138,24 +152,27 @@ export function ImageGenPanel() {
           </div>
 
           {needsSourceImage ? (
-            <SourceImageSelector
-              pickerId="image-gen-source"
-              sourceMode={sourceMode}
-              onSourceModeChange={setSourceMode}
-              sourceFile={sourceFile}
-              onSourceFileChange={setSourceFile}
-              skinFilter={skinFilter}
-              onSkinFilterChange={setSkinFilter}
-              variantFilter={variantFilter}
-              onVariantFilterChange={setVariantFilter}
-              skinFilterOptions={skinFilterOptions}
-              variantFilterOptions={variantFilterOptions}
-              existingImageOptions={existingImageOptions}
-              selectedExistingImageId={selectedExistingImageId}
-              onSelectedExistingImageIdChange={setSelectedExistingImageId}
-              selectedExistingImage={selectedExistingImage}
-              disabled={generateImage.isPending}
-            />
+            <>
+              <SourceImageSelector
+                pickerId="image-gen-source"
+                sourceMode={sourceMode}
+                onSourceModeChange={setSourceMode}
+                sourceFile={sourceFile}
+                onSourceFileChange={setSourceFile}
+                skinFilter={skinFilter}
+                onSkinFilterChange={setSkinFilter}
+                variantFilter={variantFilter}
+                onVariantFilterChange={setVariantFilter}
+                skinFilterOptions={skinFilterOptions}
+                variantFilterOptions={variantFilterOptions}
+                existingImageOptions={existingImageOptions}
+                selectedExistingImageId={selectedExistingImageId}
+                onSelectedExistingImageIdChange={setSelectedExistingImageId}
+                selectedExistingImage={selectedExistingImage}
+                disabled={generateImage.isPending}
+              />
+              {sourceSelectionError ? <p className="text-xs text-red-400">{sourceSelectionError}</p> : null}
+            </>
           ) : null}
 
           <Textarea
