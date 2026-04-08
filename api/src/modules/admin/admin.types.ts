@@ -20,3 +20,10 @@ export interface AdminUserRowDto {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface AdminUserUpdateInput {
+  email: string;
+  displayName: string | null;
+  role: "USER" | "ADMIN";
+  tokenBalance: number;
+}

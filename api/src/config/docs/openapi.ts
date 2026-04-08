@@ -419,6 +419,49 @@ export const OPEN_API_DOCUMENT = {
       },
     },
     "/api/admin/users/{id}": {
+      put: {
+        tags: ["Admin"],
+        summary: "Update user details (admin)",
+        security: [{ cookieAuth: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  email: { type: "string", format: "email" },
+                  displayName: { type: "string", nullable: true },
+                  role: { type: "string", enum: ["USER", "ADMIN"] },
+                  tokenBalance: { type: "integer", minimum: 0 },
+                },
+                required: ["email", "role", "tokenBalance"],
+              },
+            },
+          },
+        },
+        responses: {
+          "200": jsonContent({
+            type: "object",
+            properties: {
+              id: { type: "string" },
+              email: { type: "string" },
+              displayName: { type: "string", nullable: true },
+              role: { type: "string" },
+              tokenBalance: { type: "number" },
+              createdAt: { type: "string", format: "date-time" },
+              updatedAt: { type: "string", format: "date-time" },
+            },
+            required: ["id", "email", "role", "tokenBalance", "createdAt", "updatedAt"],
+          }),
+          "400": errorContent("Bad request"),
+          "401": errorContent("Unauthorized"),
+          "403": errorContent("Forbidden"),
+          "404": errorContent("User not found"),
+          "409": errorContent("Email already in use"),
+        },
+      },
       delete: {
         tags: ["Admin"],
         summary: "Delete user and GCS assets (admin)",

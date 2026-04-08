@@ -2,15 +2,41 @@ import { useState } from "react";
 import { Shield, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/features/auth/hooks/use-auth.hooks";
-import { useAdminMetrics, useAdminUsers, useDeleteAdminUser } from "@/features/admin/hooks/use-admin.hooks";
-import type { AdminMetricsDto, AdminUserRowDto } from "@/features/admin/interfaces/admin.interfaces";
+import {
+  useAdminMetrics,
+  useAdminUsers,
+  useDeleteAdminUser,
+  useUpdateAdminUser,
+} from "@/features/admin/hooks/use-admin.hooks";
+import type {
+  AdminMetricsDto,
+  AdminUserRowDto,
+  AdminUserUpdateInput,
+} from "@/features/admin/interfaces/admin.interfaces";
 import { formatEur } from "@/features/billing/utils/format";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { Input } from "@/components/ui/Input";
 import { cn } from "@/utils/cn";
 
 function formatUsdLedger(value: number): string {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 4 }).format(value);
+}
+
+type AdminUserDraft = {
+  email: string;
+  displayName: string;
+  role: "USER" | "ADMIN";
+  tokenBalance: string;
+};
+
+function rowToDraft(row: AdminUserRowDto): AdminUserDraft {
+  return {
+    email: row.email,
+    displayName: row.displayName ?? "",
+    role: row.role,
+    tokenBalance: String(row.tokenBalance),
+  };
 }
 
 export default function SettingsAdminPage() {
@@ -19,7 +45,9 @@ export default function SettingsAdminPage() {
   const metricsQuery = useAdminMetrics(isAdmin);
   const usersQuery = useAdminUsers(isAdmin);
   const deleteUser = useDeleteAdminUser();
+  const updateUser = useUpdateAdminUser();
   const [userPendingDelete, setUserPendingDelete] = useState<AdminUserRowDto | null>(null);
+  const [draftsByUserId, setDraftsByUserId] = useState<Record<string, AdminUserDraft>>({});
 
   const confirmRemoveUser = () => {
     if (!userPendingDelete) return;
@@ -33,6 +61,58 @@ export default function SettingsAdminPage() {
         toast.error(err instanceof Error ? err.message : "Could not remove user");
       },
     });
+  };
+
+  const setDraft = (userId: string, next: Partial<AdminUserDraft>) => {
+    setDraftsByUserId((prev) => {
+      const current = prev[userId];
+      return {
+        ...prev,
+        [userId]: {
+          ...(current ?? { email: "", displayName: "", role: "USER", tokenBalance: "0" }),
+          ...next,
+        },
+      };
+    });
+  };
+
+  const saveUser = (row: AdminUserRowDto) => {
+    const draft = draftsByUserId[row.id] ?? rowToDraft(row);
+    const email = draft.email.trim();
+    if (!email) {
+      toast.error("Email is required");
+      return;
+    }
+
+    const tokenBalance = Number(draft.tokenBalance);
+    if (!Number.isInteger(tokenBalance) || tokenBalance < 0) {
+      toast.error("Tokens must be a non-negative integer");
+      return;
+    }
+
+    const body: AdminUserUpdateInput = {
+      email,
+      displayName: draft.displayName.trim() ? draft.displayName.trim() : null,
+      role: draft.role,
+      tokenBalance,
+    };
+
+    updateUser.mutate(
+      { userId: row.id, body },
+      {
+        onSuccess: () => {
+          toast.success(`Updated ${body.email}`);
+          setDraftsByUserId((prev) => {
+            const next = { ...prev };
+            delete next[row.id];
+            return next;
+          });
+        },
+        onError: (err) => {
+          toast.error(err instanceof Error ? err.message : "Could not update user");
+        },
+      },
+    );
   };
 
   return (
@@ -129,40 +209,85 @@ export default function SettingsAdminPage() {
                       <td className="px-5 py-3.5 text-slate-500 font-mono text-xs break-all max-w-[8rem] md:max-w-none">
                         {row.id}
                       </td>
-                      <td className="px-5 py-3.5 text-slate-200">{row.email}</td>
-                      <td className="px-5 py-3.5 text-slate-400">{row.displayName ?? "—"}</td>
-                      <td className="px-5 py-3.5">
-                        <span
-                          className={cn(
-                            "inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium",
-                            row.role === "ADMIN"
-                              ? "bg-violet-500/15 text-violet-300 ring-1 ring-violet-500/25"
-                              : "bg-surface text-slate-400 ring-1 ring-border",
-                          )}
-                        >
-                          {row.role}
-                        </span>
-                      </td>
-                      <td className="px-5 py-3.5 font-mono tabular-nums text-slate-300">{row.tokenBalance}</td>
-                      <td className="px-5 py-3.5 text-slate-500 whitespace-nowrap">
-                        {new Date(row.createdAt).toLocaleString()}
-                      </td>
-                      <td className="px-5 py-3.5 text-right">
-                        {user?.id === row.id ? (
-                          <span className="text-xs text-slate-600">—</span>
-                        ) : (
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="text-red-400/90 hover:text-red-300 hover:bg-red-500/10"
-                            aria-label={`Remove user ${row.email}`}
-                            onClick={() => setUserPendingDelete(row)}
-                          >
-                            <Trash2 className="h-4 w-4" aria-hidden />
-                          </Button>
-                        )}
-                      </td>
+                      {(() => {
+                        const draft = draftsByUserId[row.id] ?? rowToDraft(row);
+                        const isDirty =
+                          draft.email.trim() !== row.email ||
+                          draft.displayName.trim() !== (row.displayName ?? "") ||
+                          draft.role !== row.role ||
+                          Number(draft.tokenBalance) !== row.tokenBalance;
+
+                        return (
+                          <>
+                            <td className="px-5 py-3.5 text-slate-200 min-w-[14rem]">
+                              <Input
+                                value={draft.email}
+                                onChange={(e) => setDraft(row.id, { email: e.target.value })}
+                                placeholder="Email"
+                                className="h-8"
+                              />
+                            </td>
+                            <td className="px-5 py-3.5 text-slate-400 min-w-[10rem]">
+                              <Input
+                                value={draft.displayName}
+                                onChange={(e) => setDraft(row.id, { displayName: e.target.value })}
+                                placeholder="Display name"
+                                className="h-8"
+                              />
+                            </td>
+                            <td className="px-5 py-3.5">
+                              <select
+                                value={draft.role}
+                                onChange={(e) => setDraft(row.id, { role: e.target.value as "USER" | "ADMIN" })}
+                                className="h-8 bg-panel border border-border rounded px-2 text-xs text-slate-200 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20"
+                              >
+                                <option value="USER">USER</option>
+                                <option value="ADMIN">ADMIN</option>
+                              </select>
+                            </td>
+                            <td className="px-5 py-3.5 font-mono tabular-nums text-slate-300 min-w-[7rem]">
+                              <Input
+                                type="number"
+                                min={0}
+                                step={1}
+                                value={draft.tokenBalance}
+                                onChange={(e) => setDraft(row.id, { tokenBalance: e.target.value })}
+                                className="h-8"
+                              />
+                            </td>
+                            <td className="px-5 py-3.5 text-slate-500 whitespace-nowrap">
+                              {new Date(row.createdAt).toLocaleString()}
+                            </td>
+                            <td className="px-5 py-3.5 text-right">
+                              <div className="inline-flex items-center gap-1.5">
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="secondary"
+                                  disabled={!isDirty || updateUser.isPending}
+                                  onClick={() => saveUser(row)}
+                                >
+                                  Save
+                                </Button>
+                                {user?.id === row.id ? (
+                                  <span className="text-xs text-slate-600">—</span>
+                                ) : (
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-red-400/90 hover:text-red-300 hover:bg-red-500/10"
+                                    aria-label={`Remove user ${row.email}`}
+                                    onClick={() => setUserPendingDelete(row)}
+                                  >
+                                    <Trash2 className="h-4 w-4" aria-hidden />
+                                  </Button>
+                                )}
+                              </div>
+                            </td>
+                          </>
+                        );
+                      })()}
                     </tr>
                   ))
                 )}

@@ -2,7 +2,7 @@ import { prisma } from "../../integrations/db/client";
 import { deleteGcsFiles } from "../../integrations/gcs/gcs.service";
 import { collectGcsKeysFromFigures } from "../../integrations/gcs/collectGcsAssetKeys";
 import { figureWithAllAssetsInclude } from "../figures/repositories/figures.repository";
-import type { AdminMetricsDto, AdminUserRowDto } from "./admin.types";
+import type { AdminMetricsDto, AdminUserRowDto, AdminUserUpdateInput } from "./admin.types";
 
 export async function getAdminMetrics(): Promise<AdminMetricsDto> {
   const purchases = await prisma.tokenPurchase.findMany({
@@ -80,4 +80,69 @@ export async function deleteUserAndAssets(actorUserId: string, targetUserId: str
 
   await deleteGcsFiles(collectGcsKeysFromFigures(figures));
   await prisma.user.delete({ where: { id: targetUserId } });
+}
+
+export async function updateUserByAdmin(
+  actorUserId: string,
+  targetUserId: string,
+  input: AdminUserUpdateInput,
+): Promise<AdminUserRowDto> {
+  const actor = await prisma.user.findUnique({ where: { id: actorUserId }, select: { id: true, role: true } });
+  if (!actor || actor.role !== "ADMIN") {
+    const e = new Error("Forbidden");
+    (e as Error & { status?: number }).status = 403;
+    throw e;
+  }
+
+  if (actorUserId === targetUserId && input.role !== "ADMIN") {
+    const e = new Error("Cannot remove your own admin role");
+    (e as Error & { status?: number }).status = 400;
+    throw e;
+  }
+
+  try {
+    const updated = await prisma.user.update({
+      where: { id: targetUserId },
+      data: {
+        email: input.email,
+        displayName: input.displayName,
+        role: input.role,
+        tokenBalance: input.tokenBalance,
+      },
+      select: {
+        id: true,
+        email: true,
+        displayName: true,
+        role: true,
+        tokenBalance: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    return {
+      id: updated.id,
+      email: updated.email,
+      displayName: updated.displayName,
+      role: updated.role,
+      tokenBalance: updated.tokenBalance,
+      createdAt: updated.createdAt.toISOString(),
+      updatedAt: updated.updatedAt.toISOString(),
+    };
+  } catch (err) {
+    if (typeof err === "object" && err !== null && "code" in err) {
+      const code = String((err as { code?: unknown }).code ?? "");
+      if (code === "P2025") {
+        const e = new Error("User not found");
+        (e as Error & { status?: number }).status = 404;
+        throw e;
+      }
+      if (code === "P2002") {
+        const e = new Error("Email is already in use");
+        (e as Error & { status?: number }).status = 409;
+        throw e;
+      }
+    }
+    throw err;
+  }
 }
