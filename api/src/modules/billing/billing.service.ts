@@ -1,7 +1,7 @@
 import { stripe } from "../../integrations/stripe/stripe.client";
 import { prisma } from "../../integrations/db/client";
 import { env } from "../../config/env/env-validation";
-import { getPackById, TOKEN_PACKS } from "../../config/models/tokenPacks";
+import { getPackById, resolveStripePriceIdForPack, TOKEN_PACKS } from "../../config/models/tokenPacks";
 import type { PurchaseRecord, UsageHistoryPage, UsageRecord } from "./billing.types";
 
 function httpError(status: number, message: string): Error {
@@ -13,11 +13,11 @@ function httpError(status: number, message: string): Error {
 export async function createCheckoutSession(userId: string, packId: string) {
   const pack = getPackById(packId);
   if (!pack) throw httpError(400, "Invalid pack");
-  if (!pack.stripePriceId) throw httpError(500, "Pack not configured for Stripe");
+  const stripePriceId = await resolveStripePriceIdForPack(pack.id);
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
-    line_items: [{ price: pack.stripePriceId, quantity: 1 }],
+    line_items: [{ price: stripePriceId, quantity: 1 }],
     success_url: `${env.APP_URL}/settings/billing?success=1`,
     cancel_url: `${env.APP_URL}/settings/billing?cancelled=1`,
     metadata: {
