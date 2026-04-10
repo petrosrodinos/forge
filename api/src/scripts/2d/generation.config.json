@@ -36,7 +36,7 @@
     }
   },
   "chariot": {
-    "generate": true,
+    "generate": false,
     "themes": {
       "black": true,
       "white": true
@@ -60,7 +60,7 @@
     }
   },
   "hoplite": {
-    "generate": true,
+    "generate": false,
     "themes": {
       "black": true,
       "white": true
@@ -84,7 +84,7 @@
     }
   },
   "monarch": {
-    "generate": true,
+    "generate": false,
     "themes": {
       "black": true,
       "white": true

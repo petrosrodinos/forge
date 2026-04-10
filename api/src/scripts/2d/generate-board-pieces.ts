@@ -2,7 +2,7 @@ import "dotenv/config";
 import path from "path";
 import { mkdir, readdir, readFile, writeFile } from "fs/promises";
 import { Jimp } from "jimp";
-import { removeBackground } from "@imgly/background-removal-node";
+import sharp from "sharp";
 
 import { build2dPrompt } from "./prompt-generation";
 import { AimlApiService } from "../../integrations/aimlapi/AimlApiService";
@@ -34,16 +34,6 @@ type ImageEntry = {
   durationMs: number;
 };
 
-type GenerationManifest = {
-  figure: string;
-  model: string;
-  startedAt: string;
-  completedAt: string;
-  durationMs: number;
-  totalCost: number;
-  images: ImageEntry[];
-};
-
 type ImageJob = {
   theme: ThemeName;
   variant: VariantName;
@@ -57,7 +47,11 @@ const FIGURES_ROOT = path.resolve(__dirname, "./figures");
 const CONFIG_PATH = path.resolve(__dirname, "./generation.config.json");
 const IMAGE_VARIANT: VariantName = "default";
 const PER_FIGURE_CONCURRENCY = 2;
+const FIGURE_PARALLEL_BATCH_SIZE = 5;
 const COST_FALLBACK_TO_CATALOG = true;
+const AIML_MAX_RETRIES = 4;
+const AIML_BASE_RETRY_DELAY_MS = 1500;
+const ENABLE_BACKGROUND_REMOVAL = false;
 
 function toFsSafeTimestamp(date = new Date()): string {
   return date.toISOString().replace(/\.\d{3}Z$/, "").replace(/:/g, "-");
@@ -89,15 +83,59 @@ async function ensureMinImageDimensions(
 }
 
 async function removeImageBackground(input: Buffer): Promise<Buffer> {
-  const outBlob = await removeBackground(input, {
-    model: "small",
-    output: {
-      format: "image/png",
-      quality: 1,
-    },
-  });
-  const outArrayBuffer = await outBlob.arrayBuffer();
-  return Buffer.from(outArrayBuffer);
+  try {
+    const image = sharp(input, { failOn: "none" });
+    const meta = await image.metadata();
+    const width = meta.width ?? 0;
+    const height = meta.height ?? 0;
+    if (width < 2 || height < 2) return input;
+
+    const rgba = await image.ensureAlpha().raw().toBuffer();
+    const stride = 4;
+    const idx = (x: number, y: number) => (y * width + x) * stride;
+
+    // Estimate background color from corners.
+    const corners = [
+      idx(0, 0),
+      idx(width - 1, 0),
+      idx(0, height - 1),
+      idx(width - 1, height - 1),
+    ];
+    const avg = corners.reduce(
+      (acc, i) => {
+        acc.r += rgba[i];
+        acc.g += rgba[i + 1];
+        acc.b += rgba[i + 2];
+        return acc;
+      },
+      { r: 0, g: 0, b: 0 },
+    );
+    const bg = {
+      r: avg.r / corners.length,
+      g: avg.g / corners.length,
+      b: avg.b / corners.length,
+    };
+
+    // Make near-background pixels transparent.
+    const tolerance = 48;
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const i = idx(x, y);
+        const dr = rgba[i] - bg.r;
+        const dg = rgba[i + 1] - bg.g;
+        const db = rgba[i + 2] - bg.b;
+        const dist = Math.sqrt(dr * dr + dg * dg + db * db);
+        if (dist <= tolerance) rgba[i + 3] = 0;
+      }
+    }
+
+    return await sharp(rgba, { raw: { width, height, channels: 4 } }).png().toBuffer();
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    const stack = err instanceof Error && err.stack ? err.stack.split("\n").slice(0, 3).join(" | ") : "no stack";
+    console.warn(`[warn] background removal skipped (sharp): ${msg}; bytes=${input.length}; stack=${stack}`);
+    return input;
+  }
 }
 
 function parseNumberLoose(value: unknown): number | null {
@@ -109,6 +147,37 @@ function parseNumberLoose(value: unknown): number | null {
     return Number.isFinite(n) ? n : null;
   }
   return null;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function getErrorMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  return String(err);
+}
+
+function isRetryableAimlError(err: unknown): boolean {
+  const msg = getErrorMessage(err).toLowerCase();
+  return (
+    msg.includes("socket hang up") ||
+    msg.includes("timed out") ||
+    msg.includes("timeout") ||
+    msg.includes("econnreset") ||
+    msg.includes("etimedout") ||
+    msg.includes("[aiml 429]") ||
+    msg.includes("[aiml 500]") ||
+    msg.includes("[aiml 502]") ||
+    msg.includes("[aiml 503]") ||
+    msg.includes("[aiml 504]")
+  );
+}
+
+function retryDelayMs(attempt: number): number {
+  const base = AIML_BASE_RETRY_DELAY_MS * 2 ** (attempt - 1);
+  const jitter = Math.floor(Math.random() * 500);
+  return Math.min(15_000, base + jitter);
 }
 
 function extractCostFromMetadata(costsMetadata: unknown): number | null {
@@ -142,17 +211,35 @@ function extractCostFromMetadata(costsMetadata: unknown): number | null {
   return null;
 }
 
-function pickBestFluxImageToImageModel(): { id: string; price_original: number } {
-  const candidates = ImageModels.filter(
-    (m) => m.available && m.is_image_to_image && m.id.toLowerCase().includes("flux"),
-  );
-  if (!candidates.length) {
-    throw new Error("No available Flux image-to-image model found in ImageModels");
+function pickBestImageToImageModelPreferOpenAi(): { id: string; price_original: number } {
+  // Prefer OpenAI's best model explicitly when available.
+  // Some catalog rows are not marked as image-to-image even though edits work in practice.
+  const gptImage1 = ImageModels.find((m) => m.available && m.id === "gpt-image-1");
+  if (gptImage1) {
+    return { id: gptImage1.id, price_original: gptImage1.price_original };
   }
-  const best = candidates.reduce((acc, cur) =>
+
+  const openAiI2i = ImageModels.filter(
+    (m) => m.available && m.is_image_to_image && m.provider.toLowerCase() === "openai",
+  );
+  if (openAiI2i.length) {
+    const bestOpenAi = openAiI2i.reduce((acc, cur) =>
+      cur.price_original > acc.price_original ? cur : acc,
+    );
+    return { id: bestOpenAi.id, price_original: bestOpenAi.price_original };
+  }
+
+  const anyI2i = ImageModels.filter((m) => m.available && m.is_image_to_image);
+  if (!anyI2i.length) {
+    throw new Error("No available image-to-image model found in ImageModels");
+  }
+  const bestAny = anyI2i.reduce((acc, cur) =>
     cur.price_original > acc.price_original ? cur : acc,
   );
-  return { id: best.id, price_original: best.price_original };
+  console.warn(
+    `[warn] no OpenAI image-to-image model configured; using ${bestAny.id} (${bestAny.provider})`,
+  );
+  return { id: bestAny.id, price_original: bestAny.price_original };
 }
 
 async function readGenerationConfig(): Promise<GenerationConfig> {
@@ -164,7 +251,7 @@ async function readGenerationConfig(): Promise<GenerationConfig> {
   return parsed as GenerationConfig;
 }
 
-async function readSourceImageDataUrl(figureDir: string): Promise<string> {
+async function readSourceImageDataUrl(figureDir: string): Promise<{ dataUrl: string; sourceFileName: string }> {
   const dirents = await readdir(figureDir, { withFileTypes: true });
   const files = dirents
     .filter((d) => d.isFile())
@@ -172,15 +259,20 @@ async function readSourceImageDataUrl(figureDir: string): Promise<string> {
     .filter((name) => /\.(png|jpg|jpeg)$/i.test(name))
     .sort((a, b) => a.localeCompare(b));
 
-  const preferred = files.find((name) => /-original\.(png|jpg|jpeg)$/i.test(name)) ?? files[0];
-  if (!preferred) throw new Error(`No source image found in ${figureDir}`);
+  const preferred = files.find((name) => /-original\.(png|jpg|jpeg)$/i.test(name));
+  if (!preferred) {
+    throw new Error(`Missing original source image in ${figureDir}. Expected a file ending with "-original.(png|jpg|jpeg)"`);
+  }
 
   const abs = path.join(figureDir, preferred);
   const buf = await readFile(abs);
   const mime = imageMimeFromFilename(preferred);
   const normalized = await ensureMinImageDimensions(buf, 64);
   const outputMime = normalized.wasResized ? "image/png" : mime;
-  return `data:${outputMime};base64,${normalized.buffer.toString("base64")}`;
+  return {
+    dataUrl: `data:${outputMime};base64,${normalized.buffer.toString("base64")}`,
+    sourceFileName: preferred,
+  };
 }
 
 function enabledThemesForFigure(cfg: FigureConfig | undefined): ThemeName[] {
@@ -249,15 +341,47 @@ async function generateImageJob(
     prompt: job.prompt,
     sourceImageDataUrl: job.sourceImageDataUrl,
   });
+  const hasI2iSource =
+    typeof body.image === "string" ||
+    typeof body.image_url === "string" ||
+    (Array.isArray(body.image_urls) && body.image_urls.length > 0);
+  if (!hasI2iSource) {
+    throw new Error(`I2I source image was not attached for ${job.outputFileName}`);
+  }
 
-  const { data, costsMetadata } = await aiml.generateImage(body);
+  let data: Awaited<ReturnType<AimlApiService["generateImage"]>>["data"] | null = null;
+  let costsMetadata: Awaited<ReturnType<AimlApiService["generateImage"]>>["costsMetadata"] | null = null;
+  let lastErr: unknown = null;
+  for (let attempt = 1; attempt <= AIML_MAX_RETRIES; attempt++) {
+    try {
+      const res = await aiml.generateImage(body);
+      data = res.data;
+      costsMetadata = res.costsMetadata;
+      break;
+    } catch (err) {
+      lastErr = err;
+      const retryable = isRetryableAimlError(err);
+      if (!retryable || attempt === AIML_MAX_RETRIES) {
+        break;
+      }
+      const delay = retryDelayMs(attempt);
+      console.warn(
+        `[warn] image generation retry ${attempt}/${AIML_MAX_RETRIES - 1} for ${job.outputFileName}: ${getErrorMessage(err)}; waitMs=${delay}`,
+      );
+      await sleep(delay);
+    }
+  }
+  if (!data || !costsMetadata) {
+    throw new Error(`Failed image generation for ${job.outputFileName}: ${getErrorMessage(lastErr)}`);
+  }
+
   const first = data.data?.[0];
   const imageUrl = first?.url ?? (first?.b64_json ? `data:image/png;base64,${first.b64_json}` : null);
   if (!imageUrl) throw new Error(`No image data returned for ${job.outputFileName}`);
 
   const { buffer } = await fetchImageAsBuffer(imageUrl);
-  const noBgBuffer = await removeImageBackground(buffer);
-  await writeFile(job.outputPath, noBgBuffer);
+  const finalBuffer = ENABLE_BACKGROUND_REMOVAL ? await removeImageBackground(buffer) : buffer;
+  await writeFile(job.outputPath, finalBuffer);
 
   const actualCost = extractCostFromMetadata(costsMetadata);
   const cost = actualCost != null ? actualCost : COST_FALLBACK_TO_CATALOG ? modelCatalogCost : 0;
@@ -278,27 +402,28 @@ async function processFigure(
   cfg: GenerationConfig,
   figureName: string,
   figureDir: string,
-): Promise<void> {
+): Promise<{ generatedImages: number; totalCost: number }> {
   const figureCfg = cfg[figureName];
   if (figureCfg?.generate === false) {
     console.log(`[skip] ${figureName} (generate=false)`);
-    return;
+    return { generatedImages: 0, totalCost: 0 };
   }
   if (!isDefaultVariantEnabled(figureCfg)) {
     console.log(`[skip] ${figureName} (variants.default=false)`);
-    return;
+    return { generatedImages: 0, totalCost: 0 };
   }
 
   const themes = enabledThemesForFigure(figureCfg);
   if (!themes.length) {
     console.log(`[skip] ${figureName} (no enabled themes)`);
-    return;
+    return { generatedImages: 0, totalCost: 0 };
   }
 
   const runStarted = new Date();
   const runStartedMs = Date.now();
   const generationDir = await ensureUniqueGenerationDir(figureDir, toFsSafeTimestamp(runStarted));
-  const sourceImageDataUrl = await readSourceImageDataUrl(figureDir);
+  const sourceImage = await readSourceImageDataUrl(figureDir);
+  console.log(`[source] ${figureName}: ${sourceImage.sourceFileName}`);
 
   const jobs: ImageJob[] = themes.map((theme) => {
     const prompt = build2dPrompt({ theme });
@@ -309,31 +434,24 @@ async function processFigure(
       prompt,
       outputFileName,
       outputPath: path.join(generationDir, outputFileName),
-      sourceImageDataUrl,
+      sourceImageDataUrl: sourceImage.dataUrl,
     };
   });
 
   const images = await mapPool(jobs, PER_FIGURE_CONCURRENCY, (job) =>
     generateImageJob(aiml, model.id, model.price_original, job),
   );
-
-  const manifest: GenerationManifest = {
-    figure: figureName,
-    model: model.id,
-    startedAt: runStarted.toISOString(),
-    completedAt: new Date().toISOString(),
-    durationMs: Date.now() - runStartedMs,
-    totalCost: images.reduce((sum, img) => sum + img.cost, 0),
-    images,
-  };
-
-  await writeFile(path.join(generationDir, "generation.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
-  console.log(`[ok] ${figureName} -> ${path.relative(FIGURES_ROOT, generationDir).replace(/\\/g, "/")}`);
+  const figureTotalCost = images.reduce((sum, img) => sum + img.cost, 0);
+  const durationMs = Date.now() - runStartedMs;
+  console.log(
+    `[ok] ${figureName} -> ${path.relative(FIGURES_ROOT, generationDir).replace(/\\/g, "/")} | images=${images.length} | cost=${figureTotalCost.toFixed(6)} | ms=${durationMs}`,
+  );
+  return { generatedImages: images.length, totalCost: figureTotalCost };
 }
 
 async function main(): Promise<void> {
   const cfg = await readGenerationConfig();
-  const model = pickBestFluxImageToImageModel();
+  const model = pickBestImageToImageModelPreferOpenAi();
   const aiml = new AimlApiService();
 
   const dirents = await readdir(FIGURES_ROOT, { withFileTypes: true });
@@ -342,10 +460,34 @@ async function main(): Promise<void> {
     .map((d) => d.name)
     .sort((a, b) => a.localeCompare(b));
 
-  for (const figureName of figures) {
-    const figureDir = path.join(FIGURES_ROOT, figureName);
-    await processFigure(aiml, model, cfg, figureName, figureDir);
+  let totalGeneratedImages = 0;
+  let totalCost = 0;
+  for (let i = 0; i < figures.length; i += FIGURE_PARALLEL_BATCH_SIZE) {
+    const batch = figures.slice(i, i + FIGURE_PARALLEL_BATCH_SIZE);
+    const results = await Promise.allSettled(
+      batch.map((figureName) => {
+        const figureDir = path.join(FIGURES_ROOT, figureName);
+        return processFigure(aiml, model, cfg, figureName, figureDir);
+      }),
+    );
+    for (let idx = 0; idx < results.length; idx++) {
+      const result = results[idx];
+      const figureName = batch[idx]!;
+      if (result.status === "fulfilled") {
+        totalGeneratedImages += result.value.generatedImages;
+        totalCost += result.value.totalCost;
+      } else {
+        console.error(`[error] figure failed (${figureName}): ${getErrorMessage(result.reason)}`);
+      }
+    }
   }
+
+  console.log("---");
+  console.log(`Total generated images: ${totalGeneratedImages}`);
+  console.log(`Total cost: ${totalCost.toFixed(6)}`);
+  const averageCostPerImage = totalGeneratedImages > 0 ? totalCost / totalGeneratedImages : 0;
+  console.log(`Average cost per image: ${averageCostPerImage.toFixed(6)}`);
+  console.log("---");
 }
 
 main().catch((err) => {
