@@ -227,6 +227,10 @@ export async function generateImageForVariant(
     usageMetadataWithProviderCosts(costsMetadata, "aimlapi"),
   );
 
-  const savedImage = await skinImageSvc.createSkinImage(v.id, figureId, imageUrl);
+  const savedImage = await skinImageSvc.createSkinImage(v.id, figureId, imageUrl, {
+    prompt,
+    negativePrompt: neg || undefined,
+    model,
+  });
   return { imageUrl, skinImageId: savedImage.id };
 }

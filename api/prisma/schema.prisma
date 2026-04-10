@@ -153,6 +153,7 @@ model SkinImage {
   variantId  String      @db.ObjectId
   variant    SkinVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
   sourceUrl  String
+  metadata   Json?
   gcsUrl     String?
   gcsBucket  String?
   gcsKey     String?

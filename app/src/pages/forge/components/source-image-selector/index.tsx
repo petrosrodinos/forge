@@ -7,6 +7,11 @@ export interface ExistingImageOption {
   imageId: string;
   imageUrl: string;
   createdAt: string;
+  metadata?: {
+    prompt?: string;
+    negativePrompt?: string;
+    model?: string;
+  } | null;
   variantId: string;
   variantName: string;
   skinId: string;

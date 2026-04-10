@@ -73,6 +73,7 @@ export function PromptEditor({
           imageId: img.id,
           imageUrl: img.gcsUrl ?? img.sourceUrl,
           createdAt: img.createdAt,
+          metadata: img.metadata,
           variantId: v.id,
           variantName: v.name ?? `Variant ${v.variant}`,
           skinId: skin.id,
@@ -159,6 +160,14 @@ export function PromptEditor({
   useEffect(() => {
     setSourceSelectionError(null);
   }, [sourceMode, selectedExistingImageId, sourceFile]);
+  useEffect(() => {
+    if (sourceMode !== "existing" || !selectedExistingImage) return;
+    const md = selectedExistingImage.metadata;
+    if (!md) return;
+    if (typeof md.prompt === "string" && md.prompt.trim()) setPrompt(md.prompt);
+    if (typeof md.negativePrompt === "string") setNegPrompt(md.negativePrompt);
+    if (typeof md.model === "string" && md.model.trim()) setModel(md.model);
+  }, [sourceMode, selectedExistingImage]);
 
   function handleAiGenerate() {
     if (!aiDescription.trim()) return;

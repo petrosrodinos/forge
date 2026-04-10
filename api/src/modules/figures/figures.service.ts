@@ -143,7 +143,12 @@ export async function generateAndSaveFigureImage(userId: string, input: Generate
   const savedImage = await skinImageSvc.createSkinImage(
     variantRecord.id,
     figureId,
-    imageUrl
+    imageUrl,
+    {
+      prompt,
+      negativePrompt: negativePrompt?.trim() || undefined,
+      model,
+    },
   );
 
   return {

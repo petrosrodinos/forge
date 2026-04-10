@@ -1,8 +1,13 @@
 import { prisma } from "../../../integrations/db/client";
 
-export async function createSkinImageRecord(variantId: string, figureId: string, sourceUrl: string) {
+export async function createSkinImageRecord(
+  variantId: string,
+  figureId: string,
+  sourceUrl: string,
+  metadata?: Record<string, unknown>,
+) {
   return prisma.skinImage.create({
-    data: { variantId, sourceUrl },
+    data: { variantId, sourceUrl, metadata: metadata as never },
   });
 }
 

@@ -36,8 +36,9 @@ export async function createSkinImage(
   variantId: string,
   figureId: string,
   sourceUrl: string,
+  metadata?: Record<string, unknown>,
 ) {
-  const image = await createSkinImageRecord(variantId, figureId, sourceUrl);
+  const image = await createSkinImageRecord(variantId, figureId, sourceUrl, metadata);
 
   const ext    = sourceUrl.match(/\.(jpg|jpeg|png|webp)(\?|$)/i)?.[1] ?? "jpg";
   const gcsKey = `images/figures/${figureId}/${variantId}/${image.id}.${ext}`;

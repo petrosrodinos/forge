@@ -26,6 +26,11 @@ export interface SkinImage {
   id: string;
   variantId: string;
   sourceUrl: string;
+  metadata?: {
+    prompt?: string;
+    negativePrompt?: string;
+    model?: string;
+  } | null;
   gcsUrl: string | null;
   models: Model3D[];
   createdAt: string;

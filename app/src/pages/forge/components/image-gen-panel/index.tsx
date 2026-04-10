@@ -44,6 +44,7 @@ export function ImageGenPanel() {
           imageId: image.id,
           imageUrl: image.gcsUrl ?? image.sourceUrl,
           createdAt: image.createdAt,
+          metadata: image.metadata,
           variantId: variant.id,
           variantName: variant.name ?? `Variant ${variant.variant}`,
           skinId: skin.id,
@@ -109,6 +110,13 @@ export function ImageGenPanel() {
   useEffect(() => {
     setSourceSelectionError(null);
   }, [sourceMode, selectedExistingImageId, sourceFile]);
+  useEffect(() => {
+    if (sourceMode !== "existing" || !selectedExistingImage) return;
+    const md = selectedExistingImage.metadata;
+    if (!md) return;
+    if (typeof md.prompt === "string" && md.prompt.trim()) setPrompt(md.prompt);
+    if (typeof md.model === "string" && md.model.trim()) setModel(md.model);
+  }, [sourceMode, selectedExistingImage]);
 
   async function handleGenerate() {
     if (!activeVariant || !activeFigure) return;
