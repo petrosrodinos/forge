@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/features/auth/hooks/use-auth.hooks";
 import {
   useAdminMetrics,
+  useAdminUserPurchases,
   useAdminUsers,
   useDeleteAdminUser,
   useUpdateAdminUser,
@@ -11,6 +12,7 @@ import {
 import type {
   AdminMetricsDto,
   AdminUserRowDto,
+  AdminUserPurchaseDto,
   AdminUserUpdateInput,
 } from "@/features/admin/interfaces/admin.interfaces";
 import { formatEur } from "@/features/billing/utils/format";
@@ -49,10 +51,13 @@ export default function SettingsAdminPage() {
   const deleteUser = useDeleteAdminUser();
   const updateUser = useUpdateAdminUser();
   const [userPendingDelete, setUserPendingDelete] = useState<AdminUserRowDto | null>(null);
-  const [activeTab, setActiveTab] = useState<"users" | "generations">("users");
+  const [activeTab, setActiveTab] = useState<"users" | "generations" | "purchases">("users");
+  const [purchaseSubjectId, setPurchaseSubjectId] = useState<string | null>(null);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState<AdminUserDraft | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
+
+  const purchasesQuery = useAdminUserPurchases(purchaseSubjectId, isAdmin && activeTab === "purchases");
 
   const confirmRemoveUser = () => {
     if (!userPendingDelete) return;
@@ -177,6 +182,16 @@ export default function SettingsAdminPage() {
             >
               Generations
             </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("purchases")}
+              className={cn(
+                "px-3 py-1.5 text-xs font-medium rounded-md transition-colors",
+                activeTab === "purchases" ? "bg-violet-500/20 text-violet-200" : "text-slate-400 hover:text-slate-200",
+              )}
+            >
+              Purchases
+            </button>
           </div>
 
           {activeTab === "users" ? (
@@ -276,8 +291,17 @@ export default function SettingsAdminPage() {
                 </table>
               </div>
             </>
-          ) : (
+          ) : activeTab === "generations" ? (
             <GenerationsTab loading={metricsQuery.isLoading} error={metricsQuery.isError} data={metricsQuery.data} />
+          ) : (
+            <PurchasesTab
+              users={usersQuery.data}
+              usersLoading={usersQuery.isLoading}
+              usersError={usersQuery.isError}
+              selectedUserId={purchaseSubjectId}
+              onSelectUserId={(id) => setPurchaseSubjectId(id)}
+              purchasesQuery={purchasesQuery}
+            />
           )}
         </section>
 
@@ -343,6 +367,142 @@ function GenerationsTab({
         <CountCard title="Generated animations" value={loading || error || !data ? null : data.generatedAnimationsCount} />
       </div>
     </div>
+  );
+}
+
+function PurchasesTab({
+  users,
+  usersLoading,
+  usersError,
+  selectedUserId,
+  onSelectUserId,
+  purchasesQuery,
+}: {
+  users: AdminUserRowDto[] | undefined;
+  usersLoading: boolean;
+  usersError: boolean;
+  selectedUserId: string | null;
+  onSelectUserId: (id: string | null) => void;
+  purchasesQuery: {
+    data: AdminUserPurchaseDto[] | undefined;
+    isLoading: boolean;
+    isError: boolean;
+    isFetching: boolean;
+  };
+}) {
+  const hasUsers = (users?.length ?? 0) > 0;
+  return (
+    <div className="space-y-4">
+      <div>
+        <h2 className="text-sm font-semibold tracking-tight text-slate-100">Purchase history</h2>
+        <p className="text-sm text-slate-500 mt-0.5">Stripe token pack checkouts per user (newest first).</p>
+      </div>
+
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between max-w-xl">
+        <label className="text-xs font-medium text-slate-400" htmlFor="admin-purchase-user">
+          User
+        </label>
+        <select
+          id="admin-purchase-user"
+          className="h-10 w-full sm:max-w-md rounded-lg border border-border bg-panel px-3 text-sm text-slate-200 focus:outline-none focus:border-violet-500/40 focus:ring-1 focus:ring-violet-500/20 disabled:opacity-50"
+          disabled={usersLoading || usersError || !hasUsers}
+          value={selectedUserId ?? ""}
+          onChange={(e) => onSelectUserId(e.target.value.length > 0 ? e.target.value : null)}
+        >
+          {!hasUsers && !usersLoading ? (
+            <option value="">No users</option>
+          ) : (
+            <>
+              <option value="">All users</option>
+              {(users ?? []).map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.email}
+                  {u.displayName ? ` (${u.displayName})` : ""}
+                </option>
+              ))}
+            </>
+          )}
+        </select>
+      </div>
+
+      <div className="overflow-x-auto rounded-xl border border-border bg-panel/40 ring-1 ring-white/5">
+        <table className="w-full text-sm text-left min-w-[980px]">
+          <thead>
+            <tr className="border-b border-border bg-surface/70 text-slate-500">
+              <th className="px-5 py-3.5 font-medium text-xs uppercase tracking-wider whitespace-nowrap">Date</th>
+              <th className="px-5 py-3.5 font-medium text-xs uppercase tracking-wider">User email</th>
+              <th className="px-5 py-3.5 font-medium text-xs uppercase tracking-wider">Pack</th>
+              <th className="px-5 py-3.5 font-medium text-xs uppercase tracking-wider text-right">Tokens</th>
+              <th className="px-5 py-3.5 font-medium text-xs uppercase tracking-wider text-right">Charged</th>
+              <th className="px-5 py-3.5 font-medium text-xs uppercase tracking-wider text-right">Stripe fee</th>
+              <th className="px-5 py-3.5 font-medium text-xs uppercase tracking-wider text-right">Net</th>
+              <th className="px-5 py-3.5 font-medium text-xs uppercase tracking-wider">Session</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border/70">
+            {usersLoading ? (
+              <tr>
+                <td colSpan={8} className="px-5 py-8 text-center text-slate-500">
+                  Loading users…
+                </td>
+              </tr>
+            ) : usersError ? (
+              <tr>
+                <td colSpan={8} className="px-5 py-8 text-center text-red-400/90">
+                  Could not load users.
+                </td>
+              </tr>
+            ) : purchasesQuery.isLoading || purchasesQuery.isFetching ? (
+              <tr>
+                <td colSpan={8} className="px-5 py-8 text-center text-slate-500">
+                  Loading purchases…
+                </td>
+              </tr>
+            ) : purchasesQuery.isError ? (
+              <tr>
+                <td colSpan={8} className="px-5 py-8 text-center text-red-400/90">
+                  Could not load purchase history.
+                </td>
+              </tr>
+            ) : (purchasesQuery.data?.length ?? 0) === 0 ? (
+              <tr>
+                <td colSpan={8} className="px-5 py-8 text-center text-slate-500">
+                  {selectedUserId ? "No purchases for this user." : "No purchases found."}
+                </td>
+              </tr>
+            ) : (
+              purchasesQuery.data!.map((row, i) => (
+                <PurchaseRow key={row.id} row={row} altRow={i % 2 === 1} />
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function PurchaseRow({ row, altRow }: { row: AdminUserPurchaseDto; altRow: boolean }) {
+  const fee = row.stripeFeeCents ?? 0;
+  const net = row.amountCents - fee;
+  return (
+    <tr className={cn("transition-colors hover:bg-surface/50", altRow ? "bg-surface/25" : "bg-transparent")}>
+      <td className="px-5 py-3.5 text-slate-400 whitespace-nowrap">
+        {new Date(row.createdAt).toLocaleString()}
+      </td>
+      <td className="px-5 py-3.5 text-slate-200">{row.userEmail}</td>
+      <td className="px-5 py-3.5 text-slate-200">
+        <span className="font-medium">{row.packName}</span>
+        <span className="block text-xs text-slate-500 font-mono mt-0.5">{row.packId}</span>
+      </td>
+      <td className="px-5 py-3.5 text-right font-mono tabular-nums text-slate-300">{row.tokens.toLocaleString()}</td>
+      <td className="px-5 py-3.5 text-right tabular-nums text-slate-200">{formatEur(row.amountCents, true)}</td>
+      <td className="px-5 py-3.5 text-right tabular-nums text-slate-400">
+        {row.stripeFeeCents != null ? formatEur(row.stripeFeeCents, true) : "—"}
+      </td>
+      <td className="px-5 py-3.5 text-right tabular-nums text-slate-200">{formatEur(net, true)}</td>
+      <td className="px-5 py-3.5 text-slate-500 font-mono text-xs break-all max-w-[14rem]">{row.stripeSessionId}</td>
+    </tr>
   );
 }
 

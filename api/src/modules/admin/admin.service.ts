@@ -1,8 +1,9 @@
 import { prisma } from "../../integrations/db/client";
+import { getPackById } from "../../config/models/tokenPacks";
 import { deleteGcsFiles } from "../../integrations/gcs/gcs.service";
 import { collectGcsKeysFromFigures } from "../../integrations/gcs/collectGcsAssetKeys";
 import { figureWithAllAssetsInclude } from "../figures/repositories/figures.repository";
-import type { AdminMetricsDto, AdminUserRowDto, AdminUserUpdateInput } from "./admin.types";
+import type { AdminMetricsDto, AdminUserPurchaseDto, AdminUserRowDto, AdminUserUpdateInput } from "./admin.types";
 
 export async function getAdminMetrics(): Promise<AdminMetricsDto> {
   const [purchases, usages, generatedImagesCount, generatedMeshesCount, generatedRigsCount, generatedAnimationsCount] =
@@ -68,6 +69,47 @@ export async function listUsersForAdmin(): Promise<AdminUserRowDto[]> {
     createdAt: r.createdAt.toISOString(),
     updatedAt: r.updatedAt.toISOString(),
   }));
+}
+
+export async function listPurchasesForAdmin(targetUserId?: string): Promise<AdminUserPurchaseDto[]> {
+  if (targetUserId) {
+    const user = await prisma.user.findUnique({ where: { id: targetUserId }, select: { id: true } });
+    if (!user) {
+      const e = new Error("User not found");
+      (e as Error & { status?: number }).status = 404;
+      throw e;
+    }
+  }
+
+  const rows = await prisma.tokenPurchase.findMany({
+    where: targetUserId ? { userId: targetUserId } : undefined,
+    orderBy: { createdAt: "desc" },
+    take: 100,
+    include: {
+      user: {
+        select: {
+          id: true,
+          email: true,
+        },
+      },
+    },
+  });
+
+  return rows.map((r) => {
+    const pack = getPackById(r.packId);
+    return {
+      userId: r.user.id,
+      userEmail: r.user.email,
+      id: r.id,
+      packId: r.packId,
+      packName: pack?.name ?? r.packId,
+      tokens: r.tokens,
+      amountCents: r.amountCents,
+      stripeFeeCents: r.stripeFeeCents ?? null,
+      stripeSessionId: r.stripeSessionId,
+      createdAt: r.createdAt.toISOString(),
+    };
+  });
 }
 
 export async function deleteUserAndAssets(actorUserId: string, targetUserId: string): Promise<void> {

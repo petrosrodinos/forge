@@ -35,3 +35,16 @@ export interface AdminUserUpdateInput {
   role: "USER" | "ADMIN";
   tokenBalance: number;
 }
+
+export interface AdminUserPurchaseDto {
+  userId: string;
+  userEmail: string;
+  id: string;
+  packId: string;
+  packName: string;
+  tokens: number;
+  amountCents: number;
+  stripeFeeCents: number | null;
+  stripeSessionId: string;
+  createdAt: string;
+}

@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   deleteAdminUser,
   getAdminMetrics,
+  getAdminUserPurchases,
   getAdminUsers,
   updateAdminUser,
 } from "@/features/admin/services/admin.services";
@@ -19,6 +20,14 @@ export function useAdminUsers(enabled: boolean) {
   return useQuery({
     queryKey: ["admin", "users"],
     queryFn: getAdminUsers,
+    enabled,
+  });
+}
+
+export function useAdminUserPurchases(userId: string | null, enabled: boolean) {
+  return useQuery({
+    queryKey: ["admin", "users", userId, "purchases"],
+    queryFn: () => getAdminUserPurchases(userId),
     enabled,
   });
 }

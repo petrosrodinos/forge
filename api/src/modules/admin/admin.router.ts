@@ -16,6 +16,18 @@ router.get("/users", (_req, res, next) => {
   admin.listUsersForAdmin().then((out) => res.json(out)).catch(next);
 });
 
+const purchasesQuerySchema = z.object({
+  userId: z.string().trim().min(1).optional(),
+});
+
+router.get("/purchases", (req, res, next) => {
+  const parsed = purchasesQuerySchema.safeParse(req.query);
+  if (!parsed.success) {
+    return res.status(400).json({ error: "Invalid query", details: parsed.error.flatten() });
+  }
+  admin.listPurchasesForAdmin(parsed.data.userId).then((out) => res.json(out)).catch(next);
+});
+
 const updateAdminUserBodySchema = z.object({
   email: z.string().trim().email(),
   displayName: z
