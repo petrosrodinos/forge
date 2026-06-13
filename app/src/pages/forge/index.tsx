@@ -8,7 +8,6 @@ import { useForgeStore } from "@/store/forgeStore";
 import { FigureList, type FigureListHandle } from "@/pages/forge/components/figure-list";
 import { SkinTabs } from "@/pages/forge/components/skin-tabs";
 import { SkinPanel } from "@/pages/forge/components/skin-panel";
-import { ChatPanel } from "@/pages/forge/components/chat-panel";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
 import type { Skin } from "@/interfaces";
@@ -51,7 +50,6 @@ function ForgeSkeleton() {
 }
 
 export default function ForgePage() {
-  const isDev = import.meta.env.VITE_NODE_ENV === "development";
   const { data: figures, isLoading } = useFigures();
   const {
     activeFigure,
@@ -59,8 +57,6 @@ export default function ForgePage() {
     activeSkin,
     setActiveSkin,
     syncFigureData,
-    chatPanelOpen,
-    setChatPanelOpen,
     figurePanelOpen,
     setFigurePanelOpen,
   } = useForgeStore();
@@ -132,14 +128,6 @@ export default function ForgePage() {
           onClick={() => setFigurePanelOpen(false)}
         />
       )}
-      {chatPanelOpen && (
-        <div
-          className="fixed inset-0 z-30 bg-black/60 md:hidden"
-          onClick={() => setChatPanelOpen(false)}
-          aria-hidden
-        />
-      )}
-
       <div className="flex h-full overflow-hidden">
         {/* Left sidebar — drawer on mobile, inline on desktop */}
         <aside
@@ -245,28 +233,6 @@ export default function ForgePage() {
           )}
         </div>
 
-        {isDev && (
-          <button
-            type="button"
-            onClick={() => setChatPanelOpen(!chatPanelOpen)}
-            className="absolute right-0 top-1/2 z-10 hidden h-9 w-5 -translate-y-1/2 items-center justify-center rounded-l-md border border-border/80 bg-panel/95 text-slate-400 shadow-sm ring-1 ring-white/5 transition-colors hover:bg-surface hover:text-slate-200 md:flex"
-            aria-label={chatPanelOpen ? "Collapse chat panel" : "Expand chat panel"}
-          >
-            {chatPanelOpen ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
-          </button>
-        )}
-
-        <aside
-          className={cn(
-            "flex flex-col shrink-0 border-l border-border/80 bg-panel/95 overflow-hidden w-80 max-w-[min(100vw,20rem)] ring-1 ring-white/5",
-            "fixed top-0 bottom-0 right-0 z-40 transition-transform duration-200 ease-out",
-            chatPanelOpen ? "translate-x-0" : "translate-x-full",
-            "md:relative md:top-auto md:bottom-auto md:right-auto md:z-auto md:max-w-none md:translate-x-0",
-            !chatPanelOpen && "md:hidden",
-          )}
-        >
-          <ChatPanel />
-        </aside>
       </div>
 
       {downloadModalOpen && <DownloadModal onClose={() => setDownloadModalOpen(false)} />}

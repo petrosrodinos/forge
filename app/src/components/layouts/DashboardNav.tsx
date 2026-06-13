@@ -1,6 +1,6 @@
 import type { MouseEvent } from "react";
 import { useEffect, useRef, useState } from "react";
-import { Box, Coins, Menu, MessageSquare, MoreHorizontal } from "lucide-react";
+import { Box, Coins, Menu, MoreHorizontal } from "lucide-react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "@/features/auth/hooks/use-auth.hooks";
 import { useBalance } from "@/features/billing/hooks/use-billing.hooks";
@@ -88,8 +88,7 @@ export function DashboardNav() {
   const navigate = useNavigate();
   const location = useLocation();
   const { data: billingBalance } = useBalance({ enabled: !!user });
-  const { chatPanelOpen, setChatPanelOpen, figurePanelOpen, setFigurePanelOpen } = useForgeStore();
-  const isDev = import.meta.env.VITE_NODE_ENV === "development";
+  const { figurePanelOpen, setFigurePanelOpen } = useForgeStore();
 
   const isForge = location.pathname === "/forge";
 
@@ -112,11 +111,6 @@ export function DashboardNav() {
       {isForge && (
         <button type="button" onClick={() => setFigurePanelOpen(!figurePanelOpen)} className="md:hidden p-1.5 -ml-0.5 shrink-0 text-slate-400 hover:text-slate-200 transition-colors" aria-label="Toggle figures panel">
           <Menu size={16} />
-        </button>
-      )}
-      {isDev && isForge && (
-        <button type="button" onClick={() => setChatPanelOpen(!chatPanelOpen)} className={cn("md:hidden p-1.5 shrink-0 transition-colors", chatPanelOpen ? "text-accent-light" : "text-slate-400 hover:text-slate-200")} aria-label={chatPanelOpen ? "Close chat" : "Open chat"}>
-          <MessageSquare size={16} aria-hidden />
         </button>
       )}
       <Link to="/" className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-accent-light truncate min-w-0 shrink hover:text-slate-100 transition-colors">
