@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import { fetchMe, login as loginService, logout as logoutService } from "@/features/auth/services/auth.services";
+import { queryClient } from "@/lib/queryClient";
+import { useForgeStore } from "@/store/forgeStore";
 import type { User } from "@/interfaces";
 
 interface AuthState {
@@ -9,6 +11,11 @@ interface AuthState {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   initialize: () => Promise<void>;
+}
+
+function clearSessionState() {
+  queryClient.clear();
+  useForgeStore.getState().setActiveFigure(null);
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -25,12 +32,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   login: async (email, password) => {
+    clearSessionState();
     await loginService(email, password);
     await get().fetchMe();
   },
 
   logout: async () => {
     await logoutService().catch(() => {});
+    clearSessionState();
     set({ user: null });
   },
 

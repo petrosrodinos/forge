@@ -12,6 +12,11 @@ export const createUser = (data: { email: string; passwordHash: string; displayN
     },
   });
 
+export const updateUser = (
+  id: string,
+  data: { email?: string; displayName?: string | null; passwordHash?: string },
+) => prisma.user.update({ where: { id }, data });
+
 export const incrementBalance = (userId: string, amount: number) =>
   prisma.user.update({ where: { id: userId }, data: { tokenBalance: { increment: amount } } });
 

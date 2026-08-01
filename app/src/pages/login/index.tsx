@@ -109,17 +109,27 @@ export default function LoginPage() {
           className={fieldClass}
           required
         />
-        <Input
-          id="password"
-          label="Password"
-          type="password"
-          autoComplete="current-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="••••••••"
-          className={fieldClass}
-          required
-        />
+        <div className="flex flex-col gap-1.5">
+          <Input
+            id="password"
+            label="Password"
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            className={fieldClass}
+            required
+          />
+          <div className="flex justify-end">
+            <Link
+              to="/forgot-password"
+              className="text-xs font-medium text-slate-500 underline-offset-2 hover:text-accent-light hover:underline"
+            >
+              Forgot password?
+            </Link>
+          </div>
+        </div>
         {error ? (
           <div
             className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2.5 text-sm text-red-300"

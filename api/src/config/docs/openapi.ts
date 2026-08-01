@@ -534,6 +534,54 @@ export const OPEN_API_DOCUMENT = {
         responses: { "200": jsonContent({ type: "object" }), "400": errorContent("Validation error") },
       },
     },
+    "/api/auth/forgot-password": {
+      post: {
+        tags: ["Auth"],
+        summary: "Request password reset email",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: { email: { type: "string", format: "email" } },
+                required: ["email"],
+              },
+            },
+          },
+        },
+        responses: {
+          "200": jsonContent({ type: "object", properties: { ok: { type: "boolean" } } }),
+          "400": errorContent("Validation error"),
+          "502": errorContent("Failed to send email"),
+        },
+      },
+    },
+    "/api/auth/reset-password": {
+      post: {
+        tags: ["Auth"],
+        summary: "Reset password with email token",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  token: { type: "string" },
+                  password: { type: "string", minLength: 8 },
+                },
+                required: ["token", "password"],
+              },
+            },
+          },
+        },
+        responses: {
+          "200": jsonContent({ type: "object", properties: { ok: { type: "boolean" } } }),
+          "400": errorContent("Validation or invalid token"),
+        },
+      },
+    },
     "/api/auth/refresh": {
       post: {
         tags: ["Auth"],
@@ -559,7 +607,61 @@ export const OPEN_API_DOCUMENT = {
           "404": errorContent("Not found"),
         },
       },
+      patch: {
+        tags: ["Auth"],
+        summary: "Update current user profile",
+        security: [{ cookieAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  email: { type: "string" },
+                  displayName: { type: "string", nullable: true },
+                  currentPassword: { type: "string", description: "Required when changing email" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": jsonContent({ $ref: "#/components/schemas/User" }),
+          "400": errorContent("Validation error"),
+          "401": errorContent("Unauthorized"),
+          "409": errorContent("Email already in use"),
+        },
+      },
     },
+    "/api/auth/password": {
+      post: {
+        tags: ["Auth"],
+        summary: "Change password",
+        security: [{ cookieAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  currentPassword: { type: "string" },
+                  newPassword: { type: "string", minLength: 8 },
+                },
+                required: ["currentPassword", "newPassword"],
+              },
+            },
+          },
+        },
+        responses: {
+          "200": jsonContent({ type: "object", properties: { ok: { type: "boolean" } } }),
+          "400": errorContent("Validation error"),
+          "401": errorContent("Unauthorized"),
+        },
+      },
+    },
+
     "/api/models": {
       get: { tags: ["Images"], summary: "List image models (alias)", responses: { "200": jsonContent({ type: "array", items: { type: "object", additionalProperties: true } }) } },
     },

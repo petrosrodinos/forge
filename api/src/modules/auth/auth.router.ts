@@ -3,6 +3,12 @@ import * as auth from "./auth.service";
 import { requireAuth } from "../../middleware/requireAuth";
 import { findUserById } from "../users/users.service";
 import { cookieOptions, ACCESS_TTL, REFRESH_TTL } from "../../lib/jwt";
+import {
+  changePasswordBodySchema,
+  forgotPasswordBodySchema,
+  resetPasswordBodySchema,
+  updateMeBodySchema,
+} from "./auth.schemas";
 
 const router = Router();
 
@@ -31,6 +37,28 @@ router.post("/login", async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+router.post("/forgot-password", async (req, res, next) => {
+  try {
+    const parsed = forgotPasswordBodySchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: "Invalid body", details: parsed.error.flatten() });
+    }
+    const result = await auth.forgotPassword(parsed.data.email);
+    res.json(result);
+  } catch (e) { next(e); }
+});
+
+router.post("/reset-password", async (req, res, next) => {
+  try {
+    const parsed = resetPasswordBodySchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: "Invalid body", details: parsed.error.flatten() });
+    }
+    const result = await auth.resetPassword(parsed.data.token, parsed.data.password);
+    res.json(result);
+  } catch (e) { next(e); }
+});
+
 router.post("/refresh", async (req, res, next) => {
   try {
     const token = req.cookies?.refresh_token;
@@ -56,6 +84,32 @@ router.get("/me", requireAuth, async (req, res, next) => {
     if (!user) return res.status(404).json({ error: "Not found" });
     res.json({ id: user.id, email: user.email, displayName: user.displayName, role: user.role, tokenBalance: user.tokenBalance });
   } catch (e) { next(e); }
+});
+
+router.patch("/me", requireAuth, async (req, res, next) => {
+  try {
+    const parsed = updateMeBodySchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: "Invalid request body", details: parsed.error.flatten() });
+    }
+    const user = await auth.updateProfile(req.userId, parsed.data);
+    res.json(user);
+  } catch (e) {
+    next(e);
+  }
+});
+
+router.post("/password", requireAuth, async (req, res, next) => {
+  try {
+    const parsed = changePasswordBodySchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: "Invalid request body", details: parsed.error.flatten() });
+    }
+    await auth.changePassword(req.userId, parsed.data.currentPassword, parsed.data.newPassword);
+    res.json({ ok: true });
+  } catch (e) {
+    next(e);
+  }
 });
 
 export default router;

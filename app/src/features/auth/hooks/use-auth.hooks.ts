@@ -1,8 +1,20 @@
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useAuthStore } from "@/store/authStore";
-import { register } from "@/features/auth/services/auth.services";
-import type { RegisterDto } from "@/features/auth/interfaces/auth.interfaces";
+import {
+  changePassword,
+  forgotPassword,
+  register,
+  resetPassword,
+  updateProfile,
+} from "@/features/auth/services/auth.services";
+import type {
+  ChangePasswordDto,
+  ForgotPasswordDto,
+  RegisterDto,
+  ResetPasswordDto,
+  UpdateProfileDto,
+} from "@/features/auth/interfaces/auth.interfaces";
 
 export function useAuth() {
   const user = useAuthStore((s) => s.user);
@@ -18,5 +30,43 @@ export function useRegister() {
     onSuccess: () => toast.success("Account created"),
     onError: (error) =>
       toast.error(error instanceof Error ? error.message : "Could not create account"),
+  });
+}
+
+export function useForgotPassword() {
+  return useMutation({
+    mutationFn: (dto: ForgotPasswordDto) => forgotPassword(dto),
+    onSuccess: () =>
+      toast.success("If that email is registered, a reset link is on the way"),
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Could not send reset email"),
+  });
+}
+
+export function useResetPassword() {
+  return useMutation({
+    mutationFn: (dto: ResetPasswordDto) => resetPassword(dto),
+    onSuccess: () => toast.success("Password updated"),
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Could not reset password"),
+  });
+}
+
+export function useUpdateProfile() {
+  return useMutation({
+    mutationFn: (dto: UpdateProfileDto) => updateProfile(dto),
+    onSuccess: (user) => {
+      useAuthStore.setState({ user });
+    },
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Could not update profile"),
+  });
+}
+
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: (dto: ChangePasswordDto) => changePassword(dto),
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Could not change password"),
   });
 }

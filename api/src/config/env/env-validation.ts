@@ -25,6 +25,8 @@ const schema = z.object({
   APP_URL: z.string().url().default("http://localhost:5173"),
   CORS_ORIGINS: z.string().optional(),
   REDIS_URL: z.string().default("redis://localhost:6379"),
+  RESEND_API_KEY: z.string().optional().default(""),
+  RESEND_FROM_EMAIL: z.string().min(1).default("Forge <onboarding@resend.dev>"),
 });
 
 const parsed = schema.safeParse(process.env);

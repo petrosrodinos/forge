@@ -1,0 +1,4 @@
+export const AUTH_CONFIG = {
+  PASSWORD_RESET_TTL_MS: 60 * 60 * 1000,
+  PASSWORD_MIN_LENGTH: 8,
+};

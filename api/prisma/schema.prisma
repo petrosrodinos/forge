@@ -31,10 +31,11 @@ model User {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 
-  figures         Figure[]
-  refreshTokens   RefreshToken[]
-  tokenPurchases  TokenPurchase[]
-  tokenUsages     TokenUsage[]
+  figures              Figure[]
+  refreshTokens        RefreshToken[]
+  passwordResetTokens  PasswordResetToken[]
+  tokenPurchases       TokenPurchase[]
+  tokenUsages          TokenUsage[]
 }
 
 // ─── TokenPurchase (Stripe checkout) ───────────────────────────────────────────
@@ -83,6 +84,19 @@ model TokenUsage {
 model RefreshToken {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   token     String   @unique
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// ─── PasswordResetToken ───────────────────────────────────────────────────────
+
+model PasswordResetToken {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  tokenHash String   @unique
   userId    String   @db.ObjectId
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   expiresAt DateTime

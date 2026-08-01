@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
-import { Coins, Fingerprint, Mail, UserRound } from "lucide-react";
+import { Coins, Fingerprint, UserRound } from "lucide-react";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useAuth } from "@/features/auth/hooks/use-auth.hooks";
 import { AccountDetailRow } from "./components/AccountDetailRow";
+import { AccountUpdateForm } from "./components/AccountUpdateForm";
 
 function accountInitials(displayName: string | null | undefined, email: string | undefined): string {
   const n = displayName?.trim();
@@ -62,14 +63,13 @@ export default function SettingsAccountPage() {
             </section>
 
             <section>
+              <h2 className="text-sm font-semibold tracking-tight text-slate-100 mb-3">Profile</h2>
+              {user ? <AccountUpdateForm user={user} /> : null}
+            </section>
+
+            <section>
               <h2 className="text-sm font-semibold tracking-tight text-slate-100 mb-3">Details</h2>
               <div className="overflow-hidden rounded-2xl border border-border bg-panel/95 ring-1 ring-white/5 divide-y divide-border/80">
-                <AccountDetailRow icon={Mail} label="Email">
-                  <span className="font-medium break-all">{user?.email ?? "—"}</span>
-                </AccountDetailRow>
-                <AccountDetailRow icon={UserRound} label="Display name">
-                  <span className="font-medium">{user?.displayName?.trim() || "Not set"}</span>
-                </AccountDetailRow>
                 <AccountDetailRow icon={Fingerprint} label="User ID">
                   <code className="text-xs font-mono text-slate-400 break-all">{user?.id ?? "—"}</code>
                 </AccountDetailRow>

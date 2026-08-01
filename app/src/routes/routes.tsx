@@ -6,6 +6,8 @@ import { Shell } from "@/components/layouts/Shell";
 import { MarketingLayout } from "@/components/layouts/MarketingLayout";
 import LoginPage from "@/pages/login";
 import RegisterPage from "@/pages/register";
+import ForgotPasswordPage from "@/pages/forgot-password";
+import ResetPasswordPage from "@/pages/reset-password";
 import ForgePage from "@/pages/forge";
 import SettingsPage from "@/pages/settings";
 import SettingsAccountPage from "@/pages/settings/subpages/account";
@@ -82,6 +84,22 @@ export function AppRoutes() {
           element={
             <GuestOnly>
               <RegisterPage />
+            </GuestOnly>
+          }
+        />
+        <Route
+          path="forgot-password"
+          element={
+            <GuestOnly>
+              <ForgotPasswordPage />
+            </GuestOnly>
+          }
+        />
+        <Route
+          path="reset-password"
+          element={
+            <GuestOnly>
+              <ResetPasswordPage />
             </GuestOnly>
           }
         />

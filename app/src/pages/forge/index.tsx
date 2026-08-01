@@ -72,7 +72,11 @@ export default function ForgePage() {
   const deleteSkin = useDeleteSkin();
 
   useEffect(() => {
-    if (!figures || figures.length === 0) return;
+    if (!figures) return;
+    if (figures.length === 0) {
+      if (activeFigure) setActiveFigure(null);
+      return;
+    }
     const stillExists = activeFigure && figures.some((f) => f.id === activeFigure.id);
     if (!stillExists) {
       setActiveFigure(figures[0]);
