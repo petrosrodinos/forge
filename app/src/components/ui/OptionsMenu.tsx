@@ -199,6 +199,7 @@ export function OptionsMenu({
         ref={triggerRef}
         className={cn("relative inline-flex", align === "end" && "justify-end", className)}
         onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
         <Button
           type="button"
