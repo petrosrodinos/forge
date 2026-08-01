@@ -30,6 +30,9 @@ export async function register(email: string, password: string, displayName?: st
   }
   const passwordHash = await bcrypt.hash(password, 12);
   const user = await users.createUser({ email, passwordHash, displayName });
+  await prisma.project.create({
+    data: { userId: user.id, name: "Default Project" },
+  });
 
   return issueTokens(user);
 }

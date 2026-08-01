@@ -76,7 +76,13 @@ export async function getFigureById(userId: string, id: string) {
 }
 
 export async function createFigure(userId: string, input: CreateFigureInput) {
-  return createFigureRepo(userId, input);
+  const figure = await createFigureRepo(userId, input);
+  if (!figure && input.projectId) {
+    const err = new Error("Project not found") as Error & { status?: number };
+    err.status = 404;
+    throw err;
+  }
+  return figure;
 }
 
 export async function updateFigure(userId: string, id: string, input: UpdateFigureInput) {

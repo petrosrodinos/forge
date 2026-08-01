@@ -3,13 +3,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronRight, Download, Image as ImageIcon, Box, Loader2, X, Sparkles, Layers } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/utils/cn";
-import { useFigures } from "@/features/figures/hooks/use-figures.hooks";
+import { useProjectFigures } from "@/features/projects/hooks/use-projects.hooks";
 import { useDownloadZip } from "@/features/download/hooks/use-download.hooks";
 import type { DownloadFigureSelection, DownloadImageItem, DownloadModelItem, DownloadSkinSelection, DownloadVariantSelection, DownloadZipRequest } from "@/features/download/interfaces/download.interfaces";
 import type { Figure, Skin, SkinImage, SkinVariant } from "@/interfaces";
 
 interface DownloadModalProps {
   onClose: () => void;
+  projectId: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -176,8 +177,8 @@ function TreeRow({ depth, icon, label, sublabel, checked, indeterminate, onToggl
 // Main modal
 // ---------------------------------------------------------------------------
 
-export function DownloadModal({ onClose }: DownloadModalProps) {
-  const { data: figures = [], isLoading } = useFigures();
+export function DownloadModal({ onClose, projectId }: DownloadModalProps) {
+  const { data: figures = [], isLoading } = useProjectFigures(projectId);
   const { download, downloading, error } = useDownloadZip();
   const [selected, setSelected] = useState<Set<string>>(() => new Set());
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());

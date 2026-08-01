@@ -43,7 +43,7 @@ export function useCreateFigure() {
   const userId = useAuthStore((s) => s.user?.id);
   return useMutation({
     mutationFn: (dto: CreateFigureDto) => createFigure(dto),
-    onSuccess: (created) => {
+    onSuccess: (created, dto) => {
       toast.success("Figure created");
       qc.setQueryData<Figure[]>(["figures", userId], (old) => {
         if (!old) return [created];
@@ -52,6 +52,16 @@ export function useCreateFigure() {
         }
         return [created, ...old];
       });
+      if (dto.projectId) {
+        qc.setQueryData<Figure[]>(["figures", userId, dto.projectId], (old) => {
+          if (!old) return [created];
+          if (old.some((f) => f.id === created.id)) {
+            return old.map((f) => (f.id === created.id ? created : f));
+          }
+          return [created, ...old];
+        });
+        void qc.invalidateQueries({ queryKey: ["projects"] });
+      }
       void qc.invalidateQueries({ queryKey: ["figures"] });
     },
     onError: (error) =>
@@ -79,6 +89,7 @@ export function useDeleteFigure() {
     onSuccess: () => {
       toast.success("Figure deleted");
       void qc.invalidateQueries({ queryKey: ["figures"] });
+      void qc.invalidateQueries({ queryKey: ["projects"] });
     },
     onError: (error) =>
       toast.error(error instanceof Error ? error.message : "Could not delete figure"),

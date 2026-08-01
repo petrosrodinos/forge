@@ -1,7 +1,8 @@
 import { forwardRef, useImperativeHandle, useState } from "react";
 import { createPortal } from "react-dom";
 import { Download, ImageOff, Plus, Trash2, Pencil } from "lucide-react";
-import { useFigures, useCreateFigure, useUpdateFigure, useDeleteFigure } from "@/features/figures/hooks/use-figures.hooks";
+import { useCreateFigure, useUpdateFigure, useDeleteFigure } from "@/features/figures/hooks/use-figures.hooks";
+import { useProjectFigures } from "@/features/projects/hooks/use-projects.hooks";
 import { useForgeStore } from "@/store/forgeStore";
 import { cn } from "@/utils/cn";
 import { Button } from "@/components/ui/Button";
@@ -46,16 +47,17 @@ export type FigureListHandle = {
 };
 
 interface FigureListProps {
+  projectId: string;
   /** Desktop collapsed rail: only active thumb + new figure (mobile drawer ignores via parent) */
   collapsed?: boolean;
   onDownloadClick?: () => void;
 }
 
 export const FigureList = forwardRef<FigureListHandle, FigureListProps>(function FigureList(
-  { collapsed = false, onDownloadClick },
+  { projectId, collapsed = false, onDownloadClick },
   ref,
 ) {
-  const { data: figures, isLoading } = useFigures();
+  const { data: figures, isLoading } = useProjectFigures(projectId);
   const createFigure = useCreateFigure();
   const updateFigure = useUpdateFigure();
   const deleteFigure = useDeleteFigure();
@@ -92,7 +94,11 @@ export const FigureList = forwardRef<FigureListHandle, FigureListProps>(function
     e.preventDefault();
     if (!modal || !modal.name.trim()) return;
     if (modal.mode === "create") {
-      const created = await createFigure.mutateAsync({ name: modal.name.trim(), type: modal.type });
+      const created = await createFigure.mutateAsync({
+        name: modal.name.trim(),
+        type: modal.type,
+        projectId,
+      });
       handleSelect(created);
     } else if (modal.figure) {
       await updateFigure.mutateAsync({ id: modal.figure.id, dto: { name: modal.name.trim(), type: modal.type } });

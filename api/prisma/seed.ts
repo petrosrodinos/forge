@@ -71,6 +71,17 @@ async function main() {
   const figures = readFiguresJson();
   const user = await ensureSeedUser();
 
+  let defaultProject = await prisma.project.findFirst({
+    where: { userId: user.id, name: "Default Project" },
+  });
+  if (!defaultProject) {
+    defaultProject = await prisma.project.create({
+      data: { userId: user.id, name: "Default Project" },
+    });
+  }
+
+  const figureIds: string[] = [];
+
   for (const fig of figures) {
     const name = fig.name as string;
     const type = (fig.type as string) ?? "figure";
@@ -94,6 +105,7 @@ async function main() {
         data: { type, metadata },
       });
     }
+    figureIds.push(figure.id);
 
     let baseSkin = await prisma.skin.findFirst({
       where: { figureId: figure.id, isBase: true },
@@ -131,7 +143,16 @@ async function main() {
     }
   }
 
-  console.log("Seed complete (figures, skins, variants — prompts only).");
+  if (figureIds.length > 0) {
+    await prisma.project.update({
+      where: { id: defaultProject.id },
+      data: {
+        figures: { set: figureIds.map((id) => ({ id })) },
+      },
+    });
+  }
+
+  console.log("Seed complete (projects, figures, skins, variants — prompts only).");
 }
 
 main()

@@ -62,8 +62,24 @@ export async function getFigureById(userId: string, id: string) {
 }
 
 export async function createFigure(userId: string, input: CreateFigureInput) {
+  if (input.projectId) {
+    const project = await prisma.project.findFirst({
+      where: { id: input.projectId, userId },
+      select: { id: true },
+    });
+    if (!project) return null;
+  }
+
   return prisma.figure.create({
-    data: { userId, name: input.name, type: input.type, metadata: input.metadata as never },
+    data: {
+      userId,
+      name: input.name,
+      type: input.type,
+      metadata: input.metadata as never,
+      ...(input.projectId
+        ? { projects: { connect: [{ id: input.projectId }] } }
+        : {}),
+    },
     include: figureWithAllAssetsInclude,
   });
 }
@@ -90,6 +106,12 @@ export async function deleteFigure(userId: string, id: string) {
   if (isObjectIdLike(id)) {
     const existing = await prisma.figure.findFirst({ where: { id, userId } });
     if (!existing) return null;
+    if (existing.projectIds.length > 0) {
+      await prisma.figure.update({
+        where: { id },
+        data: { projects: { set: [] } },
+      });
+    }
     return prisma.figure.delete({ where: { id } });
   }
 
@@ -98,6 +120,12 @@ export async function deleteFigure(userId: string, id: string) {
     include: figureWithAllAssetsInclude,
   });
   if (!existing) return null;
+  if (existing.projectIds.length > 0) {
+    await prisma.figure.update({
+      where: { id: existing.id },
+      data: { projects: { set: [] } },
+    });
+  }
   await prisma.figure.delete({ where: { id: existing.id } });
   return existing;
 }

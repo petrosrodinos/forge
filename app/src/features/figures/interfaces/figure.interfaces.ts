@@ -1,6 +1,7 @@
 export interface CreateFigureDto {
   name: string;
   type: string;
+  projectId?: string;
 }
 
 export interface UpdateFigureDto {

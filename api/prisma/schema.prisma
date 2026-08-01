@@ -32,10 +32,25 @@ model User {
   updatedAt    DateTime       @updatedAt
 
   figures              Figure[]
+  projects             Project[]
   refreshTokens        RefreshToken[]
   passwordResetTokens  PasswordResetToken[]
   tokenPurchases       TokenPurchase[]
   tokenUsages          TokenUsage[]
+}
+
+model Project {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  figures   Figure[]  @relation(fields: [figureIds], references: [id])
+  figureIds String[] @db.ObjectId
+
+  @@index([userId])
 }
 
 // ─── TokenPurchase (Stripe checkout) ───────────────────────────────────────────
@@ -117,7 +132,9 @@ model Figure {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  skins     Skin[]
+  skins      Skin[]
+  projects   Project[] @relation(fields: [projectIds], references: [id])
+  projectIds String[]  @db.ObjectId
 
   @@index([name])
   @@index([userId])

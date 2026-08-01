@@ -21,7 +21,9 @@ router.get("/:id", async (req, res, next) => {
 router.post("/", async (req, res, next) => {
   try {
     if (!req.body.name) return res.status(400).json({ error: "name is required" });
-    res.status(201).json(await figuresSvc.createFigure(req.userId, req.body));
+    const figure = await figuresSvc.createFigure(req.userId, req.body);
+    if (!figure) return res.status(404).json({ error: "Project not found" });
+    res.status(201).json(figure);
   } catch (err) { next(err); }
 });
 

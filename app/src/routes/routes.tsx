@@ -9,6 +9,7 @@ import RegisterPage from "@/pages/register";
 import ForgotPasswordPage from "@/pages/forgot-password";
 import ResetPasswordPage from "@/pages/reset-password";
 import ForgePage from "@/pages/forge";
+import ProjectForgePage from "@/pages/forge/subpages/project";
 import SettingsPage from "@/pages/settings";
 import SettingsAccountPage from "@/pages/settings/subpages/account";
 import SettingsBillingPage from "@/pages/settings/subpages/billing";
@@ -113,6 +114,7 @@ export function AppRoutes() {
         }
       >
         <Route path="forge" element={<ForgePage />} />
+        <Route path="forge/:projectId" element={<ProjectForgePage />} />
         <Route path="billing" element={<Navigate to="/settings/billing" replace />} />
         <Route path="settings" element={<SettingsPage />}>
           <Route index element={<Navigate to="account" replace />} />

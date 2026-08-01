@@ -21,6 +21,7 @@ import adminRouter from "./modules/admin/admin.router";
 
 import authRouter from "./modules/auth/auth.router";
 import figuresRouter from "./modules/figures/figures.router";
+import projectsRouter from "./modules/projects/projects.router";
 import skinsRouter from "./modules/skins/skins.router";
 import variantsRouter from "./modules/skin-variants/skin-variants.router";
 import skinImagesRouter from "./modules/skin-images/skin-images.router";
@@ -91,6 +92,7 @@ app.use("/api", tripoRouter); // exposes: /api/mesh-from-image-url and related e
 app.use("/api", generateAndMeshRouter); // exposes: /api/generate-and-mesh
 
 // DB-backed routes (all require authentication)
+app.use("/api/projects", requireAuth, projectsRouter);
 app.use("/api/figures", requireAuth, figuresRouter);
 app.use("/api/figures/:figureId/skins", requireAuth, skinsRouter);
 app.use("/api/figures/:figureId/skins/:skinId/variants", requireAuth, variantsRouter);

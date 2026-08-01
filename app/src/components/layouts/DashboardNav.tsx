@@ -90,7 +90,8 @@ export function DashboardNav() {
   const { data: billingBalance } = useBalance({ enabled: !!user });
   const { figurePanelOpen, setFigurePanelOpen } = useForgeStore();
 
-  const isForge = location.pathname === "/forge";
+  const isForge = location.pathname === "/forge" || location.pathname.startsWith("/forge/");
+  const isProjectForge = /^\/forge\/[^/]+$/.test(location.pathname);
 
   if (!user) return null;
 
@@ -108,7 +109,7 @@ export function DashboardNav() {
 
   return (
     <header className="h-12 flex items-center gap-1.5 sm:gap-3 px-2 sm:px-4 border-b border-border bg-panel shrink-0 min-w-0">
-      {isForge && (
+      {isProjectForge && (
         <button type="button" onClick={() => setFigurePanelOpen(!figurePanelOpen)} className="md:hidden p-1.5 -ml-0.5 shrink-0 text-slate-400 hover:text-slate-200 transition-colors" aria-label="Toggle figures panel">
           <Menu size={16} />
         </button>

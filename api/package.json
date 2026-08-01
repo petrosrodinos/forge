@@ -19,6 +19,7 @@
     "db:push": "npx prisma db push",
     "db:seed": "npx prisma db seed",
     "db:generate": "npx prisma generate",
+    "db:backfill-projects": "ts-node src/scripts/backfillDefaultProjects.ts",
     "stripe:setup": "ts-node src/scripts/createStripeProducts.ts"
   },
   "dependencies": {

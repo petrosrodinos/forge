@@ -52,6 +52,7 @@ export const OPEN_API_DOCUMENT = {
     { name: "Balance" },
     { name: "Chat" },
     { name: "Figures" },
+    { name: "Projects" },
     { name: "Skins" },
     { name: "Variants" },
     { name: "SkinImages" },
@@ -93,8 +94,29 @@ export const OPEN_API_DOCUMENT = {
           name: { type: "string" },
           type: { type: "string", description: 'Domain type, e.g. "figure" or "obstacle"' },
           metadata: { type: "object", additionalProperties: true },
+          projectId: { type: "string", description: "Optional project to associate the figure with on create" },
         },
         required: ["name", "type"],
+      },
+      ProjectCreate: {
+        type: "object",
+        properties: {
+          name: { type: "string" },
+        },
+        required: ["name"],
+      },
+      ProjectUpdate: {
+        type: "object",
+        properties: {
+          name: { type: "string" },
+        },
+      },
+      ProjectAddFigure: {
+        type: "object",
+        properties: {
+          figureId: { type: "string" },
+        },
+        required: ["figureId"],
       },
       FigureUpdate: {
         type: "object",
@@ -934,6 +956,74 @@ export const OPEN_API_DOCUMENT = {
           "401": errorContent("Unauthorized"),
           "402": insufficientTokensContent(),
         },
+      },
+    },
+    "/api/projects": {
+      get: {
+        tags: ["Projects"],
+        summary: "List projects",
+        security: [{ cookieAuth: [] }],
+        responses: { "200": jsonContent({ type: "array", items: { type: "object", additionalProperties: true } }), "401": errorContent("Unauthorized") },
+      },
+      post: {
+        tags: ["Projects"],
+        summary: "Create project",
+        security: [{ cookieAuth: [] }],
+        requestBody: { required: true, content: { "application/json": { schema: { $ref: "#/components/schemas/ProjectCreate" } } } },
+        responses: { "201": jsonContent({ type: "object", additionalProperties: true }), "400": errorContent("Validation error"), "401": errorContent("Unauthorized") },
+      },
+    },
+    "/api/projects/{id}": {
+      get: {
+        tags: ["Projects"],
+        summary: "Get project",
+        security: [{ cookieAuth: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { "200": jsonContent({ type: "object", additionalProperties: true }), "404": errorContent("Not found"), "401": errorContent("Unauthorized") },
+      },
+      put: {
+        tags: ["Projects"],
+        summary: "Update project",
+        security: [{ cookieAuth: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        requestBody: { required: true, content: { "application/json": { schema: { $ref: "#/components/schemas/ProjectUpdate" } } } },
+        responses: { "200": jsonContent({ type: "object", additionalProperties: true }), "404": errorContent("Not found"), "401": errorContent("Unauthorized") },
+      },
+      delete: {
+        tags: ["Projects"],
+        summary: "Delete project",
+        security: [{ cookieAuth: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { "200": jsonContent({ type: "object", additionalProperties: true }), "404": errorContent("Not found"), "401": errorContent("Unauthorized") },
+      },
+    },
+    "/api/projects/{id}/figures": {
+      get: {
+        tags: ["Projects"],
+        summary: "List figures in a project",
+        security: [{ cookieAuth: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: { "200": jsonContent({ type: "array", items: { type: "object", additionalProperties: true } }), "404": errorContent("Not found"), "401": errorContent("Unauthorized") },
+      },
+      post: {
+        tags: ["Projects"],
+        summary: "Add a figure to a project",
+        security: [{ cookieAuth: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        requestBody: { required: true, content: { "application/json": { schema: { $ref: "#/components/schemas/ProjectAddFigure" } } } },
+        responses: { "200": jsonContent({ type: "object", additionalProperties: true }), "404": errorContent("Not found"), "401": errorContent("Unauthorized") },
+      },
+    },
+    "/api/projects/{id}/figures/{figureId}": {
+      delete: {
+        tags: ["Projects"],
+        summary: "Remove a figure from a project",
+        security: [{ cookieAuth: [] }],
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+          { name: "figureId", in: "path", required: true, schema: { type: "string" } },
+        ],
+        responses: { "200": jsonContent({ type: "object", additionalProperties: true }), "404": errorContent("Not found"), "401": errorContent("Unauthorized") },
       },
     },
     "/api/figures": {
