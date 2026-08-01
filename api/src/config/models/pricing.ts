@@ -1,5 +1,5 @@
 export const TOKENS_PER_EUR = 100;
-export const MARKUP_FACTOR = 1.15;
+export const MARKUP_FACTOR = 1.20;
 
 /**
  * FX: how many EUR one USD is worth (used to turn provider USD list prices into EUR).

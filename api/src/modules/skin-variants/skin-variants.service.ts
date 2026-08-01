@@ -18,8 +18,9 @@ import {
   debitForImageModel,
   getDebitTokensForImageModel,
 } from "../tokens/tokens.service";
-import { canonicalImageModelId, ImageModels } from "../../config/models/image-models";
+import { canonicalImageModelId, ImageModels, aimlImageUsesEditsEndpoint } from "../../config/models/image-models";
 import { buildAimlImageGenerationsBody } from "../../integrations/aimlapi/buildImageGenerationsBody";
+import { resolveImageSourceBuffer } from "../../integrations/aimlapi/resolveImageSourceBuffer";
 import { buildSketchTo3dPrompts } from "../../config/ai-prompts/figures/sketchToImage.prompts";
 import { Jimp } from "jimp";
 
@@ -181,14 +182,17 @@ export async function generateImageForVariant(
 
   await assertUserHasTokenBalance(userId, getDebitTokensForImageModel(model));
 
-  const aimlBody = processedSourceImageDataUrl
+  const useEdits = Boolean(processedSourceImageDataUrl) && aimlImageUsesEditsEndpoint(model);
+  const aimlBody = !useEdits && processedSourceImageDataUrl
     ? buildAimlImageGenerationsBody({
         internalModelId: model,
         prompt,
         negativePrompt: neg,
         sourceImageDataUrl: processedSourceImageDataUrl,
       })
-    : { model, prompt: finalPrompt };
+    : !useEdits
+      ? { model, prompt: finalPrompt }
+      : null;
 
   let generated: Awaited<ReturnType<ReturnType<typeof getAiml>["generateImage"]>>["data"] | null = null;
   let costsMetadata: Awaited<ReturnType<ReturnType<typeof getAiml>["generateImage"]>>["costsMetadata"] | null = null;
@@ -196,7 +200,19 @@ export async function generateImageForVariant(
 
   for (let attempt = 1; attempt <= AIML_IMAGE_GENERATION_MAX_ATTEMPTS; attempt += 1) {
     try {
-      const result = await getAiml().generateImage(aimlBody);
+      const result = useEdits
+        ? await (async () => {
+            const src = await resolveImageSourceBuffer(processedSourceImageDataUrl!);
+            const merged = neg ? `${prompt}\n\nNegative prompt: ${neg}` : prompt;
+            return getAiml().editImage({
+              model,
+              prompt: merged,
+              image: src.buffer,
+              filename: src.filename,
+              contentType: src.contentType,
+            });
+          })()
+        : await getAiml().generateImage(aimlBody!);
       generated = result.data;
       costsMetadata = result.costsMetadata;
       lastErr = null;

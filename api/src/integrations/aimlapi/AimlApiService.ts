@@ -2,7 +2,7 @@ import { AxiosInstance } from "axios";
 import FormData from "form-data";
 import { Readable } from "stream";
 import type { AxiosResponse } from "axios";
-import { canonicalImageModelId } from "../../config/models/image-models";
+import { resolveAimlImageModelId } from "../../config/models/image-models";
 import { createAimlHttpClient } from "./client";
 import { requireEnv } from "../../config/env";
 import { buildAimlImageGenerationCostsMetadata } from "../../lib/provider-costs-metadata";
@@ -80,11 +80,40 @@ export class AimlApiService {
     const payload: Record<string, unknown> =
       body && typeof body === "object" ? { ...(body as Record<string, unknown>) } : (body as Record<string, unknown>);
     if (typeof payload.model === "string") {
-      payload.model = canonicalImageModelId(payload.model);
+      payload.model = resolveAimlImageModelId(payload.model);
     }
     const res: AxiosResponse<ImageGenerationResponse> = await this.http.post(
       "/v1/images/generations",
       payload,
+    );
+    return { data: res.data, costsMetadata: buildAimlImageGenerationCostsMetadata(res) };
+  }
+
+  async editImage(input: {
+    model: string;
+    prompt: string;
+    image: Buffer;
+    filename?: string;
+    contentType?: string;
+    size?: string;
+    quality?: string;
+    response_format?: "url" | "b64_json";
+  }): Promise<{ data: ImageGenerationResponse; costsMetadata: Prisma.InputJsonValue }> {
+    const form = new FormData();
+    form.append("model", resolveAimlImageModelId(input.model));
+    form.append("prompt", input.prompt);
+    form.append("image", input.image, {
+      filename: input.filename ?? "image.png",
+      contentType: input.contentType ?? "image/png",
+    });
+    if (input.size) form.append("size", input.size);
+    if (input.quality) form.append("quality", input.quality);
+    if (input.response_format) form.append("response_format", input.response_format);
+
+    const res: AxiosResponse<ImageGenerationResponse> = await this.http.post(
+      "/v1/images/edits",
+      form,
+      { headers: form.getHeaders() },
     );
     return { data: res.data, costsMetadata: buildAimlImageGenerationCostsMetadata(res) };
   }

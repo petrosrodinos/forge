@@ -18,6 +18,8 @@ export type ImageModelDefinition = {
     aiml_api?: {
         modelId?: string;
         i2i?: {
+            /** Default `generations`. OpenAI GPT Image edits use multipart `/v1/images/edits`. */
+            endpoint?: "generations" | "edits";
             sourceKey: AimlI2iSourceKey;
             negativeStyle: "inline" | "negative_prompt_field";
             mergedPromptMax?: number;
@@ -65,12 +67,59 @@ const imageModels: ImageModelDefinition[] = [
         id: "nano-banana-2",
         name: "Google / Gemini 3.1 Flash Image (Nano Banana 2)",
         provider: "Google",
-        tokens_original: usdToTokens(0.325, false),
-        price_original: 0.325 * DOLLARS_TO_EUR_RATE,
+        tokens_original: usdToTokens(0.09, false),
+        price_original: 0.09 * DOLLARS_TO_EUR_RATE,
         tokens: null,
         price: null,
         is_image_to_image: false,
-        available: false
+        available: true,
+        aiml_api: {
+            modelId: "google/gemini-3.1-flash-image-preview",
+        },
+    },
+    {
+        id: "nano-banana-2-edit",
+        name: "Google / Gemini 3.1 Flash Image Edit (Nano Banana 2)",
+        provider: "Google",
+        tokens_original: usdToTokens(0.09, false),
+        price_original: 0.09 * DOLLARS_TO_EUR_RATE,
+        tokens: null,
+        price: null,
+        is_image_to_image: true,
+        available: true,
+        aiml_api: {
+            modelId: "google/gemini-3.1-flash-image-preview",
+            i2i: { sourceKey: "image_urls", negativeStyle: "inline", mergedPromptMax: 4000 },
+        },
+    },
+    {
+        id: "nano-banana-2-lite",
+        name: "Google / Gemini 3.1 Flash Lite Image (Nano Banana 2 Lite)",
+        provider: "Google",
+        tokens_original: usdToTokens(0.034, false),
+        price_original: 0.034 * DOLLARS_TO_EUR_RATE,
+        tokens: null,
+        price: null,
+        is_image_to_image: false,
+        available: true,
+        aiml_api: {
+            modelId: "google/gemini-3.1-flash-lite-image",
+        },
+    },
+    {
+        id: "nano-banana-2-lite-edit",
+        name: "Google / Gemini 3.1 Flash Lite Image Edit (Nano Banana 2 Lite)",
+        provider: "Google",
+        tokens_original: usdToTokens(0.034, false),
+        price_original: 0.034 * DOLLARS_TO_EUR_RATE,
+        tokens: null,
+        price: null,
+        is_image_to_image: true,
+        available: true,
+        aiml_api: {
+            modelId: "google/gemini-3.1-flash-lite-image",
+            i2i: { sourceKey: "image_urls", negativeStyle: "inline", mergedPromptMax: 4000 },
+        },
     },
     {
         id: "wan-2-6",
@@ -110,15 +159,72 @@ const imageModels: ImageModelDefinition[] = [
         available: true,
     },
     {
-        id: "gpt-image-1-5",
-        name: "OpenAI / GPT Image 1.5",
+        id: "gpt-image-2",
+        name: "OpenAI / GPT Image 2",
         provider: "OpenAI",
-        tokens_original: usdToTokens(6.5, false),
-        price_original: 6.5 * DOLLARS_TO_EUR_RATE,
+        tokens_original: usdToTokens(0.054, false),
+        price_original: 0.054 * DOLLARS_TO_EUR_RATE,
         tokens: null,
         price: null,
         is_image_to_image: false,
-        available: false
+        available: true,
+        aiml_api: {
+            modelId: "openai/gpt-image-2",
+        },
+    },
+    {
+        id: "gpt-image-2-edit",
+        name: "OpenAI / GPT Image 2 Edit",
+        provider: "OpenAI",
+        tokens_original: usdToTokens(0.095, false),
+        price_original: 0.095 * DOLLARS_TO_EUR_RATE,
+        tokens: null,
+        price: null,
+        is_image_to_image: true,
+        available: true,
+        aiml_api: {
+            modelId: "openai/gpt-image-2",
+            i2i: {
+                endpoint: "edits",
+                sourceKey: "image",
+                negativeStyle: "inline",
+                mergedPromptMax: 32000,
+            },
+        },
+    },
+    {
+        id: "gpt-image-1-5",
+        name: "OpenAI / GPT Image 1.5",
+        provider: "OpenAI",
+        tokens_original: usdToTokens(0.08, false),
+        price_original: 0.08 * DOLLARS_TO_EUR_RATE,
+        tokens: null,
+        price: null,
+        is_image_to_image: false,
+        available: true,
+        aiml_api: {
+            modelId: "openai/gpt-image-1-5",
+        },
+    },
+    {
+        id: "gpt-image-1-5-edit",
+        name: "OpenAI / GPT Image 1.5 Edit",
+        provider: "OpenAI",
+        tokens_original: usdToTokens(0.08, false),
+        price_original: 0.08 * DOLLARS_TO_EUR_RATE,
+        tokens: null,
+        price: null,
+        is_image_to_image: true,
+        available: true,
+        aiml_api: {
+            modelId: "openai/gpt-image-1-5",
+            i2i: {
+                endpoint: "edits",
+                sourceKey: "image",
+                negativeStyle: "inline",
+                mergedPromptMax: 32000,
+            },
+        },
     },
     {
         id: "seedream-4-5",
@@ -206,18 +312,39 @@ const imageModels: ImageModelDefinition[] = [
         tokens: null,
         price: null,
         is_image_to_image: false,
-        available: false
+        available: true,
+        aiml_api: {
+            modelId: "google/gemini-3-pro-image-preview",
+        },
+    },
+    {
+        id: "nano-banana-pro-edit",
+        name: "Google / Gemini 3 Pro Image Edit (Nano Banana Pro)",
+        provider: "Google",
+        tokens_original: usdToTokens(0.195, false),
+        price_original: 0.195 * DOLLARS_TO_EUR_RATE,
+        tokens: null,
+        price: null,
+        is_image_to_image: true,
+        available: true,
+        aiml_api: {
+            modelId: "google/nano-banana-pro-edit",
+            i2i: { sourceKey: "image_urls", negativeStyle: "inline", mergedPromptMax: 4000 },
+        },
     },
     {
         id: "gpt-image-1-mini",
         name: "OpenAI / GPT Image 1 Mini",
         provider: "OpenAI",
-        tokens_original: usdToTokens(0.007, false),
-        price_original: 0.007 * DOLLARS_TO_EUR_RATE,
+        tokens_original: usdToTokens(0.676, false),
+        price_original: 0.676 * DOLLARS_TO_EUR_RATE,
         tokens: null,
         price: null,
         is_image_to_image: false,
-        available: false
+        available: true,
+        aiml_api: {
+            modelId: "openai/gpt-image-1-mini",
+        },
     },
     {
         id: "hunyuan-part",
@@ -370,7 +497,10 @@ const imageModels: ImageModelDefinition[] = [
         tokens: null,
         price: null,
         is_image_to_image: false,
-        available: false
+        available: true,
+        aiml_api: {
+            modelId: "google/imagen-4.0-fast-generate-001",
+        },
     },
     {
         id: "imagen-4-0-generate-001",
@@ -381,7 +511,10 @@ const imageModels: ImageModelDefinition[] = [
         tokens: null,
         price: null,
         is_image_to_image: false,
-        available: true
+        available: true,
+        aiml_api: {
+            modelId: "google/imagen4/preview",
+        },
     },
     {
         id: "uso",
@@ -429,7 +562,25 @@ const imageModels: ImageModelDefinition[] = [
         tokens: null,
         price: null,
         is_image_to_image: false,
-        available: false
+        available: true,
+        aiml_api: {
+            modelId: "google/gemini-2.5-flash-image",
+        },
+    },
+    {
+        id: "gemini-2-5-flash-image-edit",
+        name: "Google / Gemini 2.5 Flash Image Edit (Nano Banana)",
+        provider: "Google",
+        price_original: 0.051 * DOLLARS_TO_EUR_RATE,
+        tokens_original: usdToTokens(0.051, false),
+        tokens: null,
+        price: null,
+        is_image_to_image: true,
+        available: true,
+        aiml_api: {
+            modelId: "google/gemini-2.5-flash-image-edit",
+            i2i: { sourceKey: "image_urls", negativeStyle: "inline", mergedPromptMax: 4000 },
+        },
     },
     {
         id: "qwen-image",
@@ -468,12 +619,35 @@ const imageModels: ImageModelDefinition[] = [
         id: "gpt-image-1",
         name: "OpenAI / GPT Image 1 Model",
         provider: "OpenAI",
-        price_original: 0.012 * DOLLARS_TO_EUR_RATE,
-        tokens_original: usdToTokens(0.012, false),
+        price_original: 0.175 * DOLLARS_TO_EUR_RATE,
+        tokens_original: usdToTokens(0.175, false),
         tokens: null,
         price: null,
         is_image_to_image: false,
-        available: true
+        available: true,
+        aiml_api: {
+            modelId: "openai/gpt-image-1",
+        },
+    },
+    {
+        id: "gpt-image-1-edit",
+        name: "OpenAI / GPT Image 1 Edit",
+        provider: "OpenAI",
+        price_original: 0.175 * DOLLARS_TO_EUR_RATE,
+        tokens_original: usdToTokens(0.175, false),
+        tokens: null,
+        price: null,
+        is_image_to_image: true,
+        available: true,
+        aiml_api: {
+            modelId: "openai/gpt-image-1",
+            i2i: {
+                endpoint: "edits",
+                sourceKey: "image",
+                negativeStyle: "inline",
+                mergedPromptMax: 32000,
+            },
+        },
     },
     {
         id: "flux-1-kontext-pro",
@@ -506,18 +680,24 @@ const imageModels: ImageModelDefinition[] = [
         tokens: null,
         price: null,
         is_image_to_image: false,
-        available: false
+        available: false,
+        aiml_api: {
+            modelId: "google/imagen4/preview",
+        },
     },
     {
         id: "imagen-3-api",
         name: "Google / Imagen 3",
         provider: "Google",
-        price_original: 0.039 * DOLLARS_TO_EUR_RATE,
-        tokens_original: usdToTokens(0.039, false),
+        price_original: 0.052 * DOLLARS_TO_EUR_RATE,
+        tokens_original: usdToTokens(0.052, false),
         tokens: null,
         price: null,
         is_image_to_image: false,
-        available: false
+        available: true,
+        aiml_api: {
+            modelId: "google/imagen-3.0-generate-002",
+        },
     },
     {
         id: "flux-pro/v1.1-ultra",
@@ -660,9 +840,42 @@ const LEGACY_IMAGE_MODEL_IDS: Record<string, string> = {
     "flux-1-pro-api": "flux-pro",
     "flux-1-1-pro-api": "flux-pro/v1.1",
     "flux-1-1-pro-ultra-api": "flux-pro/v1.1-ultra",
+    "openai/gpt-image-2": "gpt-image-2",
+    "openai/gpt-image-1": "gpt-image-1",
+    "openai/gpt-image-1-5": "gpt-image-1-5",
+    "openai/gpt-image-1-mini": "gpt-image-1-mini",
+    "google/nano-banana-2": "nano-banana-2",
+    "google/gemini-3-1-flash-image-preview": "nano-banana-2",
+    "google/gemini-3.1-flash-image-preview": "nano-banana-2",
+    "google/gemini-3.1-flash-image": "nano-banana-2",
+    "google/gemini-3-1-flash-lite-image": "nano-banana-2-lite",
+    "google/gemini-3.1-flash-lite-image": "nano-banana-2-lite",
+    "google/nano-banana-pro": "gemini-3-pro-image",
+    "google/gemini-3-pro-image-preview": "gemini-3-pro-image",
+    "google/nano-banana-pro-edit": "nano-banana-pro-edit",
+    "google/gemini-3-pro-image-preview-edit": "nano-banana-pro-edit",
+    "gemini-3-pro-image-preview/edit": "nano-banana-pro-edit",
+    "gemini-2.5-flash-image/edit": "gemini-2-5-flash-image-edit",
+    "google/gemini-2.5-flash-image-edit": "gemini-2-5-flash-image-edit",
+    "google/gemini-2.5-flash-image": "gemini-2-5-flash-image",
+    "google/imagen4/preview": "imagen-4-0-generate-001",
+    "google/imagen-4.0-fast-generate-001": "imagen-4-0-fast-generate-001",
+    "google/imagen-3.0-generate-002": "imagen-3-api",
 };
 
 export function canonicalImageModelId(modelId: string): string {
     const t = modelId.trim();
     return LEGACY_IMAGE_MODEL_IDS[t] ?? t;
+}
+
+/** AIML `/v1/images/generations` model string (`aiml_api.modelId` when set). */
+export function resolveAimlImageModelId(modelId: string): string {
+    const id = canonicalImageModelId(modelId);
+    const cfg = ImageModels.find((m) => m.id === id);
+    return cfg?.aiml_api?.modelId ?? id;
+}
+
+export function aimlImageUsesEditsEndpoint(modelId: string): boolean {
+    const id = canonicalImageModelId(modelId);
+    return ImageModels.find((m) => m.id === id)?.aiml_api?.i2i?.endpoint === "edits";
 }

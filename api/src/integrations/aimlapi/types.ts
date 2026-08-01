@@ -158,9 +158,15 @@ export interface ImageGenerationRequest {
   size?: string;
   n?: number;
   steps?: number;
+  quality?: "low" | "medium" | "high" | "auto" | "standard";
+  output_format?: "png" | "jpeg" | "webp";
+  background?: "transparent" | "opaque" | "auto";
+  aspect_ratio?: string;
+  resolution?: "1K" | "2K" | "4K";
   response_format?: "url" | "b64_json";
   /** Reference image for image-to-image models (URL or data URI). See AIML model docs. */
   image_url?: string;
+  image_urls?: string[];
   strength?: number;
 }
 
