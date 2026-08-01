@@ -18,8 +18,23 @@ export type PricingOperationDto = {
 
 export type PricingTrippoModelDto = {
   id: string;
+  category?: string;
+  label?: string;
+  unit?: string;
+  series?: string | null;
+  available?: boolean;
+  tokensOriginal?: number;
   tokens: number;
   priceEur: number;
+};
+
+export type PricingCatalogDto = {
+  rates: PricingRatesDto;
+  packs: PricingPackDto[];
+  operations: PricingOperationDto[];
+  trippoPricing?: unknown;
+  trippoModels: PricingTrippoModelDto[];
+  imageModels: PricingImageModelDto[];
 };
 
 export type PricingImageModelDto = {
@@ -30,12 +45,4 @@ export type PricingImageModelDto = {
   priceEur: number;
   available: boolean;
   imageToImage: boolean;
-};
-
-export type PricingCatalogDto = {
-  rates: PricingRatesDto;
-  packs: PricingPackDto[];
-  operations: PricingOperationDto[];
-  trippoModels: PricingTrippoModelDto[];
-  imageModels: PricingImageModelDto[];
 };

@@ -8,14 +8,52 @@ import { TokenPacksGrid } from "@/features/billing/components/TokenPacksGrid";
 import { BILLING_PACK_QUERY_PARAM } from "@/features/billing/constants";
 import { useCheckout, usePacks } from "@/features/billing/hooks/use-billing.hooks";
 import { usePricingCatalog } from "@/features/pricing/hooks/use-pricing.hooks";
-import type { PricingImageModelDto } from "@/features/pricing/interfaces/pricing.interfaces";
+import type { PricingImageModelDto, PricingTrippoModelDto } from "@/features/pricing/interfaces/pricing.interfaces";
 import { LANDING_PACKS_SIGNUP_BONUS, LANDING_PACKS_SUBTITLE, LANDING_PACKS_TITLE } from "@/pages/landing/constants";
 import { cn } from "@/utils/cn";
 
 const usd = (amount: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "EUR", maximumFractionDigits: 3 }).format(amount);
 
-function humanizeTrippoId(id: string) {
-  return id.replace(/_/g, " ");
+const TRIPPO_ALIAS_IDS = new Set(["image_to_model", "multiview_to_model", "text_to_model"]);
+
+const TRIPPO_CATEGORY_ORDER = [
+  "generation",
+  "generation_addon",
+  "processing",
+  "animation",
+  "image_generation",
+] as const;
+
+const TRIPPO_CATEGORY_LABELS: Record<string, string> = {
+  generation: "3D generation",
+  generation_addon: "Generation add-ons (H series)",
+  processing: "Model processing",
+  animation: "Animation",
+  image_generation: "Tripo image generation",
+};
+
+function trippoDisplayLabel(m: PricingTrippoModelDto) {
+  return m.label ?? m.id.replace(/_/g, " ");
+}
+
+function groupTrippoModels(models: PricingTrippoModelDto[]) {
+  const filtered = models.filter((m) => !TRIPPO_ALIAS_IDS.has(m.id));
+  const map = new Map<string, PricingTrippoModelDto[]>();
+  for (const m of filtered) {
+    const key = m.category ?? "other";
+    const list = map.get(key) ?? [];
+    list.push(m);
+    map.set(key, list);
+  }
+  const keys = [
+    ...TRIPPO_CATEGORY_ORDER.filter((k) => map.has(k)),
+    ...[...map.keys()].filter((k) => !(TRIPPO_CATEGORY_ORDER as readonly string[]).includes(k)).sort(),
+  ];
+  return keys.map((category) => ({
+    category,
+    label: TRIPPO_CATEGORY_LABELS[category] ?? category,
+    models: map.get(category) ?? [],
+  }));
 }
 
 function groupModelsByProvider(models: PricingImageModelDto[]) {
@@ -125,6 +163,7 @@ export default function PricingPage() {
   }
 
   const { trippoModels } = data;
+  const trippoGroups = groupTrippoModels(trippoModels);
 
   return (
     <div className="relative flex min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden bg-surface">
@@ -164,30 +203,43 @@ export default function PricingPage() {
           </div>
         </section>
 
-        <section className="space-y-4">
-          <h2 className="text-xl font-semibold text-slate-100">3D asset studio actions</h2>
-          <div className="rounded-xl border border-border overflow-hidden -mx-1 min-w-0 sm:mx-0">
-            <div className="overflow-x-auto overscroll-x-contain touch-pan-x">
-              <table className="w-full min-w-max text-sm">
-                <thead>
-                  <tr className="bg-surface/80 text-left text-xs uppercase tracking-wider text-slate-500">
-                    <th className="px-3 py-3 font-medium sm:px-4 min-w-36">Step</th>
-                    <th className="px-3 py-3 font-medium text-right whitespace-nowrap sm:px-4">Tokens</th>
-                    <th className="px-3 py-3 font-medium text-right whitespace-nowrap sm:px-4 hidden sm:table-cell">~EUR</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {trippoModels.map((m) => (
-                    <tr key={m.id} className="bg-panel/40 hover:bg-panel/70 transition-colors">
-                      <td className="px-3 py-3 text-slate-200 capitalize break-words sm:px-4 max-w-xs sm:max-w-md">{humanizeTrippoId(m.id)}</td>
-                      <td className="px-3 py-3 text-right font-mono tabular-nums text-accent-light whitespace-nowrap sm:px-4">{m.tokens}</td>
-                      <td className="px-3 py-3 text-right font-mono tabular-nums text-slate-500 text-xs whitespace-nowrap sm:px-4 hidden sm:table-cell">{usd(m.priceEur)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+        <section className="space-y-8">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-100">Tripo 3D rates</h2>
+            <p className="text-xs text-slate-500 mt-1">Provider credit costs with wallet markup applied. Live studio steps currently use H-series standard texture mesh, rig check, auto rig, and retarget.</p>
           </div>
+          {trippoGroups.map((group) => (
+            <div key={group.category} className="space-y-3">
+              <h3 className="text-sm font-medium uppercase tracking-wider text-slate-500">{group.label}</h3>
+              <div className="rounded-xl border border-border overflow-hidden -mx-1 min-w-0 sm:mx-0">
+                <div className="overflow-x-auto overscroll-x-contain touch-pan-x">
+                  <table className="w-full min-w-max text-sm">
+                    <thead>
+                      <tr className="bg-surface/80 text-left text-xs uppercase tracking-wider text-slate-500">
+                        <th className="px-3 py-3 font-medium sm:px-4 min-w-36">Option</th>
+                        <th className="px-3 py-3 font-medium text-right whitespace-nowrap sm:px-4">Tokens</th>
+                        <th className="px-3 py-3 font-medium text-right whitespace-nowrap sm:px-4 hidden sm:table-cell">~EUR</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {group.models.map((m) => (
+                        <tr key={m.id} className="bg-panel/40 hover:bg-panel/70 transition-colors">
+                          <td className="px-3 py-3 text-slate-200 break-words sm:px-4 max-w-xs sm:max-w-md">
+                            <span>{trippoDisplayLabel(m)}</span>
+                            {m.unit && m.unit !== "task" ? (
+                              <span className="ml-2 text-[0.65rem] uppercase tracking-wider text-slate-500">/{m.unit.replace(/_/g, " ")}</span>
+                            ) : null}
+                          </td>
+                          <td className="px-3 py-3 text-right font-mono tabular-nums text-accent-light whitespace-nowrap sm:px-4">{m.tokens}</td>
+                          <td className="px-3 py-3 text-right font-mono tabular-nums text-slate-500 text-xs whitespace-nowrap sm:px-4 hidden sm:table-cell">{usd(m.priceEur)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          ))}
         </section>
 
         <section className="space-y-4">

@@ -6,7 +6,7 @@ import {
   TOKEN_OPERATIONS,
   type TokenOperation,
 } from "../../config/models/token-operations";
-import { TrippoModels } from "../../config/models/trippo-models";
+import { TRIPPO_PRICING_CATALOG, TrippoModels } from "../../config/models/trippo-models";
 import { ImageModels } from "../../config/models/image-models";
 import { roundEur } from "../../lib/models-cost";
 
@@ -29,8 +29,15 @@ export function getPricingCatalog() {
       label: OPERATION_LABELS[id],
       tokens: getTokenOperationDebit(id),
     })),
+    trippoPricing: TRIPPO_PRICING_CATALOG,
     trippoModels: TrippoModels.map((m) => ({
       id: m.id,
+      category: m.category,
+      label: m.label,
+      unit: m.unit,
+      series: m.series ?? null,
+      available: m.available,
+      tokensOriginal: m.tokens_original,
       tokens: Math.ceil(Number(m.tokens)),
       priceEur: roundEur(Number(m.price)),
     })),
