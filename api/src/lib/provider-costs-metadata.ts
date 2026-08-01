@@ -18,7 +18,8 @@ function pickRelevantResponseHeaders(headers: AxiosResponse["headers"]): Record<
       lk.includes("cost") ||
       lk.includes("billing") ||
       lk === "cf-ray" ||
-      lk.startsWith("x-aiml")
+      lk.startsWith("x-aiml") ||
+      lk.startsWith("x-tripo")
     ) {
       out[rawKey] = str;
     }

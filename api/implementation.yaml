@@ -4,9 +4,9 @@ info:
   description: use tripo to generate 3d models
   version: 1.0.0
 servers:
-  - url: https://api.tripo3d.ai/v2/openapi
+  - url: https://openapi.tripo3d.ai/v3
 paths:
-  /task/{task_id}:
+  /tasks/{task_id}:
     get:
       summary: use the task_id created by createTask to get the status of a task
       operationId: getTask
@@ -29,7 +29,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /upload:
+  /files:
     post:
       summary: upload a file
       operationId: uploadFile
@@ -60,9 +60,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /upload/sts/token:
+  /files/upload-credentials:
     post:
-      summary: get a sts token
+      summary: get upload credentials
       operationId: getStsToken
       requestBody:
         content:
@@ -102,9 +102,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /task:
+  /generation/image-to-model:
     post:
-      summary: create a task
+      summary: create an image-to-model task (V3 per-capability create; other types use matching /generation|/models|/animations|/mesh paths)
       operationId: createTask
       requestBody:
         content:
@@ -138,9 +138,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /user/balance:
+  /account/balance:
     get:
-      summary: get user balance
+      summary: get account balance
       operationId: getBalance
       responses:
         "200":
@@ -749,43 +749,35 @@ components:
             - success
             - failed
             - cancelled
-            - unknown
-            - banned
-            - expired
         input:
           type: object
         output:
           type: object
           properties:
-            model:
+            model_url:
               type: string
-            base_model:
+            rendered_image_url:
               type: string
-            pbr_model:
-              type: string
-            rendered_image:
+            generated_image_url:
               type: string
             riggable:
               type: boolean
-            topology:
+            rig_type:
               type: string
-              enum:
-                - bip
-                - quad
         progress:
           type: integer
           minimum: 0
           maximum: 100
         error_code:
           type: integer
-        error_msg:
+        error_message:
           type: string
-        create_time:
-          type: integer
-        running_left_time:
-          type: integer
-        queuing_num:
-          type: integer
+        created_at:
+          type: string
+        completed_at:
+          type: string
+        credits_consumed:
+          type: number
       required:
         - task_id
         - type
@@ -793,7 +785,7 @@ components:
         - input
         - output
         - progress
-        - create_time
+        - created_at
 
     SuccessTask:
       type: object

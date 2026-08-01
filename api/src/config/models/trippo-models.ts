@@ -12,8 +12,7 @@ const trippoModelRows: TrippoModelRow[] = [
   { id: "animate_retarget", tokens_original: 10 },
   { id: "animate_rig", tokens_original: 25 },
   { id: "image_to_model", tokens_original: 30 },
-  /** Multiview mesh; align `tokens_original` with Tripo dashboard if it differs. */
-  { id: "multiview_to_model", tokens_original: 50 },
+  { id: "multiview_to_model", tokens_original: 30 },
 ];
 
 export const TrippoModels = trippoModelRows.map((m) => {

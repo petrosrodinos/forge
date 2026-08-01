@@ -35,8 +35,8 @@ async function processMeshFromImage(job: Job<MeshFromImageJobData>): Promise<obj
     timeoutMs: TRIPO_JOB_CONFIG.MESH_POLL_TIMEOUT_MS,
   });
 
-  const pbrModelSourceUrl = task.output?.pbr_model ?? task.output?.model ?? task.output?.base_model;
-  const modelSourceUrl = task.output?.model ?? pbrModelSourceUrl;
+  const pbrModelSourceUrl = task.output?.model_url;
+  const modelSourceUrl = pbrModelSourceUrl;
   if (!pbrModelSourceUrl || !modelSourceUrl) throw new Error("Tripo returned no model URL");
 
   await finalizeModel3D(model3dId, "image_to_model", { pbrModelSourceUrl, modelSourceUrl });
@@ -89,8 +89,8 @@ async function processMeshFromImages(job: Job<MeshFromImagesJobData>): Promise<o
     timeoutMs: TRIPO_JOB_CONFIG.MESH_POLL_TIMEOUT_MS,
   });
 
-  const pbrModelSourceUrl = task.output?.pbr_model ?? task.output?.model ?? task.output?.base_model;
-  const modelSourceUrl = task.output?.model ?? pbrModelSourceUrl;
+  const pbrModelSourceUrl = task.output?.model_url;
+  const modelSourceUrl = pbrModelSourceUrl;
   if (!pbrModelSourceUrl || !modelSourceUrl) throw new Error("Tripo returned no model URL");
 
   await finalizeModel3D(model3dId, "multiview_to_model", { pbrModelSourceUrl, modelSourceUrl });

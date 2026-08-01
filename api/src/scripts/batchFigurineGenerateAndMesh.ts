@@ -433,7 +433,7 @@ async function processJob(
 
     const meshTask = await tripo.pollTask(meshTaskId, cfg.tripo.poll);
     const glbUrl =
-      meshTask.output?.pbr_model ?? meshTask.output?.model ?? meshTask.output?.base_model;
+      meshTask.output?.model_url;
     if (!glbUrl || typeof glbUrl !== "string") {
       throw new Error("Mesh task succeeded but no GLB URL in output");
     }

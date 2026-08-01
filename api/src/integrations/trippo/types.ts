@@ -1,23 +1,18 @@
-// ── Primitives & shared enums ────────────────────────────────────────────────
-
 export type ImageFormat = "webp" | "jpeg" | "png";
 
 export type ModelVersion =
-  | "Turbo-v1.0-20250506"
   | "v3.1-20260211"
   | "v3.0-20250812"
   | "v2.5-20250123"
-  | "v2.0-20240919"
-  | "v1.4-20240625";
+  | "P1-20260311";
 
 export type StandardModelVersion =
   | "v3.1-20260211"
   | "v3.0-20250812"
   | "v2.5-20250123"
-  | "v2.0-20240919"
-  | "v1.4-20240625";
+  | "P1-20260311";
 
-export type AnimateRigModelVersion = "v2.0-20250506" | "v1.0-20240301";
+export type AnimateRigModelVersion = "v2.5-20260210" | "v1.0-20240301";
 
 export type RigType =
   | "biped"
@@ -63,19 +58,12 @@ export type TaskStatus =
   | "running"
   | "success"
   | "failed"
-  | "cancelled"
-  | "unknown"
-  | "banned"
-  | "expired";
-
-// ── File reference ───────────────────────────────────────────────────────────
+  | "cancelled";
 
 export type File =
   | { type: string; file_token: string }
   | { type: string; url: string }
   | { type: string; object: { bucket: string; key: string } };
-
-// ── Shared param groups ──────────────────────────────────────────────────────
 
 export interface TextureParams {
   texture?: boolean;
@@ -96,8 +84,6 @@ export interface TexturePrompt {
   image?: File;
   style_image?: File;
 }
-
-// ── Task request bodies ──────────────────────────────────────────────────────
 
 export interface TextToModelRequest extends BaseModelParams, TextureParams {
   type: "text_to_model";
@@ -144,7 +130,7 @@ export interface TextureModelRequest extends TextureParams {
   model_seed?: number;
   texture_seed?: number;
   compress?: CompressType;
-  model_version?: "v2.5-20250123" | "v2.0-20240919";
+  model_version?: "v2.5-20250123" | "v3.0-20250812";
   part_names?: string[];
   bake?: boolean;
   texture_prompt?: TexturePrompt;
@@ -165,6 +151,7 @@ export interface AnimateRigRequest {
   original_model_task_id: string;
   out_format?: "glb" | "fbx";
   topology?: "bip" | "quad";
+  rig_type?: RigType;
   spec?: "mixamo" | "tripo";
   model_version?: AnimateRigModelVersion;
 }
@@ -249,15 +236,17 @@ export type CreateTaskRequest =
   | MeshCompletionRequest
   | HighPolyToLowPolyRequest;
 
-// ── Response types ───────────────────────────────────────────────────────────
+export type CreateTaskType = CreateTaskRequest["type"];
 
 export interface TaskOutput {
-  model?: string;
-  base_model?: string;
-  pbr_model?: string;
-  rendered_image?: string;
+  model_url?: string;
+  rendered_image_url?: string;
+  generated_image_url?: string;
+  rendered_video_url?: string;
+  rendered_sequence_url?: string;
+  multiview_basecolor_url?: string;
   riggable?: boolean;
-  topology?: "bip" | "quad";
+  rig_type?: RigType | string;
 }
 
 export interface Task {
@@ -268,10 +257,10 @@ export interface Task {
   output: TaskOutput;
   progress: number;
   error_code?: number;
-  error_msg?: string;
-  create_time: number;
-  running_left_time?: number;
-  queuing_num?: number;
+  error_message?: string;
+  created_at: string;
+  completed_at?: string;
+  credits_consumed?: number;
 }
 
 export interface Balance {
@@ -286,25 +275,31 @@ export interface StsTokenResponse {
   session_token: string;
   sts_ak: string;
   sts_sk: string;
+  file_token?: string;
 }
 
 export interface SuccessResponse<T = Record<string, unknown>> {
   code: 0;
+  status?: "success";
   data: T;
 }
 
 export interface ErrorResponse {
   code: number;
+  status?: "error";
   message: string;
   suggestion: string;
+  request_id?: string;
 }
 
 export interface CreateTaskResponse {
   code: 0;
-  data: { task_id: string };
+  status?: "success";
+  data: { task_id: string; type?: string; status?: TaskStatus };
 }
 
 export interface GetStsTokenResponse {
   code: 0;
+  status?: "success";
   data: StsTokenResponse;
 }

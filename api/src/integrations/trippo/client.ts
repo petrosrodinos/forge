@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError } from "axios";
 import { ErrorResponse } from "./types";
 
-const BASE_URL = "https://api.tripo3d.ai/v2/openapi";
+const BASE_URL = "https://openapi.tripo3d.ai/v3";
 
 export function createHttpClient(apiKey: string): AxiosInstance {
   const client = axios.create({

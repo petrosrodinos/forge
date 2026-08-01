@@ -54,8 +54,8 @@ export async function generateAndMesh(input: {
     timeoutMs: input.timeoutMs ?? TRIPO_JOB_CONFIG.DEFAULT_POLL_TIMEOUT_MS,
   });
 
-  const pbrModelUrl = task.output?.pbr_model ?? null;
-  const modelUrl = task.output?.model ?? pbrModelUrl;
+  const pbrModelUrl = task.output?.model_url ?? null;
+  const modelUrl = pbrModelUrl;
 
   return {
     imageUrl,

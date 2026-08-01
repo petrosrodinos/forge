@@ -48,7 +48,7 @@ export async function processAnimateJob(
         timeoutMs: TRIPO_JOB_CONFIG.DEFAULT_POLL_TIMEOUT_MS,
       });
 
-      const glbUrl = animResult.output?.model;
+      const glbUrl = animResult.output?.model_url;
       if (!glbUrl) throw new Error("Tripo returned no GLB URL");
 
       const finalAnim = await animationSvc.finalizeAnimation(animRecord.id, model3dId, animationKey, glbUrl);
