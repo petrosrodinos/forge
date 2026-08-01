@@ -48,7 +48,7 @@ export type FigureListHandle = {
 
 interface FigureListProps {
   projectId: string;
-  /** Desktop collapsed rail: only active thumb + new figure (mobile drawer ignores via parent) */
+  /** Desktop collapsed rail: figure thumbs + new figure (mobile drawer ignores via parent) */
   collapsed?: boolean;
   onDownloadClick?: () => void;
 }
@@ -114,37 +114,46 @@ export const FigureList = forwardRef<FigureListHandle, FigureListProps>(function
     deleteFigure.mutate(id, { onSettled: () => setPendingDelete(null) });
   }
 
-  const compactThumbUrl = figureThumbUrl(activeFigure);
-
   return (
     <>
       <div className="flex flex-col h-full min-h-0">
         {collapsed ? (
-          <div className="flex flex-col flex-1 items-center py-3 px-1.5 gap-3 min-h-0">
-            {isLoading ? (
-              <Skeleton className="h-10 w-10 shrink-0 rounded-lg ring-1 ring-white/5" />
-            ) : (
-              <button
-                type="button"
-                onClick={() => setFigurePanelOpen(true)}
-                className={cn(
-                  "h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-border/80 bg-surface ring-1 ring-white/5 transition-all",
-                  "focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40",
-                  "hover:border-accent/40",
-                  activeFigure && "ring-2 ring-accent/35 border-accent/30",
-                )}
-                title="Expand figure list"
-                aria-label="Expand figure list"
-              >
-                {compactThumbUrl ? (
-                  <img src={compactThumbUrl} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-surface" aria-hidden>
-                    <ImageOff className="w-4 h-4 text-slate-600" strokeWidth={1.5} />
-                  </div>
-                )}
-              </button>
-            )}
+          <div className="flex flex-col flex-1 items-center py-3 px-1.5 gap-2 min-h-0">
+            <div className="flex min-h-0 flex-1 flex-col items-center gap-2 overflow-y-auto">
+              {isLoading &&
+                Array.from({ length: 4 }).map((_, i) => (
+                  <Skeleton key={i} className="h-10 w-10 shrink-0 rounded-lg ring-1 ring-white/5" />
+                ))}
+              {!isLoading &&
+                figures?.map((fig) => {
+                  const thumbUrl = figureThumbUrl(fig);
+                  const isActive = activeFigure?.id === fig.id;
+                  return (
+                    <button
+                      key={fig.id}
+                      type="button"
+                      onClick={() => handleSelect(fig)}
+                      className={cn(
+                        "h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-border/80 bg-surface ring-1 ring-white/5 transition-all",
+                        "focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40",
+                        "hover:border-accent/40",
+                        isActive && "ring-2 ring-accent/35 border-accent/30",
+                      )}
+                      title={fig.name}
+                      aria-label={fig.name}
+                      aria-current={isActive ? "true" : undefined}
+                    >
+                      {thumbUrl ? (
+                        <img src={thumbUrl} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-surface" aria-hidden>
+                          <ImageOff className="w-4 h-4 text-slate-600" strokeWidth={1.5} />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+            </div>
             <Button
               variant="ghost"
               size="sm"
