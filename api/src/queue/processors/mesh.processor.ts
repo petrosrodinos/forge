@@ -4,6 +4,7 @@ import { getTripo } from "../../services";
 import { meshFromImageUrl, meshFromImageUrls } from "../../modules/tripo/tripo.service";
 import { finalizeModel3D, failModel3D, getModel3D } from "../../modules/models3d/models3d.service";
 import { updateModel3DProcessing } from "../../modules/models3d/repositories/models3d.repository";
+import { refundTokenUsageByIdempotencyKey } from "../../modules/tokens/tokens.service";
 import { TRIPO_JOB_CONFIG } from "../../modules/tripo/tripo-job.config";
 import { resolveMeshOptions, type MeshOptionsInput } from "../../modules/tripo/mesh-options";
 import { JOB_NAMES } from "../job.types";
@@ -90,9 +91,12 @@ export async function processMeshJob(job: Job): Promise<object> {
     }
     throw new Error(`Unknown mesh job name: ${job.name}`);
   } catch (err) {
-    const model3dId = (job.data as { model3dId?: string }).model3dId;
-    if (model3dId) {
-      await failModel3D(model3dId, err instanceof Error ? err.message : String(err)).catch(() => {});
+    const data = job.data as { model3dId?: string; tokenUsageIdempotencyKey?: string };
+    if (data.model3dId) {
+      await failModel3D(data.model3dId, err instanceof Error ? err.message : String(err)).catch(() => {});
+    }
+    if (data.tokenUsageIdempotencyKey) {
+      await refundTokenUsageByIdempotencyKey(data.tokenUsageIdempotencyKey).catch(() => {});
     }
     throw err;
   }

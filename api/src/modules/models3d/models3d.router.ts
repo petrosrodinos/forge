@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
 import { Job } from "bullmq";
-import { requireTokens } from "../../middleware/requireTokens";
 import { sseHeaders, sseWrite } from "../../lib/sse";
 import { TRIPO_JOB_CONFIG } from "../tripo/tripo-job.config";
 import {
@@ -13,7 +12,12 @@ import * as models3dSvc from "./models3d.service";
 import type { Request, Response } from "express";
 import type { QueueEvents, Queue } from "bullmq";
 import { meshOptionsSchema, resolveMeshOptions } from "../tripo/mesh-options";
-import { debitForMeshGeneration, InsufficientTokensError } from "../tokens/tokens.service";
+import {
+  debitForMeshGeneration,
+  debitForOperation,
+  InsufficientTokensError,
+  refundTokenUsageByIdempotencyKey,
+} from "../tokens/tokens.service";
 
 const router = Router({ mergeParams: true });
 
@@ -65,6 +69,11 @@ async function enqueueAndStream(opts: {
     return;
   }
   if (currentState === "failed") {
+    const failedKey = (existing?.data as { tokenUsageIdempotencyKey?: string } | undefined)
+      ?.tokenUsageIdempotencyKey;
+    if (failedKey) {
+      await refundTokenUsageByIdempotencyKey(failedKey).catch(() => {});
+    }
     sseWrite(res, TRIPO_JOB_CONFIG.TRIPO_SSE_EVENTS.ERROR, { message: existing?.failedReason });
     res.end();
     return;
@@ -118,31 +127,42 @@ router.post(
 
     const imageId = parsedId.data;
     const meshOptions = resolveMeshOptions(parsedBody.data);
-    const idemKey = `mesh:${imageId}:${meshOptions.model}:${meshOptions.textureQuality}:${meshOptions.geometryQuality}`;
 
     try {
-      await debitForMeshGeneration(req.userId, {
-        task: "image_to_model",
-        meshOptions,
-        idempotencyKey: idemKey,
-        metadata: { meshOptions },
-      });
-
       const model = await models3dSvc.initModel3DFromImage({ imageId, userId: req.userId });
-      await enqueueAndStream({
-        req, res,
-        queue: getMeshQueue(),
-        queueEvents: getMeshQueueEvents(),
-        jobName: JOB_NAMES.MESH_FROM_IMAGE,
-        jobId: `mesh-img-${model.id}`,
-        jobData: {
-          model3dId: model.id,
-          imageId,
-          userId: req.userId,
-          tokenUsageIdempotencyKey: idemKey,
+      const idemKey = `mesh:${model.id}`;
+
+      try {
+        await debitForMeshGeneration(req.userId, {
+          task: "image_to_model",
           meshOptions,
-        },
-      });
+          idempotencyKey: idemKey,
+          metadata: { meshOptions, imageId, model3dId: model.id },
+        });
+      } catch (err) {
+        await models3dSvc.deleteModel3D(model.id).catch(() => {});
+        throw err;
+      }
+
+      try {
+        await enqueueAndStream({
+          req, res,
+          queue: getMeshQueue(),
+          queueEvents: getMeshQueueEvents(),
+          jobName: JOB_NAMES.MESH_FROM_IMAGE,
+          jobId: `mesh-img-${model.id}`,
+          jobData: {
+            model3dId: model.id,
+            imageId,
+            userId: req.userId,
+            tokenUsageIdempotencyKey: idemKey,
+            meshOptions,
+          },
+        });
+      } catch (err) {
+        await refundTokenUsageByIdempotencyKey(idemKey).catch(() => {});
+        throw err;
+      }
     } catch (err) {
       if (err instanceof InsufficientTokensError) {
         res.status(402).json({ error: err.message, required: err.required, balance: err.balance });
@@ -165,31 +185,42 @@ router.post(
 
     const { imageIds, ...opts } = parsed.data;
     const meshOptions = resolveMeshOptions(opts);
-    const idemKey = `mesh-multiview:${[...imageIds].sort().join(",")}:${meshOptions.model}:${meshOptions.textureQuality}:${meshOptions.geometryQuality}`;
 
     try {
-      await debitForMeshGeneration(req.userId, {
-        task: "multiview_to_model",
-        meshOptions,
-        idempotencyKey: idemKey,
-        metadata: { meshOptions, imageIds },
-      });
-
       const model = await models3dSvc.initModel3DFromImages({ imageIds, userId: req.userId });
-      await enqueueAndStream({
-        req, res,
-        queue: getMeshQueue(),
-        queueEvents: getMeshQueueEvents(),
-        jobName: JOB_NAMES.MESH_FROM_IMAGES,
-        jobId: `mesh-imgs-${model.id}`,
-        jobData: {
-          model3dId: model.id,
-          imageIds,
-          userId: req.userId,
-          tokenUsageIdempotencyKey: idemKey,
+      const idemKey = `mesh-multiview:${model.id}`;
+
+      try {
+        await debitForMeshGeneration(req.userId, {
+          task: "multiview_to_model",
           meshOptions,
-        },
-      });
+          idempotencyKey: idemKey,
+          metadata: { meshOptions, imageIds, model3dId: model.id },
+        });
+      } catch (err) {
+        await models3dSvc.deleteModel3D(model.id).catch(() => {});
+        throw err;
+      }
+
+      try {
+        await enqueueAndStream({
+          req, res,
+          queue: getMeshQueue(),
+          queueEvents: getMeshQueueEvents(),
+          jobName: JOB_NAMES.MESH_FROM_IMAGES,
+          jobId: `mesh-imgs-${model.id}`,
+          jobData: {
+            model3dId: model.id,
+            imageIds,
+            userId: req.userId,
+            tokenUsageIdempotencyKey: idemKey,
+            meshOptions,
+          },
+        });
+      } catch (err) {
+        await refundTokenUsageByIdempotencyKey(idemKey).catch(() => {});
+        throw err;
+      }
     } catch (err) {
       if (err instanceof InsufficientTokensError) {
         res.status(402).json({ error: err.message, required: err.required, balance: err.balance });
@@ -203,10 +234,6 @@ router.post(
 
 router.post(
   "/:model3dId/rig",
-  requireTokens("rig", (req) => {
-    const id = model3dIdParam(req);
-    return id ? `rig:${id}` : undefined;
-  }),
   async (req, res) => {
     const parsedId = model3dIdSchema.safeParse(model3dIdParam(req));
     if (!parsedId.success) {
@@ -215,6 +242,7 @@ router.post(
     }
 
     const model3dId = parsedId.data;
+    const idemKey = `rig:${model3dId}`;
 
     try {
       const model = await models3dSvc.getModel3D(model3dId);
@@ -223,15 +251,26 @@ router.post(
       if (!model.meshTaskId) { res.status(400).json({ error: "Missing mesh task id" }); return; }
       if (model.rigTaskId) { res.status(409).json({ error: "Model is already rigged" }); return; }
 
-      await enqueueAndStream({
-        req, res,
-        queue: getRigQueue(),
-        queueEvents: getRigQueueEvents(),
-        jobName: JOB_NAMES.RIG,
-        jobId: `rig-${model3dId}`,
-        jobData: { model3dId, userId: req.userId, tokenUsageIdempotencyKey: `rig:${model3dId}` },
-      });
+      await debitForOperation(req.userId, "rig", idemKey);
+
+      try {
+        await enqueueAndStream({
+          req, res,
+          queue: getRigQueue(),
+          queueEvents: getRigQueueEvents(),
+          jobName: JOB_NAMES.RIG,
+          jobId: `rig-${model3dId}`,
+          jobData: { model3dId, userId: req.userId, tokenUsageIdempotencyKey: idemKey },
+        });
+      } catch (err) {
+        await refundTokenUsageByIdempotencyKey(idemKey).catch(() => {});
+        throw err;
+      }
     } catch (err) {
+      if (err instanceof InsufficientTokensError) {
+        res.status(402).json({ error: err.message, required: err.required, balance: err.balance });
+        return;
+      }
       const status = (err as Error & { status?: number }).status ?? 500;
       res.status(status).json({ error: err instanceof Error ? err.message : String(err) });
     }
@@ -240,12 +279,6 @@ router.post(
 
 router.post(
   "/:model3dId/animate",
-  requireTokens("animationRetarget", (req) => {
-    const id = model3dIdParam(req);
-    const animations = (req.body as { animations?: string[] }).animations;
-    if (!id || !Array.isArray(animations) || animations.length === 0) return undefined;
-    return animateIdemKey(id, animations);
-  }),
   async (req, res) => {
     const parsedId = model3dIdSchema.safeParse(model3dIdParam(req));
     if (!parsedId.success) {
@@ -261,22 +294,33 @@ router.post(
 
     const model3dId = parsedId.data;
     const { animations } = parsedBody.data;
+    const idemKey = animateIdemKey(model3dId, animations);
 
     try {
       const model = await models3dSvc.getModel3D(model3dId);
       if (!model) { res.status(404).json({ error: "Model not found" }); return; }
       if (!model.rigTaskId) { res.status(400).json({ error: "Model has not been rigged yet" }); return; }
 
-      const idemKey = animateIdemKey(model3dId, animations);
-      await enqueueAndStream({
-        req, res,
-        queue: getAnimateQueue(),
-        queueEvents: getAnimateQueueEvents(),
-        jobName: JOB_NAMES.ANIMATE,
-        jobId: `animate-${model3dId}-${Date.now()}`,
-        jobData: { model3dId, rigTaskId: model.rigTaskId, animations, userId: req.userId, tokenUsageIdempotencyKey: idemKey },
-      });
+      await debitForOperation(req.userId, "animationRetarget", idemKey);
+
+      try {
+        await enqueueAndStream({
+          req, res,
+          queue: getAnimateQueue(),
+          queueEvents: getAnimateQueueEvents(),
+          jobName: JOB_NAMES.ANIMATE,
+          jobId: `animate-${model3dId}-${Date.now()}`,
+          jobData: { model3dId, rigTaskId: model.rigTaskId, animations, userId: req.userId, tokenUsageIdempotencyKey: idemKey },
+        });
+      } catch (err) {
+        await refundTokenUsageByIdempotencyKey(idemKey).catch(() => {});
+        throw err;
+      }
     } catch (err) {
+      if (err instanceof InsufficientTokensError) {
+        res.status(402).json({ error: err.message, required: err.required, balance: err.balance });
+        return;
+      }
       const status = (err as Error & { status?: number }).status ?? 500;
       res.status(status).json({ error: err instanceof Error ? err.message : String(err) });
     }

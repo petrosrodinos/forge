@@ -133,6 +133,39 @@ export async function mergeTokenUsageMetadataByIdempotencyKey(
   });
 }
 
+export async function refundTokenUsageByIdempotencyKey(idempotencyKey: string): Promise<boolean> {
+  const key = idempotencyKey.trim();
+  if (!key) return false;
+
+  return runTransactionWithRetry(async (tx) => {
+    const row = await tx.tokenUsage.findUnique({ where: { idempotencyKey: key } });
+    if (!row) return false;
+
+    const amount = Math.ceil(row.tokens);
+    if (amount > 0) {
+      await tx.user.update({
+        where: { id: row.userId },
+        data: { tokenBalance: { increment: amount } },
+      });
+    }
+
+    await tx.tokenUsage.update({
+      where: { id: row.id },
+      data: {
+        idempotencyKey: `refunded:${key}:${randomUUID()}`,
+        metadata: mergeJsonMetadata(row.metadata, {
+          refunded: true,
+          originalIdempotencyKey: key,
+          refundedAt: new Date().toISOString(),
+          refundedTokens: amount,
+        }),
+      },
+    });
+
+    return true;
+  });
+}
+
 export class InsufficientTokensError extends Error {
   readonly statusCode = 402;
   readonly required: number;
