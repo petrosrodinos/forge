@@ -12,21 +12,20 @@ import { JOB_NAMES } from "../../queue/job.types";
 import * as models3dSvc from "./models3d.service";
 import type { Request, Response } from "express";
 import type { QueueEvents, Queue } from "bullmq";
+import { meshOptionsSchema, resolveMeshOptions } from "../tripo/mesh-options";
+import { debitForMeshGeneration, InsufficientTokensError } from "../tokens/tokens.service";
 
 const router = Router({ mergeParams: true });
-
-// ─── Param schemas ────────────────────────────────────────────────────────────
 
 const imageIdSchema = z.string().min(1);
 const model3dIdSchema = z.string().min(1);
 const imageIdsBodySchema = z.object({
   imageIds: z.array(z.string().min(1)).min(2).max(4),
-});
+}).and(meshOptionsSchema);
+const fromImageBodySchema = meshOptionsSchema;
 const animationsBodySchema = z.object({
   animations: z.array(z.string().min(1)).min(1),
 });
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function model3dIdParam(req: { params: Record<string, string | string[]> }): string {
   const raw = req.params.model3dId;
@@ -42,13 +41,6 @@ function tryParse(value: string): Record<string, unknown> {
   try { return JSON.parse(value) as Record<string, unknown>; } catch { return {}; }
 }
 
-/**
- * Enqueues a job then immediately opens an SSE stream that forwards BullMQ
- * progress / complete / failed events to the client.
- *
- * This keeps the frontend's existing SSE contract while moving all heavy work
- * into background workers (non-blocking for the HTTP server).
- */
 async function enqueueAndStream(opts: {
   req: Request;
   res: Response;
@@ -64,7 +56,6 @@ async function enqueueAndStream(opts: {
 
   sseHeaders(res);
 
-  // Edge case: worker picked it up and finished before we subscribed.
   const existing = await Job.fromId(queue, job.id!);
   const currentState = await existing?.getState();
 
@@ -79,7 +70,6 @@ async function enqueueAndStream(opts: {
     return;
   }
 
-  // Forward live events for this specific job.
   const onProgress = ({ jobId: id, data }: { jobId: string; data: unknown }) => {
     if (id !== job.id) return;
     sseWrite(res, TRIPO_JOB_CONFIG.TRIPO_SSE_EVENTS.PROGRESS, data as Record<string, unknown>);
@@ -111,19 +101,8 @@ async function enqueueAndStream(opts: {
   req.on("close", cleanup);
 }
 
-// ─── Routes ───────────────────────────────────────────────────────────────────
-
-/**
- * POST /api/models3d/from-image/:imageId
- * SSE stream: progress → complete (with model data) | error
- */
 router.post(
   "/from-image/:imageId",
-  requireTokens("trippoMesh", (req) => {
-    const imageId = req.params.imageId;
-    if (Array.isArray(imageId)) return imageId[0] ? `mesh:${imageId[0]}` : undefined;
-    return typeof imageId === "string" && imageId ? `mesh:${imageId}` : undefined;
-  }),
   async (req, res) => {
     const parsedId = imageIdSchema.safeParse(req.params.imageId);
     if (!parsedId.success) {
@@ -131,9 +110,24 @@ router.post(
       return;
     }
 
+    const parsedBody = fromImageBodySchema.safeParse(req.body ?? {});
+    if (!parsedBody.success) {
+      res.status(400).json({ error: "Invalid mesh options", details: parsedBody.error.flatten() });
+      return;
+    }
+
     const imageId = parsedId.data;
+    const meshOptions = resolveMeshOptions(parsedBody.data);
+    const idemKey = `mesh:${imageId}:${meshOptions.model}:${meshOptions.textureQuality}:${meshOptions.geometryQuality}`;
 
     try {
+      await debitForMeshGeneration(req.userId, {
+        task: "image_to_model",
+        meshOptions,
+        idempotencyKey: idemKey,
+        metadata: { meshOptions },
+      });
+
       const model = await models3dSvc.initModel3DFromImage({ imageId, userId: req.userId });
       await enqueueAndStream({
         req, res,
@@ -141,26 +135,27 @@ router.post(
         queueEvents: getMeshQueueEvents(),
         jobName: JOB_NAMES.MESH_FROM_IMAGE,
         jobId: `mesh-img-${model.id}`,
-        jobData: { model3dId: model.id, imageId, userId: req.userId, tokenUsageIdempotencyKey: `mesh:${imageId}` },
+        jobData: {
+          model3dId: model.id,
+          imageId,
+          userId: req.userId,
+          tokenUsageIdempotencyKey: idemKey,
+          meshOptions,
+        },
       });
     } catch (err) {
+      if (err instanceof InsufficientTokensError) {
+        res.status(402).json({ error: err.message, required: err.required, balance: err.balance });
+        return;
+      }
       const status = (err as Error & { status?: number }).status ?? 500;
       res.status(status).json({ error: err instanceof Error ? err.message : String(err) });
     }
   },
 );
 
-/**
- * POST /api/models3d/from-images
- * SSE stream: progress → complete (with model data) | error
- */
 router.post(
   "/from-images",
-  requireTokens("trippoMesh", (req) => {
-    const imageIds = (req.body as { imageIds?: string[] }).imageIds;
-    if (!Array.isArray(imageIds) || imageIds.length === 0) return undefined;
-    return `mesh-multiview:${[...imageIds].sort().join(",")}`;
-  }),
   async (req, res) => {
     const parsed = imageIdsBodySchema.safeParse(req.body);
     if (!parsed.success) {
@@ -168,10 +163,18 @@ router.post(
       return;
     }
 
-    const { imageIds } = parsed.data;
-    const idemKey = `mesh-multiview:${[...imageIds].sort().join(",")}`;
+    const { imageIds, ...opts } = parsed.data;
+    const meshOptions = resolveMeshOptions(opts);
+    const idemKey = `mesh-multiview:${[...imageIds].sort().join(",")}:${meshOptions.model}:${meshOptions.textureQuality}:${meshOptions.geometryQuality}`;
 
     try {
+      await debitForMeshGeneration(req.userId, {
+        task: "multiview_to_model",
+        meshOptions,
+        idempotencyKey: idemKey,
+        metadata: { meshOptions, imageIds },
+      });
+
       const model = await models3dSvc.initModel3DFromImages({ imageIds, userId: req.userId });
       await enqueueAndStream({
         req, res,
@@ -179,19 +182,25 @@ router.post(
         queueEvents: getMeshQueueEvents(),
         jobName: JOB_NAMES.MESH_FROM_IMAGES,
         jobId: `mesh-imgs-${model.id}`,
-        jobData: { model3dId: model.id, imageIds, userId: req.userId, tokenUsageIdempotencyKey: idemKey },
+        jobData: {
+          model3dId: model.id,
+          imageIds,
+          userId: req.userId,
+          tokenUsageIdempotencyKey: idemKey,
+          meshOptions,
+        },
       });
     } catch (err) {
+      if (err instanceof InsufficientTokensError) {
+        res.status(402).json({ error: err.message, required: err.required, balance: err.balance });
+        return;
+      }
       const status = (err as Error & { status?: number }).status ?? 500;
       res.status(status).json({ error: err instanceof Error ? err.message : String(err) });
     }
   },
 );
 
-/**
- * POST /api/models3d/:model3dId/rig
- * SSE stream: prerig/rig progress → complete | error
- */
 router.post(
   "/:model3dId/rig",
   requireTokens("rig", (req) => {
@@ -229,10 +238,6 @@ router.post(
   },
 );
 
-/**
- * POST /api/models3d/:model3dId/animate
- * SSE stream: per-animation progress → complete | error
- */
 router.post(
   "/:model3dId/animate",
   requireTokens("animationRetarget", (req) => {
@@ -278,7 +283,6 @@ router.post(
   },
 );
 
-/** GET /api/models3d/:model3dId */
 router.get("/:model3dId", async (req, res, next) => {
   try {
     const m = await models3dSvc.getModel3D(req.params.model3dId);
@@ -289,7 +293,6 @@ router.get("/:model3dId", async (req, res, next) => {
   }
 });
 
-/** DELETE /api/models3d/:model3dId */
 router.delete("/:model3dId", async (req, res, next) => {
   try {
     await models3dSvc.deleteModel3D(req.params.model3dId);

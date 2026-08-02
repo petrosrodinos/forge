@@ -46,6 +46,7 @@ interface ImageCardProps {
   meshPickOrder?: number | null;
   onToggleMeshPick?: (image: SkinImage) => void;
   meshPickBlocked?: boolean;
+  meshTokenCostOverride?: number | null;
   selected?: boolean;
   /** True while this image’s delete request is in flight */
   deletePending?: boolean;
@@ -61,13 +62,15 @@ export function ImageCard({
   meshPickOrder = null,
   onToggleMeshPick,
   meshPickBlocked = false,
+  meshTokenCostOverride = null,
   selected,
   deletePending = false,
   generatePending = false,
 }: ImageCardProps) {
   const status = bestModelStatus(image.models);
   const { data: pricingCosts } = usePricingCosts();
-  const meshTokenCost = getFixedCostTokens(pricingCosts, PRICING_COST_KEYS.TRIPPO_MESH_STANDALONE);
+  const fallbackMeshCost = getFixedCostTokens(pricingCosts, PRICING_COST_KEYS.TRIPPO_MESH_STANDALONE);
+  const meshTokenCost = meshTokenCostOverride ?? fallbackMeshCost;
   const [confirmOpen, setConfirmOpen] = useState(false);
   const deleteStartedRef = useRef(false);
 

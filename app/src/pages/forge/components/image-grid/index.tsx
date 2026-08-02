@@ -12,6 +12,7 @@ interface ImageGridProps {
   onGenerate3d?: (image: SkinImage) => void;
   meshPickIds?: string[];
   onToggleMeshPick?: (image: SkinImage) => void;
+  meshTokenCost?: number | null;
   /** When set, that image’s delete confirm shows loading */
   deletingImageId?: string | null;
   /** When set, that image’s generate action shows loading */
@@ -24,6 +25,7 @@ export function ImageGrid({
   onGenerate3d,
   meshPickIds = [],
   onToggleMeshPick,
+  meshTokenCost = null,
   deletingImageId = null,
   generatingImageIds = [],
 }: ImageGridProps) {
@@ -63,6 +65,7 @@ export function ImageGrid({
                 meshPickOrder={meshPickIds.indexOf(img.id) >= 0 ? meshPickIds.indexOf(img.id) + 1 : null}
                 onToggleMeshPick={onToggleMeshPick}
                 meshPickBlocked={meshPickIds.length >= 4 && !meshPickIds.includes(img.id)}
+                meshTokenCostOverride={meshTokenCost}
                 selected={selectedImage?.id === img.id}
                 deletePending={deletingImageId === img.id}
                 generatePending={generatingImageIds.includes(img.id)}

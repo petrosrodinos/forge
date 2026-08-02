@@ -9,6 +9,7 @@ import {
 import { TRIPPO_PRICING_CATALOG, TrippoModels } from "../../config/models/trippo-models";
 import { ImageModels } from "../../config/models/image-models";
 import { roundEur } from "../../lib/models-cost";
+import { TRIPPO_MESH_MODEL_CATALOG, quoteMeshGeneration, resolveMeshOptions } from "../tripo/mesh-options";
 
 const OPERATION_LABELS: Record<TokenOperation, string> = {
   animationRetarget: "Animation retarget",
@@ -41,6 +42,32 @@ export function getPricingCatalog() {
       tokens: Math.ceil(Number(m.tokens)),
       priceEur: roundEur(Number(m.price)),
     })),
+    meshModels: TRIPPO_MESH_MODEL_CATALOG.map((m) => {
+      const detailed = resolveMeshOptions({
+        model: m.model,
+        textureQuality: "detailed",
+        geometryQuality: m.supportsGeometryQuality ? "detailed" : "standard",
+      });
+      const extreme = resolveMeshOptions({
+        model: m.model,
+        textureQuality: m.supportsTextureExtreme ? "extreme" : "detailed",
+        geometryQuality: m.supportsGeometryQuality ? "detailed" : "standard",
+      });
+      return {
+        id: m.id,
+        model: m.model,
+        series: m.series,
+        label: m.label,
+        supportsGeometryQuality: m.supportsGeometryQuality,
+        supportsTextureExtreme: m.supportsTextureExtreme,
+        imageToModelTokens: m.imageToModelTokens,
+        multiviewToModelTokens: m.multiviewToModelTokens,
+        imageToModelTokensDetailed: quoteMeshGeneration("image_to_model", detailed).walletTokens,
+        multiviewToModelTokensDetailed: quoteMeshGeneration("multiview_to_model", detailed).walletTokens,
+        imageToModelTokensExtreme: quoteMeshGeneration("image_to_model", extreme).walletTokens,
+        multiviewToModelTokensExtreme: quoteMeshGeneration("multiview_to_model", extreme).walletTokens,
+      };
+    }),
     imageModels: ImageModels.filter((m) => m.available).map((m) => ({
       id: m.id,
       name: m.name,

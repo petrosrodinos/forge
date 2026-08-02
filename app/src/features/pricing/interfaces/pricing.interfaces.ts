@@ -28,12 +28,28 @@ export type PricingTrippoModelDto = {
   priceEur: number;
 };
 
+export type PricingMeshModelDto = {
+  id: string;
+  model: string;
+  series: "h" | "p";
+  label: string;
+  supportsGeometryQuality: boolean;
+  supportsTextureExtreme: boolean;
+  imageToModelTokens: number;
+  multiviewToModelTokens: number;
+  imageToModelTokensDetailed: number;
+  multiviewToModelTokensDetailed: number;
+  imageToModelTokensExtreme: number;
+  multiviewToModelTokensExtreme: number;
+};
+
 export type PricingCatalogDto = {
   rates: PricingRatesDto;
   packs: PricingPackDto[];
   operations: PricingOperationDto[];
   trippoPricing?: unknown;
   trippoModels: PricingTrippoModelDto[];
+  meshModels?: PricingMeshModelDto[];
   imageModels: PricingImageModelDto[];
 };
 

@@ -1,13 +1,18 @@
 import axios from "axios";
 import { getTripo } from "../../services";
-import { tripoTaskRasterType } from "../../integrations/trippo/tripoTaskFileType";
 import { extractTripoUploadToken } from "../../integrations/trippo/uploadToken";
-import type { ModelVersion } from "../../integrations/trippo/types";
 import { fetchImageAsBuffer } from "../../lib/image-fetch.util";
 
 import { TRIPO_CONFIG } from "./config/tripo.config";
 import { parseAllowedModelUrl } from "./helpers/tripoUrlParsing.helper";
 import { MODELS3D_CONFIG } from "../models3d/config/models3d.config";
+import {
+  meshOptionsToCreateFields,
+  MULTIVIEW_SLOT_KEYS,
+  resolveMeshOptions,
+  type MeshOptionsInput,
+  type ResolvedMeshOptions,
+} from "./mesh-options";
 
 export async function proxyModelByUrl(rawUrl: string) {
   const target = parseAllowedModelUrl(rawUrl);
@@ -43,27 +48,57 @@ export async function getTask(taskId: string) {
   return getTripo().getTask(taskId);
 }
 
-export async function meshFromImageUrl(imageUrl: string, modelVersion?: ModelVersion) {
+async function uploadImageUrl(imageUrl: string): Promise<string> {
   const { buffer, mimeType } = await fetchImageAsBuffer(imageUrl.trim(), TRIPO_CONFIG.PROXY_MAX_BYTES);
-  const tripo = getTripo();
-  const filename = mimeType === "image/jpeg" ? "figure-source.jpg" : "figure-source.png";
+  const uploadMime: "image/png" | "image/jpeg" = mimeType === "image/jpeg" ? "image/jpeg" : "image/png";
+  const filename = uploadMime === "image/jpeg" ? "figure-source.jpg" : "figure-source.png";
+  const upload = await getTripo().uploadFile(buffer, filename, uploadMime);
+  return extractTripoUploadToken(upload);
+}
 
-  const upload = await tripo.uploadFile(buffer, filename, mimeType);
-  const fileToken = extractTripoUploadToken(upload);
+export async function meshFromImageUrl(imageUrl: string, options?: MeshOptionsInput) {
+  const opts = resolveMeshOptions(options);
+  const fileToken = await uploadImageUrl(imageUrl);
 
-  const { createTaskResponse: meshTask, costsMetadata: meshCostsMetadata } = await tripo.createTask({
+  const { createTaskResponse: meshTask, costsMetadata: meshCostsMetadata } = await getTripo().createTask({
     type: TRIPO_CONFIG.TRIPO_TASK_TYPES.IMAGE_TO_MODEL,
-    file: { type: tripoTaskRasterType(mimeType), file_token: fileToken },
-    model_version: modelVersion ?? TRIPO_CONFIG.DEFAULT_TRIPO_MODEL_VERSION,
-    texture: true,
-    pbr: true,
+    input: fileToken,
+    ...meshOptionsToCreateFields(opts),
   } as never);
 
   const meshTaskId = (meshTask.data as Record<string, unknown>).task_id as string;
   if (!meshTaskId) throw new Error("Tripo did not return mesh task_id");
   return {
     meshTaskId,
-    modelVersion: modelVersion ?? TRIPO_CONFIG.DEFAULT_TRIPO_MODEL_VERSION,
+    modelVersion: opts.model,
+    meshOptions: opts,
+    meshCostsMetadata,
+  };
+}
+
+export async function meshFromImageUrls(imageUrls: string[], options?: MeshOptionsInput) {
+  if (imageUrls.length < 2 || imageUrls.length > 4) {
+    throw new Error("multiview requires 2 to 4 images");
+  }
+  const opts = resolveMeshOptions(options);
+  const inputs: Array<Record<string, string>> = [];
+  for (let i = 0; i < imageUrls.length; i++) {
+    const token = await uploadImageUrl(imageUrls[i]!);
+    inputs.push({ [MULTIVIEW_SLOT_KEYS[i]!]: token });
+  }
+
+  const { createTaskResponse: meshTask, costsMetadata: meshCostsMetadata } = await getTripo().createTask({
+    type: TRIPO_CONFIG.TRIPO_TASK_TYPES.MULTIVIEW_TO_MODEL,
+    inputs,
+    ...meshOptionsToCreateFields(opts),
+  } as never);
+
+  const meshTaskId = (meshTask.data as Record<string, unknown>).task_id as string;
+  if (!meshTaskId) throw new Error("Tripo did not return mesh task_id");
+  return {
+    meshTaskId,
+    modelVersion: opts.model,
+    meshOptions: opts as ResolvedMeshOptions,
     meshCostsMetadata,
   };
 }
@@ -102,4 +137,3 @@ export async function createRetarget(rigTaskId: string, animation: string) {
   if (!retargetTaskId) throw new Error("Tripo did not return retarget task_id");
   return { retargetTaskId, costsMetadata };
 }
-

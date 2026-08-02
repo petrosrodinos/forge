@@ -47,9 +47,30 @@ const RIG_VERSION_TRANSLATE: Record<string, string> = {
   "v2.0-20250506": "v2.5-20260210",
 };
 
+const P1_FORBIDDEN_KEYS = [
+  "geometry_quality",
+  "quad",
+  "smart_low_poly",
+  "generate_parts",
+] as const;
+
+const MULTIVIEW_VIEWS = ["front", "left", "back", "right"] as const;
+
+function fileToInputToken(file: unknown): string | null {
+  if (!file || typeof file !== "object") return null;
+  const f = file as Record<string, unknown>;
+  if (typeof f.file_token === "string" && f.file_token) return f.file_token;
+  if (typeof f.url === "string" && f.url) return f.url;
+  return null;
+}
+
 function normalizeCreateBody(body: CreateTaskRequest): Record<string, unknown> {
   const { type, ...rest } = body;
   const payload: Record<string, unknown> = { ...rest };
+
+  if (typeof payload.model === "string" && payload.model_version == null) {
+    payload.model_version = payload.model;
+  }
 
   if (typeof payload.model_version === "string") {
     if (type === "animate_rig") {
@@ -57,6 +78,7 @@ function normalizeCreateBody(body: CreateTaskRequest): Record<string, unknown> {
         RIG_VERSION_TRANSLATE[payload.model_version] ?? payload.model_version;
     } else if (type === "highpoly_to_lowpoly" || type === "text_to_image") {
       delete payload.model_version;
+      delete payload.model;
     } else {
       payload.model_version =
         RETIRED_MODEL_VERSIONS[payload.model_version] ?? payload.model_version;
@@ -71,7 +93,44 @@ function normalizeCreateBody(body: CreateTaskRequest): Record<string, unknown> {
     (type === "text_to_model" || type === "image_to_model" || type === "multiview_to_model") &&
     payload.model_version == null
   ) {
-    payload.model_version = "v2.5-20250123";
+    payload.model_version = "v3.1-20260211";
+  }
+
+  if (
+    (type === "text_to_model" || type === "image_to_model" || type === "multiview_to_model") &&
+    typeof payload.model_version === "string"
+  ) {
+    payload.model = payload.model_version;
+  }
+
+  if (type === "image_to_model") {
+    if (payload.input == null && payload.file != null) {
+      const token = fileToInputToken(payload.file);
+      if (token) payload.input = token;
+    }
+    delete payload.file;
+  }
+
+  if (type === "multiview_to_model") {
+    if (payload.inputs == null && Array.isArray(payload.files)) {
+      const files = payload.files as unknown[];
+      const inputs: Array<Record<string, string>> = [];
+      for (let i = 0; i < Math.min(files.length, MULTIVIEW_VIEWS.length); i++) {
+        const token = fileToInputToken(files[i]);
+        if (!token) continue;
+        inputs.push({ [MULTIVIEW_VIEWS[i]]: token });
+      }
+      payload.inputs = inputs;
+    }
+    delete payload.files;
+  }
+
+  const modelId = String(payload.model ?? payload.model_version ?? "");
+  if (modelId.startsWith("P")) {
+    for (const key of P1_FORBIDDEN_KEYS) delete payload[key];
+  }
+  if (modelId === "v2.5-20250123") {
+    delete payload.geometry_quality;
   }
 
   if (

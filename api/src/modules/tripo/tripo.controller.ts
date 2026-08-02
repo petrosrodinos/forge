@@ -57,7 +57,10 @@ export async function meshFromImageUrlController(req: Request, res: Response) {
       return;
     }
     await assertUserHasTokenBalance(req.userId, getDebitTokensForTrippoModelId("image_to_model"));
-    const { meshTaskId, modelVersion: mv, meshCostsMetadata } = await meshFromImageUrl(imageUrl, modelVersion);
+    const { meshTaskId, modelVersion: mv, meshCostsMetadata } = await meshFromImageUrl(
+      imageUrl,
+      modelVersion ? { model: modelVersion } : undefined,
+    );
     await debitForTrippoModelId(
       req.userId,
       "image_to_model",

@@ -65,19 +65,37 @@ export type File =
   | { type: string; url: string }
   | { type: string; object: { bucket: string; key: string } };
 
+export type TextureQuality = "standard" | "detailed" | "extreme";
+export type GeometryQuality = "standard" | "detailed";
+
 export interface TextureParams {
   texture?: boolean;
   pbr?: boolean;
-  texture_quality?: "standard" | "detailed";
+  texture_quality?: TextureQuality;
   texture_alignment?: "original_image" | "geometry";
 }
 
 export interface BaseModelParams {
+  model?: ModelVersion;
   model_version?: ModelVersion;
   face_limit?: number;
   auto_size?: boolean;
   quad?: boolean;
+  geometry_quality?: GeometryQuality;
+  enable_image_autofix?: boolean;
+  export_uv?: boolean;
+  compress?: CompressType;
+  smart_low_poly?: boolean;
+  generate_parts?: boolean;
 }
+
+export type MultiviewInputSlot =
+  | string
+  | { front: string }
+  | { left: string }
+  | { back: string }
+  | { right: string }
+  | { task_id: string };
 
 export interface TexturePrompt {
   text?: string;
@@ -103,21 +121,20 @@ export interface TextToImageRequest {
 
 export interface ImageToModelRequest extends BaseModelParams, TextureParams {
   type: "image_to_model";
-  file: File;
+  input?: string;
+  file?: File;
   model_seed?: number;
   texture_seed?: number;
   style?: StyleOption;
   orientation?: "align_image" | "default";
-  smart_low_poly?: boolean;
-  generate_parts?: boolean;
 }
 
 export interface MultiviewToModelRequest extends BaseModelParams, TextureParams {
   type: "multiview_to_model";
-  files: File[];
+  inputs?: MultiviewInputSlot[];
+  files?: File[];
   mode?: "LEFT" | "RIGHT";
   orthographic_projection?: boolean;
-  model_version?: StandardModelVersion;
   model_seed?: number;
   texture_seed?: number;
   style?: StyleOption;

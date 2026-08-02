@@ -9,9 +9,11 @@ import { Button } from "@/components/ui/Button";
 import { useForgeStore } from "@/store/forgeStore";
 import { useDeleteSkinImage, useUploadSkinImage } from "@/features/skin-images/hooks/use-skin-images.hooks";
 import { useModelMesh } from "@/features/models3d/hooks/use-model-mesh.hooks";
-import { usePricingCosts } from "@/features/pricing/hooks/use-pricing.hooks";
-import { PRICING_COST_KEYS } from "@/features/pricing/constants/pricing-cost-keys";
-import { getFixedCostTokens } from "@/features/pricing/utils/pricing-costs.utils";
+import { TripoMeshModelSelect } from "@/features/models3d/components/TripoMeshModelSelect";
+import { DEFAULT_MESH_OPTIONS } from "@/features/models3d/interfaces/mesh-options.interfaces";
+import type { MeshGenerationOptions } from "@/features/models3d/interfaces/mesh-options.interfaces";
+import { usePricingCatalog } from "@/features/pricing/hooks/use-pricing.hooks";
+import { meshTokenCost } from "@/features/models3d/utils/mesh-token-cost";
 import { TokenCostPill } from "@/features/pricing/components/TokenCostPill";
 import { canGenerateMeshOnImage } from "@/pages/forge/components/image-grid/image-card";
 import { cn } from "@/utils/cn";
@@ -26,10 +28,10 @@ interface VariantPanelProps {
 }
 
 export function VariantPanel({ variant, figureId, figureType, figureName, skinName }: VariantPanelProps) {
-  const isDev = import.meta.env.VITE_NODE_ENV === "development";
   const qc = useQueryClient();
   const { selectedImage, setSelectedImage } = useForgeStore();
   const [meshPickIds, setMeshPickIds] = useState<string[]>([]);
+  const [meshOptions, setMeshOptions] = useState<MeshGenerationOptions>(DEFAULT_MESH_OPTIONS);
 
   const deleteSkinImage = useDeleteSkinImage();
   const uploadSkinImage = useUploadSkinImage();
@@ -42,8 +44,10 @@ export function VariantPanel({ variant, figureId, figureType, figureName, skinNa
     void qc.invalidateQueries({ queryKey: ["figures"] });
     setMeshPickIds([]);
   });
-  const { data: pricingCosts } = usePricingCosts();
-  const meshCost = getFixedCostTokens(pricingCosts, PRICING_COST_KEYS.TRIPPO_MESH_STANDALONE);
+  const { data: pricingCatalog } = usePricingCatalog();
+  const selectedMeshModel = pricingCatalog?.meshModels?.find((m) => m.id === meshOptions.model);
+  const singleMeshCost = meshTokenCost(selectedMeshModel, meshOptions, "image");
+  const multiviewMeshCost = meshTokenCost(selectedMeshModel, meshOptions, "multiview");
 
   useEffect(() => {
     const valid = new Set(variant.images.map((i) => i.id));
@@ -71,7 +75,7 @@ export function VariantPanel({ variant, figureId, figureType, figureName, skinNa
 
   function handleGenerate3d(image: SkinImage) {
     setSelectedImage(image);
-    void runMesh(image.id);
+    void runMesh(image.id, meshOptions);
   }
   function toggleMeshPick(image: SkinImage) {
     setMeshPickIds((prev) => {
@@ -92,7 +96,7 @@ export function VariantPanel({ variant, figureId, figureType, figureName, skinNa
     if (!meshToolbarAllowed || runningImageIds.length > 0) return;
     const first = variant.images.find((i) => i.id === meshPickIds[0]);
     if (first) setSelectedImage(first);
-    void runMultiview(meshPickIds);
+    void runMultiview(meshPickIds, meshOptions);
   }
 
   const deletingImageId = deleteSkinImage.isPending && deleteSkinImage.variables?.imageId ? deleteSkinImage.variables.imageId : null;
@@ -106,7 +110,6 @@ export function VariantPanel({ variant, figureId, figureType, figureName, skinNa
   return (
     <div className="flex h-full min-h-0 flex-col overflow-y-auto px-3 py-4 sm:px-4 sm:py-5">
       <div className="flex min-h-0 flex-1 flex-col gap-4 md:grid md:grid-cols-2 md:items-start md:gap-4">
-        {/* md+: left column — image generation only */}
         <section className="min-w-0 rounded-xl border border-border/80 bg-panel/40 p-4 ring-1 ring-white/5 md:min-h-0">
           <div className="mb-3 space-y-1.5">
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Image generation</p>
@@ -115,18 +118,28 @@ export function VariantPanel({ variant, figureId, figureType, figureName, skinNa
           <PromptEditor variant={variant} figureId={figureId} figureType={figureType} figureName={figureName} skinName={skinName} />
         </section>
 
-        {/* md+: right column — images + 3D models in one stacked card */}
         <div className={cn("flex min-w-0 flex-col gap-4", "md:gap-0 md:rounded-xl md:border md:border-border/80 md:bg-panel/40 md:p-4 md:ring-1 md:ring-white/5 md:min-h-0")}>
           <section className={cn("rounded-xl border border-border/80 bg-panel/40 p-4 ring-1 ring-white/5", "md:rounded-none md:border-0 md:bg-transparent md:p-0 md:ring-0")}>
             <div className="mb-3 space-y-1.5">
               <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Images</p>
-              <p className="text-xs text-slate-500 leading-relaxed">Your uploads and generated images for this variant. Use Generate 3D to create mesh, then rig/animate from the Models section.</p>
-            {isDev && variant.images.length > 0 ? (
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Your uploads and generated images for this variant. Pick a Tripo model, then Generate 3D on one image or select 2–4 views for multiview.
+              </p>
+              <div className="rounded-lg border border-border/60 bg-surface/30 p-3 space-y-3">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">3D model settings</p>
+                <TripoMeshModelSelect
+                  value={meshOptions}
+                  onChange={setMeshOptions}
+                  mode={meshPickIds.length >= 2 ? "multiview" : "image"}
+                  disabled={runningImageIds.length > 0}
+                />
+              </div>
+              {variant.images.length > 0 ? (
                 <div className="flex flex-wrap items-center justify-end gap-2">
-                  {meshCost != null ? <TokenCostPill tokens={meshCost} /> : null}
+                  {multiviewMeshCost != null ? <TokenCostPill tokens={multiviewMeshCost} /> : null}
                   <Button variant="secondary" size="sm" className="gap-1.5" disabled={!meshToolbarAllowed || runningImageIds.length > 0} onClick={handleGenerate3dFromSelection}>
                     {runningImageIds.length > 0 && meshPickIds.length >= 2 ? <Spinner className="h-3 w-3" /> : null}
-                    Build 3D from selection
+                    Multiview to 3D
                     {meshPickIds.length > 0 ? ` (${meshPickIds.length})` : ""}
                   </Button>
                 </div>
@@ -140,8 +153,9 @@ export function VariantPanel({ variant, figureId, figureType, figureName, skinNa
                   images={variant.images}
                   onDelete={handleDeleteImage}
                   onGenerate3d={handleGenerate3d}
-                  meshPickIds={isDev ? meshPickIds : []}
-                  onToggleMeshPick={isDev ? toggleMeshPick : undefined}
+                  meshPickIds={meshPickIds}
+                  onToggleMeshPick={toggleMeshPick}
+                  meshTokenCost={singleMeshCost}
                   deletingImageId={deletingImageId}
                   generatingImageIds={runningImageIds}
                 />

@@ -17,6 +17,11 @@ import {
   trippoWalletDebitFromRow,
 } from "../../config/models/token-operations";
 import { env } from "../../config/env/env-validation";
+import { trippoProviderCreditsToEur } from "../../lib/models-cost";
+import {
+  quoteMeshGeneration,
+  type ResolvedMeshOptions,
+} from "../tripo/mesh-options";
 
 const TX_RETRY_ATTEMPTS = 3;
 const TX_RETRY_BASE_MS = 200;
@@ -335,6 +340,36 @@ export async function debitForImageModel(
       markupFactor: MARKUP_FACTOR,
       idempotencyKey,
       metadata: metadata ?? undefined,
+    }),
+  );
+}
+
+export async function debitForMeshGeneration(
+  userId: string,
+  args: {
+    task: "image_to_model" | "multiview_to_model";
+    meshOptions: ResolvedMeshOptions;
+    idempotencyKey?: string | null;
+    metadata?: Prisma.InputJsonValue | null;
+  },
+) {
+  const { credits, walletTokens } = quoteMeshGeneration(args.task, args.meshOptions);
+  if (walletTokens <= 0) return;
+
+  const priceOriginal = trippoProviderCreditsToEur(credits);
+  await runTransactionWithRetry((tx) =>
+    debitWithUsageTx(tx, {
+      userId,
+      cost: walletTokens,
+      usageKind: TokenUsageKind.trippo,
+      modelId: args.meshOptions.model,
+      operation: args.task === "multiview_to_model" ? "trippoMeshMultiview" : "trippoMesh",
+      tokensOriginal: credits,
+      priceOriginal,
+      price: priceOriginal * MARKUP_FACTOR,
+      markupFactor: MARKUP_FACTOR,
+      idempotencyKey: args.idempotencyKey,
+      metadata: args.metadata ?? undefined,
     }),
   );
 }

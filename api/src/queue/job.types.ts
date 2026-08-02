@@ -7,11 +7,23 @@ export const JOB_NAMES = {
 
 export type JobName = (typeof JOB_NAMES)[keyof typeof JOB_NAMES];
 
+export type MeshJobOptions = {
+  model?: string;
+  texture?: boolean;
+  pbr?: boolean;
+  textureQuality?: "standard" | "detailed" | "extreme";
+  geometryQuality?: "standard" | "detailed";
+  faceLimit?: number;
+  orientation?: "default" | "align_image";
+  textureAlignment?: "original_image" | "geometry";
+};
+
 export type MeshFromImageJobData = {
   model3dId: string;
   imageId: string;
   userId: string;
   tokenUsageIdempotencyKey: string;
+  meshOptions?: MeshJobOptions;
 };
 
 export type MeshFromImagesJobData = {
@@ -19,6 +31,7 @@ export type MeshFromImagesJobData = {
   imageIds: string[];
   userId: string;
   tokenUsageIdempotencyKey: string;
+  meshOptions?: MeshJobOptions;
 };
 
 export type RigJobData = {

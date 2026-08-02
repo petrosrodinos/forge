@@ -2,18 +2,21 @@ import { useState } from "react";
 import { parseSSE } from "@/hooks/useSSE";
 import { notifyInsufficientTokensIf402 } from "@/store/insufficientTokensModalStore";
 import { API_BASE_URL } from "@/utils/constants";
+import type { MeshGenerationOptions } from "@/features/models3d/interfaces/mesh-options.interfaces";
 
 export function useModelMesh(onComplete: () => void) {
   const [runningImageIds, setRunningImageIds] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  async function run(imageId: string) {
+  async function run(imageId: string, options?: MeshGenerationOptions) {
     setRunningImageIds([imageId]);
     setError(null);
     try {
       const res = await fetch(`${API_BASE_URL}/api/models3d/from-image/${encodeURIComponent(imageId)}`, {
         method: "POST",
         credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(options ?? {}),
       });
       if (!res.ok) {
         const errBody = await res.json().catch(() => ({}));
@@ -39,7 +42,7 @@ export function useModelMesh(onComplete: () => void) {
     }
   }
 
-  async function runMultiview(imageIds: string[]) {
+  async function runMultiview(imageIds: string[], options?: MeshGenerationOptions) {
     setRunningImageIds([...imageIds]);
     setError(null);
     try {
@@ -47,7 +50,7 @@ export function useModelMesh(onComplete: () => void) {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageIds }),
+        body: JSON.stringify({ imageIds, ...(options ?? {}) }),
       });
       if (!res.ok) {
         const errBody = await res.json().catch(() => ({}));
