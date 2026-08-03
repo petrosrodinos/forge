@@ -118,6 +118,7 @@ export async function createRig(meshTaskId: string) {
     type: TRIPO_CONFIG.TRIPO_TASK_TYPES.ANIMATE_RIG,
     original_model_task_id: meshTaskId.trim(),
     out_format: TRIPO_CONFIG.TRIPO_OUT_FORMAT_GLb,
+    model_version: "v2.5-20260210",
   } as never);
   const rigTaskId = (out.data as Record<string, unknown>).task_id as string;
   if (!rigTaskId) throw new Error("Tripo did not return rig task_id");

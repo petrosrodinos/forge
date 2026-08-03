@@ -85,6 +85,10 @@ function normalizeCreateBody(body: CreateTaskRequest): Record<string, unknown> {
     }
   }
 
+  if (type === "animate_rig" && payload.model_version == null) {
+    payload.model_version = "v2.5-20260210";
+  }
+
   if (type === "texture_model" && payload.model_version == null) {
     payload.model_version = "v2.5-20250123";
   }
