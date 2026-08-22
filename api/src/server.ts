@@ -107,9 +107,9 @@ app.use(errorHandler);
 prisma.$connect()
   .then(() => {
     startWorkers();
-    const server = app.listen(env.PORT, () => {
+    const server = app.listen(env.PORT, "0.0.0.0", () => {
       console.log(`\n  ⬡  3D Figures — The Forge`);
-      console.log(`     http://localhost:${env.PORT}\n`);
+      console.log(`     http://0.0.0.0:${env.PORT}\n`);
     });
 
     server.on("error", (err: NodeJS.ErrnoException) => {

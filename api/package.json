@@ -7,7 +7,7 @@
     "seed": "ts-node prisma/seed.ts"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "prisma generate && tsc",
     "start": "node dist/server.js",
     "dev": "ts-node src/index.ts",
     "agent": "ts-node src/cli.ts",
@@ -67,5 +67,8 @@
     "prisma": "6.19.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }
